@@ -25,4 +25,9 @@ describe('Markdown content normalization', () => {
     ]
     expect(sortPosts(posts).map((post) => post.slug)).toEqual(['new', 'old', 'undated'])
   })
+
+  it('removes a duplicate leading Markdown title from article bodies', () => {
+    const post = normalizePost('/blog/light.md', '---\ntitle: 光\n---\n\n# 光\n\n正文')
+    expect(post.body).toBe('正文')
+  })
 })

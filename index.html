@@ -6,6 +6,13 @@
     <meta name="theme-color" content="#080b1a" />
     <meta name="description" content="TJYZ Physics 物理社官网，记录探索、实验与思考。" />
     <title>TJYZ Physics</title>
+    <script>
+      const redirect = sessionStorage.getItem('tjyzphysics:redirect')
+      if (redirect) {
+        sessionStorage.removeItem('tjyzphysics:redirect')
+        history.replaceState(null, '', redirect)
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
