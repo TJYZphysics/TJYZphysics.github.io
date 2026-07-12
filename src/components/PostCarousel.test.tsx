@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BlogPost } from '../content/content'
 import PostCarousel from './PostCarousel'
 
+const originalDocumentHiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden')
+const originalMatchMedia = window.matchMedia
+
 const posts: BlogPost[] = [
   {
     slug: 'first-note',
@@ -79,6 +82,20 @@ describe('PostCarousel', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    if (originalDocumentHiddenDescriptor) {
+      Object.defineProperty(document, 'hidden', originalDocumentHiddenDescriptor)
+    } else {
+      Reflect.deleteProperty(document, 'hidden')
+    }
+    if (originalMatchMedia) {
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        writable: true,
+        value: originalMatchMedia,
+      })
+    } else {
+      Reflect.deleteProperty(window, 'matchMedia')
+    }
   })
 
   it('renders article titles and links from the supplied Markdown data', () => {
@@ -113,6 +130,32 @@ describe('PostCarousel', () => {
 
     expectCurrent('第一篇观测记录')
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  it('cycles exactly two unique articles in both directions and on autoplay', () => {
+    vi.useFakeTimers()
+    const { container } = renderCarousel(posts.slice(0, 2))
+    const articleLinks = Array.from(container.querySelectorAll('article a'))
+
+    expect(container.querySelectorAll('article')).toHaveLength(2)
+    expect(articleLinks).toHaveLength(2)
+    expect(new Set(articleLinks.map((link) => link.getAttribute('href'))).size).toBe(2)
+    expectCurrent('第一篇观测记录')
+    expect(container.querySelector('.post-carousel__count b')).toHaveTextContent('01')
+
+    fireEvent.click(screen.getByRole('button', { name: '下一篇' }))
+    expectCurrent('第二篇实验记录')
+    expect(container.querySelector('.post-carousel__count b')).toHaveTextContent('02')
+    fireEvent.click(screen.getByRole('button', { name: '上一篇' }))
+    expectCurrent('第一篇观测记录')
+    expect(container.querySelector('.post-carousel__count b')).toHaveTextContent('01')
+
+    act(() => vi.advanceTimersByTime(7_000))
+    expectCurrent('第二篇实验记录')
+    expect(container.querySelector('.post-carousel__count b')).toHaveTextContent('02')
+    act(() => vi.advanceTimersByTime(7_000))
+    expectCurrent('第一篇观测记录')
+    expect(container.querySelector('.post-carousel__count b')).toHaveTextContent('01')
   })
 
   it('renders a useful empty state', () => {

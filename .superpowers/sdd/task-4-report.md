@@ -7,7 +7,7 @@
 ## TDD 记录
 
 - 红灯：`npm test -- src/components/PostCarousel.test.tsx` 因 `PostCarousel` 尚不存在而失败。
-- 绿灯：实现后目标测试 9/9 通过。
+- 绿灯：实现后目标测试 10/10 通过。
 - 覆盖：数据标题与链接、前后按钮、方向键、分页圆点、0/1 篇、7 秒自动轮换，以及 hover、focus、`document.hidden`、reduced motion 暂停。
 
 ## 实现摘要
@@ -19,11 +19,16 @@
 
 ## 验证
 
-- `npm test -- src/components/PostCarousel.test.tsx`：1 文件、9 测试通过。
-- `npm test`：9 文件、89 测试通过。
+- `npm test -- src/components/PostCarousel.test.tsx`：1 文件、10 测试通过。
+- `npm test`：9 文件、90 测试通过。
 - `npm run build`：TypeScript 与 Vite 生产构建通过。
 - `git diff --check`：通过。
 
 ## 关注点
 
 - 已按前端验收流程尝试连接本地 `http://127.0.0.1:4173/`，但浏览器运行时返回可用浏览器列表为空，因此本任务未能保存桌面/360px 截图或执行真实浏览器交互。响应式与暂停行为已由 CSS 约束和组件测试覆盖，仍建议 Task 5 在可用浏览器环境补做视觉验收。
+
+## 审查修复
+
+- 测试套件在模块加载时缓存原始 `document.hidden` descriptor 与 `window.matchMedia`，并在每个测试后完整恢复，避免全局环境泄漏至其他测试文件。
+- 新增恰好 2 篇文章的回归测试，断言仅渲染两个唯一 article/link，并验证前进、后退及连续两次自动轮换时标题和 `01/02` 序号同步循环。
