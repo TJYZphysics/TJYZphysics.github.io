@@ -22,7 +22,6 @@ export default function BlogPage() {
           </div>
         </div>
       </section>
-      <p className="blog-maintain-note">新增文章只需将 UTF-8 Markdown 文件放入 <code>/blog</code>，构建时会自动归档。</p>
     </main>
   )
 }

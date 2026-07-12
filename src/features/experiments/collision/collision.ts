@@ -17,6 +17,49 @@ export interface CollisionResult {
   energyDelta: number
 }
 
+export interface TrajectoryInput {
+  progress: number
+  collisionPoint: number
+  contactA: number
+  contactB: number
+  velocityA: number
+  velocityB: number
+  finalVelocityA: number
+  finalVelocityB: number
+  travelSpan?: number
+}
+
+export function calculateTrajectoryPositions(input: TrajectoryInput) {
+  const {
+    progress,
+    collisionPoint,
+    contactA,
+    contactB,
+    velocityA,
+    velocityB,
+    finalVelocityA,
+    finalVelocityB,
+    travelSpan = 29,
+  } = input
+  const before = Math.min(Math.max(progress / collisionPoint, 0), 1)
+  const after = Math.min(Math.max((progress - collisionPoint) / (1 - collisionPoint), 0), 1)
+  const maxInitialSpeed = Math.max(Math.abs(velocityA), Math.abs(velocityB), 0.1)
+  const maxFinalSpeed = Math.max(Math.abs(finalVelocityA), Math.abs(finalVelocityB), 0.1)
+  const startA = contactA - (velocityA / maxInitialSpeed) * travelSpan
+  const startB = contactB - (velocityB / maxInitialSpeed) * travelSpan
+
+  if (progress <= collisionPoint) {
+    return {
+      positionA: startA + (contactA - startA) * before,
+      positionB: startB + (contactB - startB) * before,
+    }
+  }
+  return {
+    positionA: contactA + (finalVelocityA / maxFinalSpeed) * travelSpan * after,
+    positionB: contactB + (finalVelocityB / maxFinalSpeed) * travelSpan * after,
+  }
+}
+
 export function solveCollision(input: CollisionInput): CollisionResult {
   const { massA, massB, velocityA, velocityB, restitution } = input
 

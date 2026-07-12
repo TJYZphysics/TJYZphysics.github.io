@@ -50,7 +50,7 @@ function SiteHeader() {
 function SiteFooter() {
   return (
     <footer className="site-footer">
-      <div><strong>TJYZ PHYSICS</strong><span>以观察为起点，让问题持续发生。</span></div>
+      <div><strong>TJYZ PHYSICS</strong><span>为往圣继绝学，为万世开太平</span></div>
       <p>© 2026 TJYZ Physics · Built for curious minds.</p>
     </footer>
   )

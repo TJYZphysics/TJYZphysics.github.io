@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
-import GiscusPlaceholder from '../components/GiscusPlaceholder'
+import GiscusComments from '../components/GiscusComments'
 import MarkdownArticle from '../components/MarkdownArticle'
 import ReactionBar from '../components/ReactionBar'
 import { getBlogPost } from '../content/content'
@@ -17,7 +17,7 @@ export default function BlogPostPage() {
         <MarkdownArticle body={post.body} />
         <ReactionBar id={`blog:${post.slug}`} />
       </article>
-      <GiscusPlaceholder />
+      <GiscusComments />
     </main>
   )
 }

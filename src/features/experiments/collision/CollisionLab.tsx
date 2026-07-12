@@ -12,7 +12,7 @@ import {
   type CSSProperties,
 } from 'react'
 
-import { solveCollision } from './collision'
+import { calculateTrajectoryPositions, solveCollision } from './collision'
 import './collision.css'
 
 type RunState = 'idle' | 'running' | 'paused' | 'complete'
@@ -100,27 +100,22 @@ export function CollisionLab() {
     : 0
 
   const applyProgress = useCallback((progress: number) => {
-    const before = Math.min(progress / COLLISION_POINT, 1)
-    const after = Math.max((progress - COLLISION_POINT) / (1 - COLLISION_POINT), 0)
-    const smoothBefore = 1 - (1 - before) ** 3
-    const maxFinalSpeed = Math.max(
-      Math.abs(result.finalVelocityA),
-      Math.abs(result.finalVelocityB),
-      0.1,
-    )
-
     const trackWidth = trackRef.current?.clientWidth ?? 600
     const bodyAWidth = (bodyARef.current?.offsetWidth ?? 54) * (0.82 + massA * 0.045)
     const bodyBWidth = (bodyBRef.current?.offsetWidth ?? 54) * (0.82 + massB * 0.045)
     const contactGap = ((bodyAWidth + bodyBWidth) / 2 + 3) / trackWidth * 100
     const contactA = 50 - contactGap / 2
     const contactB = 50 + contactGap / 2
-    const positionA = progress <= COLLISION_POINT
-      ? 15 + (contactA - 15) * smoothBefore
-      : contactA + (result.finalVelocityA / maxFinalSpeed) * 29 * after
-    const positionB = progress <= COLLISION_POINT
-      ? 85 + (contactB - 85) * smoothBefore
-      : contactB + (result.finalVelocityB / maxFinalSpeed) * 29 * after
+    const { positionA, positionB } = calculateTrajectoryPositions({
+      progress,
+      collisionPoint: COLLISION_POINT,
+      contactA,
+      contactB,
+      velocityA,
+      velocityB,
+      finalVelocityA: result.finalVelocityA,
+      finalVelocityB: result.finalVelocityB,
+    })
 
     if (bodyARef.current) {
       bodyARef.current.style.left = `${Math.min(94, Math.max(6, positionA))}%`
@@ -128,7 +123,7 @@ export function CollisionLab() {
     if (bodyBRef.current) {
       bodyBRef.current.style.left = `${Math.min(94, Math.max(6, positionB))}%`
     }
-  }, [massA, massB, result.finalVelocityA, result.finalVelocityB])
+  }, [massA, massB, velocityA, velocityB, result.finalVelocityA, result.finalVelocityB])
 
   const reset = useCallback(() => {
     progressRef.current = 0
