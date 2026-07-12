@@ -26,6 +26,7 @@ export interface Level {
   target: EventPoint
   forbidden: EventPoint[]
   inventory: ToolInventory
+  budget: number
 }
 
 export const eventKey = ({ x, t }: EventPoint) => `${x},${t}`
@@ -40,6 +41,7 @@ export const DEFAULT_LEVEL: Level = {
   target: { x: 4, t: 8 },
   forbidden: [{ x: 4, t: 3 }, { x: 4, t: 4 }, { x: 4, t: 5 }],
   inventory: { 'turn-left': 2, 'turn-right': 2, splitter: 0 },
+  budget: 4,
 }
 
 type PlacementFailureReason = 'outside' | 'start' | 'target' | 'forbidden' | 'inventory'
@@ -81,6 +83,30 @@ export function placeTool(
   return { ok: true, placements: next }
 }
 
+export function placeFold(
+  folds: Map<string, Direction>,
+  point: EventPoint,
+  direction: Direction,
+  level: Level,
+):
+  | { ok: true; folds: Map<string, Direction> }
+  | { ok: false; reason: 'forbidden' | 'budget' | 'outside'; folds: Map<string, Direction> } {
+  const key = eventKey(point)
+  if (point.x < 0 || point.x >= level.width || point.t <= 0 || point.t >= level.duration) {
+    return { ok: false, reason: 'outside', folds }
+  }
+  if (level.forbidden.some((item) => eventKey(item) === key)) {
+    return { ok: false, reason: 'forbidden', folds }
+  }
+  if (!folds.has(key) && folds.size >= level.budget) {
+    return { ok: false, reason: 'budget', folds }
+  }
+
+  const next = new Map(folds)
+  next.set(key, direction)
+  return { ok: true, folds: next }
+}
+
 function directionsForTool(direction: Direction, tool: ToolKind | undefined): Direction[] {
   if (tool === 'turn-left') return [-1]
   if (tool === 'turn-right') return [1]
@@ -93,7 +119,28 @@ function branchStateKey(branch: LightBranch) {
   return `${branch.source}:${eventKey(point)}:${branch.direction}`
 }
 
-export function runLevel(level: Level, placements: Map<string, ToolKind>) {
+export interface RunLevelResult {
+  branchesForSource: [LightBranch[], LightBranch[]]
+  success: boolean
+  paths: [EventPoint[], EventPoint[]]
+  legal: boolean
+  reason?: 'forbidden' | 'outside'
+  violation?: EventPoint
+  meeting?: EventPoint
+}
+
+function normalizePlacements(placements: Map<string, ToolKind> | Map<string, Direction>) {
+  return new Map<string, ToolKind>([...placements].map(([key, tool]) => [
+    key,
+    tool === -1 ? 'turn-left' : tool === 1 ? 'turn-right' : tool,
+  ]))
+}
+
+export function runLevel(
+  level: Level,
+  tools: Map<string, ToolKind> | Map<string, Direction>,
+): RunLevelResult {
+  const placements = normalizePlacements(tools)
   const forbidden = new Set(level.forbidden.map(eventKey))
   const branchesForSource = level.starts.map(({ point, direction }, source) => {
     let active: LightBranch[] = [{
@@ -142,5 +189,19 @@ export function runLevel(level: Level, placements: Map<string, ToolKind>) {
     branches.some((branch) => branch.legal && branch.reachedTarget)
   ))
 
-  return { branchesForSource, success }
+  const displayedBranches = branchesForSource.map((branches) => (
+    branches.find((branch) => branch.reachedTarget && branch.legal) ?? branches[0]
+  )) as [LightBranch, LightBranch]
+  const paths = displayedBranches.map((branch) => branch.path) as [EventPoint[], EventPoint[]]
+  const invalid = displayedBranches.find((branch) => !branch.legal)
+
+  return {
+    branchesForSource,
+    success,
+    paths,
+    legal: !invalid,
+    reason: invalid?.reason,
+    violation: invalid?.violation,
+    meeting: success ? { ...level.target } : undefined,
+  }
 }

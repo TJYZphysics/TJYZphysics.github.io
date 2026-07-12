@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  DEFAULT_LEVEL,
+  placeFold,
   placeTool,
   runLevel,
   type Level,
@@ -23,6 +25,7 @@ const makeLevel = (overrides: Partial<Level> = {}): Level => ({
   target: { x: 3, t: 4 },
   forbidden: [],
   inventory: emptyInventory(),
+  budget: 4,
   ...overrides,
 })
 
@@ -121,5 +124,29 @@ describe('causal origami optical model', () => {
     const result = runLevel(level, placements)
 
     expect(result.success).toBe(true)
+  })
+
+  it('does not succeed when only one source reaches the target', () => {
+    const level = makeLevel({
+      target: { x: 3, t: 2 },
+      starts: [
+        { point: { x: 1, t: 0 }, direction: 1 },
+        { point: { x: 6, t: 0 }, direction: 1 },
+      ],
+    })
+
+    expect(runLevel(level, new Map()).success).toBe(false)
+  })
+
+  it('keeps the legacy fold API and trace fields available until the UI migrates', () => {
+    const placed = placeFold(new Map(), { x: 2, t: 2 }, -1, DEFAULT_LEVEL)
+
+    expect(placed.ok).toBe(true)
+    if (!placed.ok) return
+
+    const result = runLevel(DEFAULT_LEVEL, placed.folds)
+    expect(result.paths).toHaveLength(2)
+    expect(result.legal).toBeTypeOf('boolean')
+    expect(DEFAULT_LEVEL.budget).toBe(4)
   })
 })
