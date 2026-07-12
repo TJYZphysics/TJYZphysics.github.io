@@ -64,6 +64,22 @@ describe('light path levels', () => {
     })).toBe(true)
   })
 
+  it('starts with genuinely short solutions and increases complexity by stage', () => {
+    const solutionSizes = LIGHT_PATH_LEVELS.map((level) => level.solution.length)
+    const stages = [
+      { sizes: solutionSizes.slice(0, 4), min: 1, max: 4 },
+      { sizes: solutionSizes.slice(4, 8), min: 4, max: 6 },
+      { sizes: solutionSizes.slice(8, 12), min: 5, max: 7 },
+      { sizes: solutionSizes.slice(12, 16), min: 6, max: 9 },
+      { sizes: solutionSizes.slice(16, 20), min: 7, max: 12 },
+    ]
+
+    for (const { sizes, min, max } of stages) {
+      expect(sizes.every((size) => size >= min && size <= max)).toBe(true)
+      expect(sizes).toEqual([...sizes].sort((left, right) => left - right))
+    }
+  })
+
   it.each(LIGHT_PATH_LEVELS)('$id standard solution is playable and succeeds', (level) => {
     const placements = replaySolution(level)
     expect(runLevel(level, placements)).toMatchObject({ legal: true, success: true })

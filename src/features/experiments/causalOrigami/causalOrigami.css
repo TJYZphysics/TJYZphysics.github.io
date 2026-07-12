@@ -336,9 +336,9 @@
   .causal-game__level-copy { display: block; }
   .causal-game__level-copy p { margin-top: 7px; text-align: left; }
   .causal-game__level-grid { display: flex; overflow-x: auto; gap: 7px; margin: 12px -2px 0; padding: 2px 2px 7px; scrollbar-width: thin; }
-  .causal-game__level-grid button { flex: 0 0 35px; min-height: 35px; }
+  .causal-game__level-grid button { flex: 0 0 44px; min-width: 44px; min-height: 44px; }
   .causal-game__level-nav { margin-top: 5px; }
-  .causal-game__level-nav button { flex: 1; }
+  .causal-game__level-nav button { flex: 1; min-height: 44px; }
   .causal-game__console { display: block; }
   .causal-game__tools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .causal-game__tool { display: flex; flex-direction: column; gap: 5px; min-height: 102px; padding: 8px 5px; text-align: center; }
@@ -348,7 +348,10 @@
   .causal-game__actions .causal-game__run { grid-column: auto; }
   .causal-game__actions button span { display: none; }
   .causal-game__legend { margin-top: 10px; }
-  .causal-game__stage-wrap { margin-inline: -6px; }
+  .causal-game__stage-wrap { overflow-x: auto !important; margin-inline: -6px; }
+  .causal-game__stage { min-width: 396px !important; }
+  .causal-event { width: 36px; height: 36px; }
+  .causal-event::before { position: absolute; inset: -4px; content: ''; }
   .causal-game__feedback { align-items: flex-start; }
   .causal-game__feedback button { padding-inline: 9px; }
 }

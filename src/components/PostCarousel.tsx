@@ -1,5 +1,5 @@
 import { useEffect, useState, type FocusEvent, type KeyboardEvent } from 'react'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { BlogPost } from '../content/content'
 
@@ -47,6 +47,7 @@ export default function PostCarousel({ posts }: PostCarouselProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [hasFocus, setHasFocus] = useState(false)
   const [isDocumentHidden, setIsDocumentHidden] = useState(() => document.hidden)
+  const [isUserPaused, setIsUserPaused] = useState(false)
   const reducedMotion = useReducedMotion()
   const postCount = posts.length
   const safeCurrentIndex = postCount > 0 ? currentIndex % postCount : 0
@@ -58,13 +59,13 @@ export default function PostCarousel({ posts }: PostCarouselProps) {
   }, [])
 
   useEffect(() => {
-    if (postCount < 2 || isHovered || hasFocus || isDocumentHidden || reducedMotion) return undefined
+    if (postCount < 2 || isHovered || hasFocus || isDocumentHidden || reducedMotion || isUserPaused) return undefined
 
     const interval = window.setInterval(() => {
       setCurrentIndex((index) => wrapIndex(index + 1, postCount))
     }, AUTOPLAY_INTERVAL)
     return () => window.clearInterval(interval)
-  }, [hasFocus, isDocumentHidden, isHovered, postCount, reducedMotion])
+  }, [hasFocus, isDocumentHidden, isHovered, isUserPaused, postCount, reducedMotion])
 
   const selectPrevious = () => {
     if (postCount > 1) setCurrentIndex((index) => wrapIndex(index - 1, postCount))
@@ -158,6 +159,14 @@ export default function PostCarousel({ posts }: PostCarouselProps) {
         <div className="post-carousel__controls">
           <div className="post-carousel__arrows">
             <button type="button" aria-label="上一篇" onClick={selectPrevious}><ArrowLeft /></button>
+            <button
+              type="button"
+              aria-label={isUserPaused ? '继续自动轮播' : '暂停自动轮播'}
+              aria-pressed={isUserPaused}
+              onClick={() => setIsUserPaused((paused) => !paused)}
+            >
+              {isUserPaused ? <Play /> : <Pause />}
+            </button>
             <button type="button" aria-label="下一篇" onClick={selectNext}><ArrowRight /></button>
           </div>
           <div className="post-carousel__dots" role="group" aria-label="选择文章">

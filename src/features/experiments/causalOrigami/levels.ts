@@ -19,6 +19,14 @@ const layouts = [
   [0, 8, 4], [1, 7, 3], [0, 6, 4], [2, 8, 4],
 ] as const
 
+const targetComplexity = [
+  2, 3, 3, 4,
+  4, 5, 5, 6,
+  5, 6, 6, 7,
+  6, 7, 8, 9,
+  7, 8, 9, 10,
+] as const
+
 function routesBetween(start: number, target: number): Route[] {
   const routes: Route[] = []
   for (let mask = 0; mask < 256; mask += 1) {
@@ -74,6 +82,7 @@ function buildLevel(order: number): LightPathLevel {
     const solution = [...merged.values()]
     if (order >= 13 && !solution.some(({ tool }) => tool === 'splitter')) continue
     if (order >= 13 && !solution.some(({ tool }) => tool !== 'splitter')) continue
+    if (solution.length !== targetComplexity[order - 1]) continue
     selected = { routes: [left, right], solution }
     break
   }
@@ -86,7 +95,9 @@ function buildLevel(order: number): LightPathLevel {
     const point = { x, t }
     if (!pathKeys.has(eventKey(point))) candidates.push(point)
   }
-  const forbidden = Array.from({ length: forbiddenCount }, (_, index) => ({ ...candidates[(order * 11 + index * 13) % candidates.length] }))
+  const forbiddenOffset = (order * 11) % candidates.length
+  const rotatedCandidates = [...candidates.slice(forbiddenOffset), ...candidates.slice(0, forbiddenOffset)]
+  const forbidden = rotatedCandidates.slice(0, forbiddenCount).map((point) => ({ ...point }))
   const counts = { 'turn-left': 0, 'turn-right': 0, splitter: 0 }
   selected.solution.forEach(({ tool }) => { counts[tool] += 1 })
   const inventory = order >= 17 ? { ...counts } : {

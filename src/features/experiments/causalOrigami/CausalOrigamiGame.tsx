@@ -43,6 +43,10 @@ const TOOL_INFO = {
 
 const TOOL_KINDS = Object.keys(TOOL_INFO) as ToolKind[]
 
+function describePoint(point: EventPoint) {
+  return `时间 ${point.t}，位置 ${point.x}`
+}
+
 function firstAvailableTool(levelIndex: number): ToolKind {
   const inventory = LIGHT_PATH_LEVELS[levelIndex].inventory
   return TOOL_KINDS.find((tool) => inventory[tool] > 0) ?? 'turn-left'
@@ -203,6 +207,25 @@ export function CausalOrigamiGame() {
         </div>
       </section>
 
+      <section className="sr-only" role="region" aria-label="当前关卡布局说明" tabIndex={0}>
+        <h3>第 {level.order} 关布局</h3>
+        <p>
+          {level.starts.map(({ point, direction }, index) => (
+            `光源 ${index + 1}：${describePoint(point)}，朝${direction === -1 ? '左下' : '右下'}。`
+          )).join(' ')}
+        </p>
+        <p>目标：{describePoint(level.target)}。</p>
+        <p>
+          禁区：{level.forbidden.length > 0
+            ? level.forbidden.map(describePoint).join('；')
+            : '无'}。
+        </p>
+        <p>
+          库存：左偏转器 {level.inventory['turn-left']} 件，右偏转器 {level.inventory['turn-right']} 件，
+          分光棱镜 {level.inventory.splitter} 件；最多布置 {level.budget} 件道具。
+        </p>
+      </section>
+
       <div className="causal-game__workspace">
         <aside className="causal-game__console" aria-label="光学工具台">
           <div className="causal-game__console-title">
@@ -237,9 +260,9 @@ export function CausalOrigamiGame() {
 
           <div className="causal-game__actions">
             <button type="button" className="causal-game__run" onClick={run}><Play />运行光路</button>
-            <button type="button" onClick={undo} disabled={history.length === 0} title="撤销最近操作"><Undo2 /><span>撤销</span></button>
-            <button type="button" onClick={clear} disabled={placements.size === 0} title="清空全部道具"><Trash2 /><span>清空</span></button>
-            <button type="button" onClick={reset} title="重新开始当前关卡"><RotateCcw /><span>重置</span></button>
+            <button type="button" onClick={undo} disabled={history.length === 0} title="撤销最近操作" aria-label="撤销最近一次布置"><Undo2 /><span>撤销</span></button>
+            <button type="button" onClick={clear} disabled={placements.size === 0} title="清空全部道具" aria-label="清空全部道具"><Trash2 /><span>清空</span></button>
+            <button type="button" onClick={reset} title="重新开始当前关卡" aria-label="重置当前关卡"><RotateCcw /><span>重置</span></button>
           </div>
 
           <div className="causal-game__legend" aria-label="棋盘图例">
@@ -311,6 +334,21 @@ export function CausalOrigamiGame() {
           </div>
         </div>
       </div>
+
+      {result ? (
+        <section className="sr-only" role="region" aria-label="光路运行结果说明" tabIndex={0}>
+          <h3>{result.success ? '运行成功' : '运行未成功'}</h3>
+          {result.branchesForSource.flatMap((branches, sourceIndex) => branches.map((branch, branchIndex) => (
+            <p key={`${sourceIndex}-${branchIndex}-${branch.path.map(eventKey).join(':')}`}>
+              光源 {sourceIndex + 1}，分支 {branchIndex + 1}：
+              {branch.path.map(describePoint).join('；')}。
+              {branch.reachedTarget && branch.legal ? '抵达目标。' : '未抵达目标。'}
+              {!branch.legal && branch.reason === 'forbidden' ? '该分支进入禁区。' : null}
+              {!branch.legal && branch.reason === 'outside' ? '该分支越出棋盘。' : null}
+            </p>
+          )))}
+        </section>
+      ) : null}
 
       <div className={`causal-game__feedback ${result?.success ? 'is-success' : ''}`}>
         <div role="status" aria-live="polite">

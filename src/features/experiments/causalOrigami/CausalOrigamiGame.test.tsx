@@ -43,6 +43,24 @@ describe('CausalOrigamiGame', () => {
     expect(screen.getByLabelText('当前第 20 关，难度专家')).toBeInTheDocument()
   })
 
+  it('provides a focusable spoken layout summary without relying on disabled board points', () => {
+    render(<CausalOrigamiGame />)
+    const level = LIGHT_PATH_LEVELS[0]
+    const summary = screen.getByRole('region', { name: '当前关卡布局说明' })
+
+    expect(summary).toHaveAttribute('tabindex', '0')
+    level.starts.forEach(({ point, direction }, index) => {
+      expect(summary).toHaveTextContent(`光源 ${index + 1}：时间 ${point.t}，位置 ${point.x}，朝${direction === -1 ? '左下' : '右下'}`)
+    })
+    expect(summary).toHaveTextContent(`目标：时间 ${level.target.t}，位置 ${level.target.x}`)
+    level.forbidden.forEach((point) => {
+      expect(summary).toHaveTextContent(`时间 ${point.t}，位置 ${point.x}`)
+    })
+    expect(summary).toHaveTextContent(`左偏转器 ${level.inventory['turn-left']} 件`)
+    expect(summary).toHaveTextContent(`右偏转器 ${level.inventory['turn-right']} 件`)
+    expect(summary).toHaveTextContent(`分光棱镜 ${level.inventory.splitter} 件`)
+  })
+
   it('clears placed tools and the run result when selecting another level', async () => {
     render(<CausalOrigamiGame />)
     const user = userEvent.setup()
@@ -80,5 +98,26 @@ describe('CausalOrigamiGame', () => {
     expect(container.querySelectorAll('polyline').length).toBeGreaterThan(2)
     expect(container.querySelectorAll('.signal--source-0').length).toBeGreaterThan(0)
     expect(container.querySelectorAll('.signal--source-1').length).toBeGreaterThan(0)
+  })
+
+  it('announces every generated branch path and whether it reaches the target', async () => {
+    render(<CausalOrigamiGame />)
+    const user = await placeStandardSolution(8)
+
+    await user.click(screen.getByRole('button', { name: '运行光路' }))
+
+    const resultSummary = screen.getByRole('region', { name: '光路运行结果说明' })
+    expect(resultSummary).toHaveTextContent('光源 1，分支 1')
+    expect(resultSummary).toHaveTextContent('光源 2，分支 1')
+    expect(resultSummary).toHaveTextContent(/抵达目标|未抵达目标/)
+    expect(resultSummary).toHaveTextContent(/时间 0，位置/)
+  })
+
+  it('gives mobile icon actions explicit accessible names', () => {
+    render(<CausalOrigamiGame />)
+
+    expect(screen.getByRole('button', { name: '撤销最近一次布置' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '清空全部道具' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '重置当前关卡' })).toBeInTheDocument()
   })
 })

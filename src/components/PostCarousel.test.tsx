@@ -173,6 +173,19 @@ describe('PostCarousel', () => {
     expectCurrent('第二篇实验记录')
   })
 
+  it('lets the user pause autoplay until they explicitly resume it', () => {
+    vi.useFakeTimers()
+    renderCarousel()
+
+    fireEvent.click(screen.getByRole('button', { name: '暂停自动轮播' }))
+    act(() => vi.advanceTimersByTime(14_000))
+    expectCurrent('第一篇观测记录')
+
+    fireEvent.click(screen.getByRole('button', { name: '继续自动轮播' }))
+    act(() => vi.advanceTimersByTime(7_000))
+    expectCurrent('第二篇实验记录')
+  })
+
   it('pauses autoplay while hovered or focused', () => {
     vi.useFakeTimers()
     renderCarousel()
