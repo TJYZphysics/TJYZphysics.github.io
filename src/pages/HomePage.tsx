@@ -1,8 +1,12 @@
 import { ArrowRight, Atom, BookOpenText, FlaskConical, Orbit } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import OrbitalField from '../components/OrbitalField'
+import PostCarousel from '../components/PostCarousel'
+import { getBlogPosts } from '../content/content'
 
 export default function HomePage() {
+  const recentPosts = getBlogPosts().slice(0, 6)
+
   return (
     <main className="home-page">
       <section className="hero">
@@ -10,7 +14,10 @@ export default function HomePage() {
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-copy">
           <p className="hero-kicker"><span />TJYZ PHYSICS CLUB</p>
-          <h1>在已知的边界<br />继续<span>发问。</span></h1>
+          <h1>
+            <span className="hero-title-line">在已知的边界</span>
+            <span className="hero-title-line">继续<span className="hero-title-accent">发问。</span></span>
+          </h1>
           <p className="hero-lead">观察现象，搭建实验，让每一个好问题拥有被认真对待的机会。</p>
           <div className="hero-actions">
             <Link className="button button--primary" to="/experiments">进入实验室 <ArrowRight /></Link>
@@ -43,7 +50,7 @@ export default function HomePage() {
 
       <section className="home-journal section-shell">
         <div><p>RECENT NOTES</p><h2>从一次记录<br />走向下一次发现</h2></div>
-        <Link className="journal-feature" to="/blog/three-body-notes"><span>力学 / 混沌</span><h3>三体系统：秩序如何滑向混沌</h3><p>观察微小差异如何改变整个系统的未来。</p><ArrowRight /></Link>
+        <PostCarousel posts={recentPosts} />
       </section>
     </main>
   )
