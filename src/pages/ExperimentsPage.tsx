@@ -9,7 +9,7 @@ type ExperimentId = 'three-body' | 'collision' | 'causal'
 const experiments = [
   { id: 'three-body' as const, number: '01', title: '三体模拟器', subtitle: '引力与混沌', icon: Atom },
   { id: 'collision' as const, number: '02', title: '碰撞模拟器', subtitle: '动量传递', icon: Boxes },
-  { id: 'causal' as const, number: '03', title: '因果折纸', subtitle: '原创时空游戏', icon: Sparkles },
+  { id: 'causal' as const, number: '03', title: '光路寻踪', subtitle: '镜片与棱镜', icon: Sparkles },
 ]
 
 export default function ExperimentsPage() {
