@@ -1,88 +1,125 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  DEFAULT_LEVEL,
-  placeFold,
-  propagateSignal,
+  placeTool,
   runLevel,
-  type EventPoint,
+  type Level,
+  type ToolInventory,
 } from './model'
 
-describe('causal origami model', () => {
-  it('propagates one grid cell sideways and one tick forward inside the light cone', () => {
-    expect(propagateSignal({ x: 1, t: 0 }, 1, new Map(), 3)).toEqual([
-      { x: 1, t: 0 },
-      { x: 2, t: 1 },
-      { x: 3, t: 2 },
-      { x: 4, t: 3 },
-    ])
-  })
+const emptyInventory = (): ToolInventory => ({
+  'turn-left': 0,
+  'turn-right': 0,
+  splitter: 0,
+})
 
-  it('changes a signal direction at a fold event', () => {
-    const folds = new Map<string, -1 | 1>([['2,1', -1]])
-    expect(propagateSignal({ x: 1, t: 0 }, 1, folds, 3)).toEqual([
-      { x: 1, t: 0 },
-      { x: 2, t: 1 },
-      { x: 1, t: 2 },
-      { x: 0, t: 3 },
-    ])
-  })
+const makeLevel = (overrides: Partial<Level> = {}): Level => ({
+  width: 7,
+  duration: 4,
+  starts: [
+    { point: { x: 1, t: 0 }, direction: 1 },
+    { point: { x: 5, t: 0 }, direction: -1 },
+  ],
+  target: { x: 3, t: 4 },
+  forbidden: [],
+  inventory: emptyInventory(),
+  ...overrides,
+})
 
-  it('rejects folds in forbidden events', () => {
-    const forbidden: EventPoint = DEFAULT_LEVEL.forbidden[0]
-    const result = placeFold(new Map(), forbidden, 1, DEFAULT_LEVEL)
-    expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.reason).toBe('forbidden')
-  })
-
-  it('reports success only when both signals meet at the target event', () => {
-    const folds = new Map<string, -1 | 1>([
-      ['2,2', -1],
-      ['6,2', 1],
-      ['0,4', 1],
-      ['8,4', -1],
-    ])
-    const result = runLevel(DEFAULT_LEVEL, folds)
-    expect(result.success).toBe(true)
-    expect(result.meeting).toEqual(DEFAULT_LEVEL.target)
-  })
-
-  it('enforces the finite fold budget', () => {
-    let folds = new Map<string, -1 | 1>()
-    for (const point of DEFAULT_LEVEL.allowedSolutionPoints) {
-      const placed = placeFold(folds, point, point.x < 4 ? -1 : 1, DEFAULT_LEVEL)
-      expect(placed.ok).toBe(true)
-      folds = placed.folds
-    }
-    const overBudget = placeFold(folds, { x: 4, t: 1 }, 1, DEFAULT_LEVEL)
-    expect(overBudget.ok).toBe(false)
-    if (!overBudget.ok) expect(overBudget.reason).toBe('budget')
-  })
-
-  it('rejects an apparent meeting when either signal crosses a forbidden event', () => {
-    const folds = new Map<string, -1 | 1>([
-      ['6,6', -1],
-      ['2,6', 1],
-    ])
-    const result = runLevel(DEFAULT_LEVEL, folds)
-    expect(result.success).toBe(false)
-    expect(result.legal).toBe(false)
-    expect(result.reason).toBe('forbidden')
-    expect(result.violation).toEqual({ x: 4, t: 4 })
-  })
-
-  it('reports an out-of-bounds path as illegal instead of continuing off-grid', () => {
-    const edgeLevel = {
-      ...DEFAULT_LEVEL,
+describe('causal origami optical model', () => {
+  it.each([
+    ['turn-left', -1],
+    ['turn-right', 1],
+  ] as const)('changes an incoming branch direction with a %s tool', (tool, direction) => {
+    const incomingDirection = direction === -1 ? 1 : -1
+    const level = makeLevel({
       starts: [
-        { point: { x: 8, t: 0 }, direction: 1 as const },
-        DEFAULT_LEVEL.starts[1],
-      ] as typeof DEFAULT_LEVEL.starts,
-    }
-    const result = runLevel(edgeLevel, new Map())
-    expect(result.success).toBe(false)
-    expect(result.legal).toBe(false)
-    expect(result.reason).toBe('outside')
-    expect(result.violation).toEqual({ x: 9, t: 1 })
+        { point: { x: 2 - incomingDirection, t: 0 }, direction: incomingDirection },
+        { point: { x: 5, t: 0 }, direction: -1 },
+      ],
+      inventory: { ...emptyInventory(), [tool]: 1 },
+    })
+    const placed = placeTool(new Map(), { point: { x: 2, t: 1 }, tool }, level)
+
+    expect(placed.ok).toBe(true)
+    if (!placed.ok) return
+
+    const result = runLevel(level, placed.placements)
+    expect(result.branchesForSource[0].some((branch) => branch.direction === direction)).toBe(true)
+  })
+
+  it('splits one incoming branch into both directions', () => {
+    const level = makeLevel({ inventory: { ...emptyInventory(), splitter: 1 } })
+    const placed = placeTool(new Map(), { point: { x: 2, t: 1 }, tool: 'splitter' }, level)
+
+    expect(placed.ok).toBe(true)
+    if (!placed.ok) return
+
+    const result = runLevel(level, placed.placements)
+    expect(result.branchesForSource[0].some((branch) => branch.direction === -1)).toBe(true)
+    expect(result.branchesForSource[0].some((branch) => branch.direction === 1)).toBe(true)
+  })
+
+  it('rejects placement when that tool inventory is exhausted', () => {
+    const level = makeLevel({ inventory: { ...emptyInventory(), splitter: 1 } })
+    const first = placeTool(new Map(), { point: { x: 2, t: 1 }, tool: 'splitter' }, level)
+
+    expect(first.ok).toBe(true)
+    if (!first.ok) return
+
+    const result = placeTool(first.placements, { point: { x: 3, t: 1 }, tool: 'splitter' }, level)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toBe('inventory')
+  })
+
+  it.each([
+    ['start', { x: 1, t: 0 }],
+    ['target', { x: 3, t: 4 }],
+    ['forbidden', { x: 2, t: 2 }],
+  ] as const)('rejects placement on a %s event', (kind, point) => {
+    const level = makeLevel({
+      forbidden: [{ x: 2, t: 2 }],
+      inventory: { ...emptyInventory(), splitter: 1 },
+    })
+    const result = placeTool(new Map(), { point, tool: 'splitter' }, level)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toBe(kind)
+  })
+
+  it('deduplicates repeated branches with the same source, event, and direction', () => {
+    const level = makeLevel({
+      duration: 3,
+      target: { x: 6, t: 3 },
+      inventory: { 'turn-left': 1, 'turn-right': 1, splitter: 2 },
+    })
+    const placements = new Map([
+      ['2,1', 'splitter'],
+      ['1,2', 'turn-right'],
+      ['3,2', 'turn-left'],
+      ['2,3', 'splitter'],
+    ] as const)
+
+    const result = runLevel(level, placements)
+
+    expect(result.branchesForSource[0]).toHaveLength(2)
+    expect(result.branchesForSource[0].map((branch) => branch.direction).sort()).toEqual([-1, 1])
+  })
+
+  it('succeeds when every source has at least one legal branch reaching the target', () => {
+    const level = makeLevel({
+      target: { x: 3, t: 2 },
+      forbidden: [{ x: 0, t: 2 }],
+      inventory: { ...emptyInventory(), splitter: 2 },
+    })
+    const placements = new Map([
+      ['2,1', 'splitter'],
+      ['4,1', 'splitter'],
+    ] as const)
+
+    const result = runLevel(level, placements)
+
+    expect(result.success).toBe(true)
   })
 })
