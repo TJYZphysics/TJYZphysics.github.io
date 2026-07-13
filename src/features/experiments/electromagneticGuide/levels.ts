@@ -119,26 +119,26 @@ const AUTHORED_LEVELS: readonly ElectromagneticLevel[] = [
   level({
     id: 9, title: 'S 形航线', subtitle: '中级 · 两次转向', difficulty: 'intermediate',
     briefing: '先向下绕开第一堵墙，再向上回到出口。', hint: '两个同号电荷分置轨道两侧。',
-    particles: [particle('p⁺', { x: 1, y: 5.5 }, { x: 4.2, y: 0 })], obstacles: [wall('上墙', 7, 3.1, 1.1, 6.2), wall('下墙', 12, 8.9, 1.1, 6.2)], collectors: [collector('出口', 16.5, 5.5, .9)],
-    availableTools: ['positive-charge'], placementLimits: { 'positive-charge': 2 }, referenceSolution: [charge('转向一', 'positive-charge', 5.4, 3.5, 1.5), charge('转向二', 'positive-charge', 10.5, 8.5, 1.1)],
+    particles: [particle('p⁺', { x: 1, y: 5.5 }, { x: 4.2, y: 0 })], obstacles: [wall('上墙', 7, 3.1, 1.1, 6.2), wall('下墙', 12, 8.9, 1.1, 6.2)], collectors: [collector('出口', 16.5, 1.5, 1.2)],
+    availableTools: ['positive-charge'], placementLimits: { 'positive-charge': 2 }, referenceSolution: [charge('转向一', 'positive-charge', 5.4, 3.5, 1.8), charge('转向二', 'positive-charge', 8.5, 10, 3.2)],
   }),
   level({
     id: 10, title: '狭缝聚焦', subtitle: '中级 · 电透镜', difficulty: 'intermediate',
     briefing: '用异号场源把粒子束引入窄出口。', hint: '接近出口处的吸引可修正方向。',
     particles: [particle('离子', { x: 1, y: 8 }, { x: 4.4, y: 0 })], obstacles: [wall('上板', 13, 2.7, 1, 5.4), wall('下板', 13, 9.3, 1, 5.4)], collectors: [collector('狭缝', 16.5, 6, 0.7)],
-    availableTools: ['positive-charge', 'negative-charge'], placementLimits: { 'positive-charge': 1, 'negative-charge': 1 }, referenceSolution: [charge('排斥校正', 'positive-charge', 7, 9.5, 0.7), charge('吸引聚焦', 'negative-charge', 12, 5.4, 0.8)],
+    availableTools: ['positive-charge', 'negative-charge'], placementLimits: { 'positive-charge': 1, 'negative-charge': 1 }, referenceSolution: [charge('排斥校正', 'positive-charge', 7, 9.5, 0.7), charge('吸引聚焦', 'negative-charge', 12, 6.8, 0.5)],
   }),
   level({
     id: 11, title: '电性分流', subtitle: '中级 · 双粒子', difficulty: 'intermediate',
     briefing: '把一正一负两颗粒子送到各自出口。', hint: '同一电场对两种电性的作用方向相反。',
     particles: [particle('正束', { x: 1, y: 6 }, { x: 4, y: 0 }, 1, 1, '#70e7ff'), particle('负束', { x: 1, y: 6 }, { x: 4, y: 0 }, -1, 1, '#ff8fb3')], obstacles: [circle('分流岛', 10, 6, 1.2)],
-    collectors: [collector('上出口', 16, 3, 1.7, ['正束']), collector('下出口', 16, 9, 1.7, ['负束'])], availableTools: ['positive-charge'], placementLimits: { 'positive-charge': 1 }, referenceSolution: [charge('分流核心', 'positive-charge', 7, 7.8, 1.15)],
+    collectors: [collector('上出口', 16, 1.5, 1.2, ['正束']), collector('下出口', 16, 10.5, 1.2, ['负束'])], availableTools: ['positive-charge'], placementLimits: { 'positive-charge': 1 }, referenceSolution: [charge('分流核心', 'positive-charge', 7, 7.8, 1.15)],
   }),
   level({
     id: 12, title: '三体电场', subtitle: '中级 · 场的叠加', difficulty: 'intermediate',
     briefing: '三枚点电荷共同塑造一条弯曲通道。', hint: '先用前两枚完成主转向，第三枚只做微调。',
-    particles: [particle('探针', { x: 1, y: 8.5 }, { x: 4.2, y: 0 })], obstacles: [circle('A', 7.5, 7.5, 1), circle('B', 12, 4.5, 1)], collectors: [collector('终点', 16.5, 6.3, 1.2)],
-    availableTools: ['positive-charge', 'negative-charge'], placementLimits: { 'positive-charge': 2, 'negative-charge': 1 }, referenceSolution: [charge('P1', 'positive-charge', 5.5, 10, 0.8), charge('N1', 'negative-charge', 9.8, 4.8, 0.65), charge('P2', 'positive-charge', 13.2, 4.2, 0.45)],
+    particles: [particle('探针', { x: 1, y: 8.5 }, { x: 4.2, y: 0 })], obstacles: [circle('A', 7.5, 7.5, .82), circle('B', 12, 4.5, .82)], collectors: [collector('终点', 16.5, 4.5, 1.2)],
+    availableTools: ['positive-charge', 'negative-charge'], placementLimits: { 'positive-charge': 2, 'negative-charge': 1 }, referenceSolution: [charge('P1', 'positive-charge', 5.5, 10, 1.8), charge('N1', 'negative-charge', 9.8, 7, .8), charge('P2', 'positive-charge', 13.2, 2, .6)],
   }),
 
   level({
