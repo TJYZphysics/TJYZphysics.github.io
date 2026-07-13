@@ -204,7 +204,12 @@ export function ElectromagneticGuideGame() {
       setSimulation(result); setProgress(0); setRunning(true)
       const states = result?.particles ?? result?.particleStates ?? []
       const collected = states.filter((particle: any) => particle.status === 'collected').length
-      setMessage(isSandbox ? '轨迹已生成。你可以继续添加场源，反复观察粒子运动。' : collected === states.length && states.length ? '全部粒子进入正确收集器，实验完成！' : '正在发射粒子……留意轨迹弯曲方向与出口。')
+      const failureNames: Record<string, string> = { crashed: '撞到障碍或错误出口', escaped: '飞出实验边界', 'timed-out': '未在时限内抵达出口', active: '仍在运动' }
+      const failure = states.find((particle: any) => particle.status !== 'collected')
+      const failureText = failure
+        ? `${failure.label ?? failure.id}：${failureNames[failure.status] ?? '未完成'}（x=${failure.position.x.toFixed(1)}, y=${failure.position.y.toFixed(1)}）`
+        : '轨迹未完成。'
+      setMessage(isSandbox ? '轨迹已生成。你可以继续添加场源，反复观察粒子运动。' : collected === states.length && states.length ? '全部粒子进入正确收集器，实验完成！' : failureText)
     } catch (error) {
       console.error(error)
       setMessage('当前布置无法发射，请检查场源是否与障碍重叠。')
