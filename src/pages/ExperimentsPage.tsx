@@ -1,15 +1,17 @@
 import { lazy, Suspense, useState } from 'react'
-import { Atom, Boxes, Sparkles } from 'lucide-react'
+import { Atom, Boxes, Magnet, Sparkles } from 'lucide-react'
 
 const ThreeBodyLab = lazy(() => import('../features/experiments/threeBody/ThreeBodyLab').then((module) => ({ default: module.ThreeBodyLab })))
 const CollisionLab = lazy(() => import('../features/experiments/collision/CollisionLab').then((module) => ({ default: module.CollisionLab })))
 const CausalOrigamiGame = lazy(() => import('../features/experiments/causalOrigami/CausalOrigamiGame').then((module) => ({ default: module.CausalOrigamiGame })))
+const ElectromagneticGuideGame = lazy(() => import('../features/experiments/electromagneticGuide/ElectromagneticGuideGame').then((module) => ({ default: module.ElectromagneticGuideGame })))
 
-type ExperimentId = 'three-body' | 'collision' | 'causal'
+type ExperimentId = 'three-body' | 'collision' | 'causal' | 'electromagnetic'
 const experiments = [
   { id: 'three-body' as const, number: '01', title: '三体模拟器', subtitle: '引力与混沌', icon: Atom },
   { id: 'collision' as const, number: '02', title: '碰撞模拟器', subtitle: '动量传递', icon: Boxes },
   { id: 'causal' as const, number: '03', title: '光路寻踪', subtitle: '镜片与棱镜', icon: Sparkles },
+  { id: 'electromagnetic' as const, number: '04', title: '电磁指南', subtitle: '电场与洛伦兹力', icon: Magnet },
 ]
 
 export default function ExperimentsPage() {
@@ -32,6 +34,7 @@ export default function ExperimentsPage() {
           {active === 'three-body' && <ThreeBodyLab />}
           {active === 'collision' && <CollisionLab />}
           {active === 'causal' && <CausalOrigamiGame />}
+          {active === 'electromagnetic' && <ElectromagneticGuideGame />}
         </Suspense>
       </section>
       <p className="experiment-safety">数值模拟用于探索与演示；它简化了真实世界中的部分条件。</p>
