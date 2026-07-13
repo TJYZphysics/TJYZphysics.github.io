@@ -184,7 +184,7 @@ const AUTHORED_LEVELS: readonly ElectromagneticLevel[] = [
   }),
   level({
     id: 23, title: '速度与质量', subtitle: '专家 · 双参数反演', difficulty: 'expert',
-    briefing: '三颗粒子的质量与速度都不同，必须从 qB 曲率中辨认。', hint: '比较动量 mv，而不是只比较速度。', particles: [particle('A', { x: 2, y: 10 }, { x: 3, y: 0 }, 1, 1), particle('B', { x: 2, y: 10 }, { x: 4, y: 0 }, 1, 1.25, '#9da8ff'), particle('C', { x: 2, y: 10 }, { x: 3, y: 0 }, 1, 2, '#ffd06b')], obstacles: [wall('屏蔽一', 6.2, 5.9, 0.22, 1.7), wall('屏蔽二', 8.2, 3.9, 0.22, 1.7), wall('束流挡板', 10, 10, .8, 2)], collectors: [collector('A口', 5, 7, 0.5, ['A']), collector('B口', 7, 5, 0.5, ['B']), collector('C口', 8, 4, 0.5, ['C'])], availableTools: ['magnetic-field'], placementLimits: { 'magnetic-field': 1 }, referenceSolution: [region('动量分析磁场', 'magnetic-field', 5, 7, 7.5, 7, 1)], maxSimulationTime: 6,
+    briefing: '三颗粒子的质量与速度都不同，必须从 qB 曲率中辨认。', hint: '比较动量 mv，而不是只比较速度。', particles: [particle('A', { x: 2, y: 10 }, { x: 3, y: 0 }, 1, 1), particle('B', { x: 2, y: 10 }, { x: 4, y: 0 }, 1, 1.25, '#9da8ff'), particle('C', { x: 2, y: 10 }, { x: 3, y: 0 }, 1, 2, '#ffd06b')], obstacles: [wall('屏蔽一', 6.2, 5.9, 0.22, 1.7), wall('屏蔽二', 8.2, 3.5, 0.22, 1.7), wall('束流挡板', 10, 10, .8, 2)], collectors: [collector('A口', 5, 7, 0.5, ['A']), collector('B口', 7, 5, 0.5, ['B']), collector('C口', 8, 4, 0.5, ['C'])], availableTools: ['magnetic-field'], placementLimits: { 'magnetic-field': 1 }, referenceSolution: [region('动量分析磁场', 'magnetic-field', 5, 7, 7.5, 7, 1)], maxSimulationTime: 6,
   }),
   level({
     id: 24, title: '简化质谱仪', subtitle: '专家 · 综合终局', difficulty: 'expert',
