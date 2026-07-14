@@ -7,5 +7,4 @@ vite.config.d.ts
 .agents/
 .codex/
 docs/superpowers/
-.github/workflows/
 screenshots/
