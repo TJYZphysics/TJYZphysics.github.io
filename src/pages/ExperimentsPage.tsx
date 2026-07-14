@@ -19,8 +19,8 @@ export default function ExperimentsPage() {
   return (
     <main className="experiments-page page-pad">
       <header className="page-intro experiment-intro">
-        <p>INTERACTIVE LABORATORY</p><h1>把参数交给你</h1>
-        <span>改变条件，观察系统如何回答。所有计算都在你的浏览器中完成。</span>
+        <p>INTERACTIVE LABORATORY</p><h1>Sci-Hub</h1>
+        <span>有意思的科学小游戏。</span>
       </header>
       <nav className="experiment-switcher" aria-label="选择互动实验">
         {experiments.map(({ id, number, title, subtitle, icon: Icon }) => (

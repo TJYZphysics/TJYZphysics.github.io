@@ -35,7 +35,7 @@ export default function HomePage() {
       </section>
 
       <section className="principles section-shell">
-        <div className="section-title"><p>OUR PRACTICE</p><h2>把好奇心变成<br />可以验证的路径</h2></div>
+        <div className="section-title"><p>OUR PRACTICE</p><h2><span className="fixed-title-line">把好奇心变成</span><span className="fixed-title-line">可以验证的路径</span></h2></div>
         <div className="principle-list">
           <article><span>01</span><Orbit /><h3>观察</h3><p>从日常现象中辨认值得追问的细节。</p></article>
           <article><span>02</span><FlaskConical /><h3>实验</h3><p>控制变量、记录误差，让猜想接受检验。</p></article>
@@ -45,11 +45,11 @@ export default function HomePage() {
 
       <section className="home-lab section-shell">
         <div className="lab-visual" aria-hidden="true"><div className="wave wave-a" /><div className="wave wave-b" /><div className="lab-cross" /><span>Δt</span></div>
-        <div className="lab-copy"><p>INTERACTIVE LAB</p><h2>不只阅读物理。<br />亲手改变它。</h2><p>调整质量、速度与时空路径，在浏览器里观察系统如何回应你的每一次选择。</p><Link to="/experiments">打开互动实验 <ArrowRight /></Link></div>
+        <div className="lab-copy"><p>INTERACTIVE LAB</p><h2><span className="fixed-title-line">不只阅读物理。</span><span className="fixed-title-line">亲手改变它。</span></h2><p>调整质量、速度与时空路径，在浏览器里观察系统如何回应你的每一次选择。</p><Link to="/experiments">打开互动实验 <ArrowRight /></Link></div>
       </section>
 
       <section className="home-journal section-shell">
-        <div><p>RECENT NOTES</p><h2>从一次记录<br />走向下一次发现</h2></div>
+        <div><p>RECENT NOTES</p><h2><span className="fixed-title-line">从一次记录</span><span className="fixed-title-line">走向下一次发现</span></h2></div>
         <PostCarousel posts={recentPosts} />
       </section>
     </main>

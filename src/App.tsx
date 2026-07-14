@@ -6,12 +6,14 @@ import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
 import ExperimentsPage from './pages/ExperimentsPage'
 import AboutPage from './pages/AboutPage'
+import NavigationPage from './pages/NavigationPage'
 import './styles/global.css'
 
 const navItems = [
   { to: '/', label: '主页', end: true },
   { to: '/blog', label: '博客' },
   { to: '/experiments', label: '实验' },
+  { to: '/navigation', label: '导航' },
   { to: '/about', label: 'About us' },
 ]
 
@@ -65,6 +67,7 @@ export default function App() {
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/experiments" element={<ExperimentsPage />} />
+        <Route path="/navigation" element={<NavigationPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<main className="not-found"><p>404 / 未知坐标</p><h1>这里没有可观测事件。</h1><NavLink to="/">返回主页</NavLink></main>} />
       </Routes>

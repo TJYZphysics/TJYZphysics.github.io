@@ -9,7 +9,7 @@ export default function AboutPage() {
       <section className="about-hero">
         <div className="about-label">TJYZ PHYSICS<br />ABOUT / 2026</div>
         <h1>保持好奇。<br /><span>保持精确。</span></h1>
-        <p>一个由问题驱动、由实验连接的学生科学共同体。</p>
+        <p>一个由物理青年们组成的学生科学共同体。</p>
         <div className="about-red-block" aria-hidden="true"><span>?</span></div>
       </section>
       <section className="about-grid">

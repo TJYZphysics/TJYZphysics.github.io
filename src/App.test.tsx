@@ -4,11 +4,12 @@ import { describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('site routes', () => {
-  it('renders the four primary navigation modules', () => {
+  it('renders the five primary navigation modules', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
     expect(screen.getByRole('link', { name: '主页' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '博客' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '实验' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '导航' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'About us' })).toBeInTheDocument()
   })
 
