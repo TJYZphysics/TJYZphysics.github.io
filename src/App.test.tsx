@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import App from './App'
@@ -17,6 +17,13 @@ describe('site routes', () => {
     render(<MemoryRouter initialEntries={['/blog']}><App /></MemoryRouter>)
     expect(screen.getByRole('heading', { name: '从一束光开始' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '三体系统：秩序如何滑向混沌' })).toBeInTheDocument()
+  })
+
+  it('filters blog posts by search text and tag', () => {
+    render(<MemoryRouter initialEntries={['/blog']}><App /></MemoryRouter>)
+    fireEvent.change(screen.getByPlaceholderText('搜索标题、摘要、正文或标签…'), { target: { value: '三体' } })
+    expect(screen.getByRole('heading', { name: '三体系统：秩序如何滑向混沌' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '从一束光开始' })).not.toBeInTheDocument()
   })
 
   it('renders both privacy-safe About Markdown documents', () => {

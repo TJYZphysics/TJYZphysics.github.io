@@ -17,7 +17,10 @@
     "react-dom": "latest",
     "react-markdown": "latest",
     "react-router-dom": "latest",
-    "remark-gfm": "latest"
+    "rehype-highlight": "^7.0.2",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "latest",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "latest",
