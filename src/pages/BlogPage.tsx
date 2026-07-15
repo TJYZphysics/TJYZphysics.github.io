@@ -50,7 +50,6 @@ export default function BlogPage() {
         {(query || activeTag) && <button className="blog-filter-reset" onClick={() => setParams({}, { replace: true })}><X /> 清除筛选</button>}
       </section>
       <section className="notebook-shell">
-        <div className="notebook-binding" aria-hidden="true">{Array.from({ length: 11 }, (_, i) => <i key={i} />)}</div>
         <div className="notebook-paper">
           <div className="notebook-heading"><BookMarked /><div><small>TJYZ PHYSICS / NOTEBOOK</small><h2>{query || activeTag ? '筛选结果' : '最近记录'}</h2></div><b>{String(visiblePosts.length).padStart(2, '0')}</b></div>
           <div className="post-list">

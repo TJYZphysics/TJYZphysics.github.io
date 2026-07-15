@@ -183,3 +183,8 @@ html[data-color-mode='light'] .markdown-body .hljs-attr { color: #a5d6ff; }
 @media (max-width: 1050px) {
   .article-toc > div { background: var(--blog-control) !important; }
 }
+
+/* The notebook keeps its paper illusion without the decorative binder. */
+.notebook-shell { padding-left: 0 !important; }
+.notebook-binding { display: none !important; }
+.notebook-paper { border-radius: 18px 28px 28px 18px !important; padding-left: clamp(28px, 6vw, 76px) !important; }

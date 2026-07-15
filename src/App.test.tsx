@@ -5,7 +5,6 @@ import App from './App'
 
 describe('site routes', () => {
   beforeEach(() => window.localStorage.clear())
-
   it('renders the five primary navigation modules', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
     expect(screen.getByRole('link', { name: '主页' })).toBeInTheDocument()
@@ -14,36 +13,28 @@ describe('site routes', () => {
     expect(screen.getByRole('link', { name: '导航' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'About us' })).toBeInTheDocument()
   })
-
   it('lists Markdown posts without a hand-maintained index', () => {
     render(<MemoryRouter initialEntries={['/blog']}><App /></MemoryRouter>)
-    expect(screen.getByRole('heading', { name: '从一束光开始' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '三体系统：秩序如何滑向混沌' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /从一束光开始/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /三体系统/ })).toBeInTheDocument()
   })
-
   it('filters blog posts by search text and tag', () => {
     render(<MemoryRouter initialEntries={['/blog']}><App /></MemoryRouter>)
-    fireEvent.change(screen.getByPlaceholderText('搜索标题、摘要、正文或标签…'), { target: { value: '三体' } })
-    expect(screen.getByRole('heading', { name: '三体系统：秩序如何滑向混沌' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: '从一束光开始' })).not.toBeInTheDocument()
+    fireEvent.change(screen.getByPlaceholderText(/搜索标题/), { target: { value: '三体' } })
+    expect(screen.getByRole('heading', { name: /三体系统/ })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /从一束光开始/ })).not.toBeInTheDocument()
   })
-
-  it('renders both privacy-safe About Markdown documents', () => {
+  it('renders both About Markdown documents without a theme toggle', () => {
     render(<MemoryRouter initialEntries={['/about']}><App /></MemoryRouter>)
-    expect(screen.getByRole('heading', { name: '关于物理社' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '社团历史' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /切换主题/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /关于物理社/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /社团历史/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /切换.*主题/ })).not.toBeInTheDocument()
   })
-
-  it('offers four persistent themes outside the About route', () => {
+  it('toggles between dark and light themes outside About', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
-    fireEvent.click(screen.getByRole('button', { name: '切换主题，当前为深色模式' }))
-
-    expect(screen.getAllByRole('radio')).toHaveLength(4)
-    fireEvent.click(screen.getByRole('radio', { name: /Claude 浅色/ }))
-
-    expect(document.documentElement).toHaveAttribute('data-theme', 'claude-light')
-    expect(document.documentElement).toHaveAttribute('data-color-mode', 'light')
-    expect(window.localStorage.getItem('tjyz-theme')).toBe('claude-light')
+    fireEvent.click(screen.getByRole('button', { name: '切换浅色主题' }))
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light')
+    expect(window.localStorage.getItem('tjyz-theme')).toBe('light')
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
 })

@@ -1,7 +1,6 @@
 .directory-search {
-  position: sticky;
-  z-index: 20;
-  top: 104px;
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -38,7 +37,7 @@
 .directory-empty--search { margin-bottom: 6rem; }
 
 @media (max-width: 650px) {
-  .directory-search { top: 94px; }
+  .directory-search { margin-top: .25rem; }
   .site-card__link { min-height: 144px; }
 }
 
@@ -172,3 +171,6 @@ html[data-theme='claude-dark'] .navigation-page {
 .directory-section--favorites .directory-section__title > svg { color: var(--directory-star) !important; }
 .directory-empty { color: var(--directory-text); border-color: var(--directory-line) !important; background: color-mix(in srgb, var(--directory-card) 74%, transparent) !important; }
 .directory-empty > svg { color: var(--directory-faint) !important; }
+
+/* Search stays in the page flow so it never masks directory content. */
+.directory-search { position: relative !important; top: auto !important; z-index: 1 !important; margin-top: 1.5rem !important; }
