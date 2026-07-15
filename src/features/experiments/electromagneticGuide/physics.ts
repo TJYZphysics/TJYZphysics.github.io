@@ -57,6 +57,8 @@ export interface ParticleState extends ParticleDefinition {
   status: ParticleStatus
   collectorId?: string
   path: Vector2[]
+  /** Simulation time represented by the latest path sample. */
+  pathSampleElapsed: number
 }
 
 export type Obstacle =
@@ -117,6 +119,7 @@ const COULOMB_CONSTANT = 8
 const SOFTENING_SQUARED = 0.16
 const MAX_FIELD = 80
 const PATH_INTERVAL = 0.045
+const MAX_PATH_POINTS = 8192
 const MAX_INTEGRATION_STEP = 0.03
 const COLLISION_EPSILON = 1e-9
 
@@ -184,6 +187,7 @@ export function createSimulation(level: ElectromagneticLevel): SimulationState {
       elapsed: 0,
       status: 'active' as const,
       path: [{ ...particle.startPosition }],
+      pathSampleElapsed: 0,
     }))
   return {
     particles,
@@ -327,10 +331,14 @@ function integrateParticle(
   const velocity = add(vPlus, halfKick)
   const position = add(particle.position, scale(velocity, dt))
   const elapsed = particle.elapsed + dt
-  const path = elapsed - (particle.path.length - 1) * PATH_INTERVAL >= PATH_INTERVAL
-    ? [...particle.path, position]
-    : particle.path
-  return { ...particle, position, velocity, elapsed, path }
+  const shouldAppend = elapsed - particle.pathSampleElapsed >= PATH_INTERVAL
+  let path = shouldAppend ? [...particle.path, position] : particle.path
+  if (path.length > MAX_PATH_POINTS) {
+    const latest = path[path.length - 1]
+    path = path.filter((_, index) => index % 2 === 0)
+    if (path[path.length - 1] !== latest) path.push(latest)
+  }
+  return { ...particle, position, velocity, elapsed, path, pathSampleElapsed: shouldAppend ? elapsed : particle.pathSampleElapsed }
 }
 
 function particleAtContact(
@@ -356,6 +364,7 @@ function particleAtContact(
     velocity,
     elapsed: previous.elapsed + dt * t,
     path: shouldAppend ? [...previous.path, position] : previous.path,
+    pathSampleElapsed: shouldAppend ? previous.elapsed + dt * t : previous.pathSampleElapsed,
   }
 }
 

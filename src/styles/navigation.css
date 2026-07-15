@@ -1,0 +1,43 @@
+.directory-search {
+  position: sticky;
+  z-index: 20;
+  top: 104px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  margin: 0 0 1.5rem;
+  padding: .75rem 1rem;
+  border: 1px solid rgba(174, 213, 255, .2);
+  border-radius: 1rem;
+  background: rgba(10, 15, 32, .86);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .2);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+.directory-search > svg { width: 1.1rem; color: var(--cyan); }
+.directory-search label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.directory-search input { min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; }
+.directory-search input::placeholder { color: #71809a; }
+.directory-search button { display: grid; width: 2rem; height: 2rem; padding: 0; place-items: center; border: 0; border-radius: .5rem; color: #8290a9; background: rgba(255, 255, 255, .055); cursor: pointer; }
+.directory-search button svg { width: 1rem; }
+.directory-search output { grid-column: 2 / -1; color: #6f809b; font-size: .68rem; }
+
+.site-card { padding: 0; }
+.site-card__link { min-height: 154px; padding: 1.5rem 3.5rem 1.25rem 1.5rem; display: flex; flex-direction: column; }
+.site-card__link > p { margin: .875rem 0 1.375rem; color: #95a2b9; font-size: .8125rem; line-height: 1.65; }
+.site-card__favorite { position: absolute; z-index: 2; top: 1rem; right: 1rem; display: grid; width: 2rem; height: 2rem; padding: 0; place-items: center; border: 1px solid rgba(174, 213, 255, .14); border-radius: .625rem; color: #71809a; background: rgba(8, 11, 26, .7); cursor: pointer; transition: color .2s, border-color .2s, background .2s, transform .2s; }
+.site-card__favorite:hover { color: #ffe08a; border-color: rgba(255, 224, 138, .45); transform: translateY(-1px); }
+.site-card__favorite svg { width: 1rem; fill: transparent; }
+.site-card__favorite[aria-pressed="true"] { color: #ffe08a; border-color: rgba(255, 224, 138, .38); background: rgba(255, 208, 80, .1); }
+.site-card__favorite[aria-pressed="true"] svg { fill: currentColor; }
+.site-card.is-favorite { border-color: rgba(255, 224, 138, .2); }
+.directory-section--favorites { padding-top: .75rem; }
+.directory-section--favorites .directory-section__number,
+.directory-section--favorites .directory-section__title > svg { color: #ffe08a; }
+.directory-empty--search { margin-bottom: 6rem; }
+
+@media (max-width: 650px) {
+  .directory-search { top: 94px; }
+  .site-card__link { min-height: 144px; }
+}

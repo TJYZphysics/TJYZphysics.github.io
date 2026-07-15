@@ -7,7 +7,7 @@ import {
 
 import './electromagneticGuide.css'
 import { ELECTROMAGNETIC_LEVELS } from './levels'
-import { simulateLevel } from './physics'
+import { createSimulation, simulateLevel, stepSimulation } from './physics'
 
 type ToolKind = 'positive-charge' | 'negative-charge' | 'electric-field' | 'magnetic-field' | 'velocity-selector'
 type Point = { x: number; y: number }
@@ -186,6 +186,11 @@ export function ElectromagneticGuideGame() {
     let previous = performance.now()
     const tick = (now: number) => {
       const dt = Math.min(40, now - previous); previous = now
+      if (isSandbox) {
+        setSimulation((current: any) => stepSimulation(current ?? createSimulation(level), level, dt / 1000, placements as any))
+        frame = requestAnimationFrame(tick)
+        return
+      }
       setProgress((value) => {
         const next = Math.min(1, value + dt / 3600)
         if (next >= 1) setRunning(false)
@@ -195,9 +200,17 @@ export function ElectromagneticGuideGame() {
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [running])
+  }, [isSandbox, level, placements, running])
 
   const run = () => {
+    if (isSandbox) {
+      if (simulation) setRunning((value) => !value)
+      else {
+        setSimulation(createSimulation(level)); setProgress(1); setRunning(true)
+        setMessage('粒子正在持续运动；可随时暂停、拖动画布或调整观察范围。')
+      }
+      return
+    }
     if (simulation && progress < 1) { setRunning((value) => !value); return }
     try {
       const result = simulateLevel(level, placements as any)
@@ -322,7 +335,7 @@ export function ElectromagneticGuideGame() {
     const states = simulation?.particles ?? simulation?.particleStates ?? []
     for (const particle of states.length ? states : level.particles ?? []) {
       const path: Point[] = particle.path ?? [particle.startPosition ?? particle.position]
-      const visible = Math.max(1, Math.ceil(path.length * progress)); const segment = path.slice(0, visible)
+      const visible = Math.max(1, Math.ceil(path.length * (isSandbox ? 1 : progress))); const segment = path.slice(0, visible)
       if (segment.length > 1) { ctx.beginPath(); segment.forEach((point, index) => { const p = toScreen(point, view); index ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y) }); ctx.strokeStyle = particle.color ?? '#fff'; ctx.lineWidth = 2.2; ctx.shadowColor = particle.color ?? '#fff'; ctx.shadowBlur = 7; ctx.stroke(); ctx.shadowBlur = 0 }
       const current = segment.at(-1) ?? particle.startPosition ?? particle.position
       if (!current) continue
@@ -469,14 +482,14 @@ export function ElectromagneticGuideGame() {
             {selectedPlacement.kind === 'velocity-selector' ? <label><span>选择速度 v₀ <output>{(selectedPlacement.selectorSpeed ?? 4).toFixed(1)}</output></span><input type="range" min="0.5" max="12" step="0.5" value={selectedPlacement.selectorSpeed ?? 4} onChange={(event) => updateSelectedPlacement({ selectorSpeed: Number(event.target.value) })} /></label> : null}
             <small>拖动元素可重新定位；双击元素可删除。</small>
           </div> : <div className="em-guide__inspector em-guide__inspector--empty"><span>选择画布中的元素</span><small>单击元素后可旋转、翻转或调整参数。</small></div>}
-          <div className="em-guide__edit-actions"><button onClick={() => { const previous = history.at(-1); if (!previous) return; setPlacements(previous); setHistory((items) => items.slice(0, -1)); setSimulation(null) }} disabled={!history.length}><Undo2 />撤销</button><button onClick={() => commit([], '已清空所有自定义场源。')} disabled={!placements.length}><Trash2 />清空</button><button onClick={loadReference} disabled={isSandbox || !(level.referenceSolution ?? []).length}><Sparkles />参考</button></div>
+          <div className="em-guide__edit-actions"><button onClick={() => { const previous = history.at(-1); if (!previous) return; setPlacements(previous); setHistory((items) => items.slice(0, -1)); setSimulation(null); setRunning(false); setProgress(1) }} disabled={!history.length}><Undo2 />撤销</button><button onClick={() => commit([], '已清空所有自定义场源。')} disabled={!placements.length}><Trash2 />清空</button><button onClick={loadReference} disabled={isSandbox || !(level.referenceSolution ?? []).length}><Sparkles />参考</button></div>
         </aside>
 
         <div className="em-guide__stage" ref={stageRef}>
           <canvas className={`${isSandbox ? 'is-sandbox' : ''} ${gestureMode === 'pan' ? 'is-panning' : gestureMode === 'move' ? 'is-moving' : ''}`} ref={canvasRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={cancelDrag} onDoubleClick={onDoubleClick} onContextMenu={(event) => event.preventDefault()} onWheel={onWheel} aria-label="电磁粒子轨迹画布" />
           <div className="em-guide__canvas-label"><Grid3X3 /><span>{isSandbox ? '拖动空白平移 · 拖动元素吸附网格 · 双击删除' : '点击放置 · 拖动元素 · 双击删除'}</span></div>
           {isSandbox ? <div className="em-guide__zoom"><button onClick={() => setZoom((z) => clamp(z / 1.2, .35, 3.5))} aria-label="缩小"><ZoomOut /></button><span>{Math.round(zoom * 100)}%</span><button onClick={() => setZoom((z) => clamp(z * 1.2, .35, 3.5))} aria-label="放大"><ZoomIn /></button></div> : null}
-          <div className="em-guide__launch"><button onClick={run}>{running ? <Pause /> : <Play />}<span>{running ? '暂停' : simulation && progress < 1 ? '继续' : '发射粒子'}</span></button><div className="em-guide__timeline"><i style={{ width: `${progress * 100}%` }} /></div></div>
+          <div className="em-guide__launch"><button onClick={run}>{running ? <Pause /> : <Play />}<span>{running ? '暂停' : simulation && (isSandbox || progress < 1) ? '继续' : '发射粒子'}</span></button><div className={`em-guide__timeline${isSandbox && running ? ' is-live' : ''}`}><i style={{ width: `${progress * 100}%` }} /></div></div>
         </div>
 
         <aside className="em-guide__panel em-guide__readout" aria-label="粒子与目标参数">
