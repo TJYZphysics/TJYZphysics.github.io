@@ -1,0 +1,185 @@
+/* Blog themes are intentionally page-scoped so About keeps its fixed art direction. */
+.blog-page,
+.article-page {
+  --blog-bg: #090c1b;
+  --blog-glow: rgba(41, 88, 130, .2);
+  --blog-text: #eaf1ff;
+  --blog-muted: #9aa9c2;
+  --blog-faint: #71819d;
+  --blog-accent: #59e1ff;
+  --blog-accent-ink: #06111a;
+  --blog-line: rgba(157, 195, 255, .2);
+  --blog-control: rgba(15, 23, 43, .88);
+  --blog-control-hover: rgba(89, 225, 255, .08);
+  --blog-paper: #11192d;
+  --blog-paper-edge: #0c1324;
+  --blog-paper-shadow: #080d1b;
+  --blog-paper-text: #e9f0ff;
+  --blog-paper-muted: #9daac1;
+  --blog-paper-faint: #7f91ae;
+  --blog-code: #0a1020;
+  --blog-code-text: #e6edf7;
+  --blog-inline-code: rgba(126, 168, 231, .13);
+  --blog-reaction: rgba(255, 255, 255, .045);
+  --blog-reaction-text: #b8c6dc;
+  background: radial-gradient(circle at 18% 12%, var(--blog-glow), transparent 29%), var(--blog-bg) !important;
+  color: var(--blog-text);
+}
+
+html[data-theme='light'] .blog-page,
+html[data-theme='light'] .article-page {
+  --blog-bg: #edf3f7;
+  --blog-glow: rgba(38, 117, 154, .12);
+  --blog-text: #162334;
+  --blog-muted: #526276;
+  --blog-faint: #6d7d91;
+  --blog-accent: #13748a;
+  --blog-accent-ink: #fff;
+  --blog-line: rgba(28, 58, 82, .18);
+  --blog-control: rgba(255, 255, 255, .88);
+  --blog-control-hover: rgba(19, 116, 138, .08);
+  --blog-paper: #fbfdfe;
+  --blog-paper-edge: #dbe5eb;
+  --blog-paper-shadow: #c8d5dd;
+  --blog-paper-text: #162334;
+  --blog-paper-muted: #526276;
+  --blog-paper-faint: #6c7d91;
+  --blog-code: #172231;
+  --blog-code-text: #f0f5fa;
+  --blog-inline-code: rgba(19, 116, 138, .09);
+  --blog-reaction: #edf3f6;
+  --blog-reaction-text: #34485d;
+}
+
+html[data-theme='claude-light'] .blog-page,
+html[data-theme='claude-light'] .article-page {
+  --blog-bg: #f4f1ea;
+  --blog-glow: rgba(181, 92, 59, .1);
+  --blog-text: #292724;
+  --blog-muted: #67615a;
+  --blog-faint: #82796f;
+  --blog-accent: #a84e32;
+  --blog-accent-ink: #fffaf3;
+  --blog-line: rgba(72, 62, 52, .18);
+  --blog-control: rgba(255, 252, 246, .9);
+  --blog-control-hover: rgba(168, 78, 50, .075);
+  --blog-paper: #fffaf1;
+  --blog-paper-edge: #e1d7c7;
+  --blog-paper-shadow: #cec1ae;
+  --blog-paper-text: #292724;
+  --blog-paper-muted: #655f58;
+  --blog-paper-faint: #7c746b;
+  --blog-code: #292724;
+  --blog-code-text: #f8f3e9;
+  --blog-inline-code: rgba(168, 78, 50, .1);
+  --blog-reaction: #f3ece1;
+  --blog-reaction-text: #504941;
+}
+
+html[data-theme='claude-dark'] .blog-page,
+html[data-theme='claude-dark'] .article-page {
+  --blog-bg: #1f1e1b;
+  --blog-glow: rgba(208, 116, 78, .11);
+  --blog-text: #f0e9df;
+  --blog-muted: #b8aea2;
+  --blog-faint: #948a7e;
+  --blog-accent: #df825f;
+  --blog-accent-ink: #211b18;
+  --blog-line: rgba(226, 207, 184, .18);
+  --blog-control: rgba(47, 44, 39, .9);
+  --blog-control-hover: rgba(223, 130, 95, .09);
+  --blog-paper: #2b2925;
+  --blog-paper-edge: #22211e;
+  --blog-paper-shadow: #171613;
+  --blog-paper-text: #f0e9df;
+  --blog-paper-muted: #bbb0a3;
+  --blog-paper-faint: #978d82;
+  --blog-code: #1b1a18;
+  --blog-code-text: #f4ede3;
+  --blog-inline-code: rgba(223, 130, 95, .13);
+  --blog-reaction: rgba(255, 250, 242, .055);
+  --blog-reaction-text: #cfc3b5;
+}
+
+.blog-page .page-intro h1,
+.article-page .back-link { color: var(--blog-text); }
+.blog-page .page-intro span,
+.article-page .back-link { color: var(--blog-muted); }
+
+.blog-search {
+  border-color: var(--blog-line) !important;
+  background: var(--blog-control) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 18px 45px rgba(0,0,0,.13) !important;
+}
+.blog-search > svg { color: var(--blog-accent) !important; }
+.blog-search input { color: var(--blog-text) !important; }
+.blog-search input::placeholder { color: var(--blog-faint) !important; opacity: 1; }
+.blog-search kbd { color: var(--blog-faint) !important; border-color: var(--blog-line) !important; }
+.blog-search:focus-within { border-color: var(--blog-accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--blog-accent) 16%, transparent), 0 18px 45px rgba(0,0,0,.12) !important; }
+.blog-tags button,
+.blog-filter-reset { color: var(--blog-muted) !important; border-color: var(--blog-line) !important; background: color-mix(in srgb, var(--blog-control) 72%, transparent) !important; }
+.blog-tags button:hover,
+.blog-tags button.is-active { color: var(--blog-accent-ink) !important; border-color: var(--blog-accent) !important; background: var(--blog-accent) !important; }
+.blog-filter-reset { background: transparent !important; }
+.blog-filter-reset:hover { color: var(--blog-accent) !important; }
+
+.notebook-shell { filter: drop-shadow(0 34px 68px rgba(0,0,0,.25)) !important; }
+.notebook-paper {
+  color: var(--blog-paper-text) !important;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--blog-line) 36%, transparent) 1px, transparent 1px), linear-gradient(color-mix(in srgb, var(--blog-line) 38%, transparent) 1px, transparent 1px), var(--blog-paper) !important;
+  background-size: 100% 100%, 100% 38px, 100% 100% !important;
+}
+.notebook-paper::after { background: var(--blog-paper-edge) !important; box-shadow: 8px 10px 0 var(--blog-paper-shadow) !important; }
+.notebook-heading { border-color: var(--blog-line) !important; }
+.notebook-heading small,
+.notebook-heading b,
+.post-number,
+.post-row time { color: var(--blog-paper-faint) !important; }
+.post-row { border-color: var(--blog-line) !important; }
+.post-row:hover { background: var(--blog-control-hover) !important; }
+.post-row p { color: var(--blog-accent) !important; }
+.post-row div > span { color: var(--blog-paper-muted) !important; }
+.blog-empty { color: var(--blog-paper-muted) !important; }
+.blog-empty > svg { color: var(--blog-accent) !important; }
+.blog-empty h3 { color: var(--blog-paper-text) !important; }
+
+.article-paper {
+  color: var(--blog-paper-text) !important;
+  background: var(--blog-paper) !important;
+  box-shadow: 0 34px 80px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.07) !important;
+}
+.article-paper > header { border-color: var(--blog-line) !important; }
+.article-paper > header > p,
+.markdown-body a { color: var(--blog-accent) !important; }
+.article-paper > header > div,
+.markdown-body blockquote { color: var(--blog-paper-muted) !important; }
+.markdown-body blockquote { border-color: var(--blog-accent) !important; }
+.markdown-body code { color: var(--blog-paper-text); background: var(--blog-inline-code) !important; }
+.markdown-body pre { color: var(--blog-code-text) !important; background: var(--blog-code) !important; border-color: var(--blog-line) !important; }
+.markdown-body pre code { color: inherit !important; }
+.heading-anchor { color: var(--blog-accent) !important; }
+.article-toc > div { border-color: var(--blog-line) !important; }
+.article-toc p { color: var(--blog-muted) !important; }
+.article-toc p svg { color: var(--blog-accent) !important; }
+.article-toc a { color: var(--blog-faint) !important; border-color: var(--blog-line) !important; }
+.article-toc a:hover,
+.article-toc a:focus-visible { color: var(--blog-text) !important; border-color: var(--blog-accent) !important; background: var(--blog-control-hover) !important; }
+.reaction-bar { border-color: var(--blog-line) !important; }
+.reaction-bar button { color: var(--blog-reaction-text) !important; border-color: var(--blog-line) !important; background: var(--blog-reaction) !important; }
+.reaction-bar button:hover { border-color: var(--blog-accent) !important; color: var(--blog-accent) !important; }
+.reaction-bar button.is-liked { color: #c83f55 !important; background: color-mix(in srgb, #c83f55 12%, var(--blog-paper)) !important; }
+.comments-placeholder { color: var(--blog-text); border-color: var(--blog-line) !important; background: var(--blog-control) !important; }
+.comments-placeholder > svg { color: var(--blog-accent) !important; }
+.comments-placeholder p { color: var(--blog-muted) !important; }
+
+/* The bundled GitHub Dark syntax theme needs explicit warm/cool light-theme corrections. */
+html[data-color-mode='light'] .markdown-body .hljs-comment,
+html[data-color-mode='light'] .markdown-body .hljs-quote { color: #708090; }
+html[data-color-mode='light'] .markdown-body .hljs-keyword,
+html[data-color-mode='light'] .markdown-body .hljs-selector-tag { color: #ff7b72; }
+html[data-color-mode='light'] .markdown-body .hljs-string,
+html[data-color-mode='light'] .markdown-body .hljs-attr { color: #a5d6ff; }
+
+@media (max-width: 1050px) {
+  .article-toc > div { background: var(--blog-control) !important; }
+}

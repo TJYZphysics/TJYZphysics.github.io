@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('site routes', () => {
+  beforeEach(() => window.localStorage.clear())
+
   it('renders the five primary navigation modules', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
     expect(screen.getByRole('link', { name: '主页' })).toBeInTheDocument()
@@ -30,5 +32,18 @@ describe('site routes', () => {
     render(<MemoryRouter initialEntries={['/about']}><App /></MemoryRouter>)
     expect(screen.getByRole('heading', { name: '关于物理社' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '社团历史' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /切换主题/ })).not.toBeInTheDocument()
+  })
+
+  it('offers four persistent themes outside the About route', () => {
+    render(<MemoryRouter><App /></MemoryRouter>)
+    fireEvent.click(screen.getByRole('button', { name: '切换主题，当前为深色模式' }))
+
+    expect(screen.getAllByRole('radio')).toHaveLength(4)
+    fireEvent.click(screen.getByRole('radio', { name: /Claude 浅色/ }))
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'claude-light')
+    expect(document.documentElement).toHaveAttribute('data-color-mode', 'light')
+    expect(window.localStorage.getItem('tjyz-theme')).toBe('claude-light')
   })
 })

@@ -1,0 +1,72 @@
+/* Theme bridge for the experiment directory. Individual instruments own their
+   internal palettes; this file keeps the page chrome coherent with the site. */
+html[data-color-mode='light'] .experiments-page {
+  color: var(--ink);
+}
+
+html[data-color-mode='light'] .experiment-switcher button {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 14%, transparent);
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .9), 0 14px 34px rgba(42, 50, 59, .08);
+}
+
+html[data-color-mode='light'] .experiment-switcher button:hover {
+  border-color: color-mix(in srgb, var(--cyan) 54%, transparent);
+  background: var(--panel);
+}
+
+html[data-color-mode='light'] .experiment-switcher button.is-active {
+  border-color: color-mix(in srgb, var(--cyan) 62%, transparent);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--cyan) 12%, var(--panel)), color-mix(in srgb, var(--blue) 5%, var(--panel)));
+  box-shadow: inset 0 1px #fff, 0 16px 38px color-mix(in srgb, var(--cyan) 12%, transparent);
+}
+
+html[data-color-mode='light'] .experiment-switcher > button > span,
+html[data-color-mode='light'] .experiment-safety,
+html[data-color-mode='light'] .experiment-loading {
+  color: var(--muted);
+}
+
+html[data-color-mode='light'] .experiment-stage {
+  border-color: color-mix(in srgb, var(--ink) 12%, transparent);
+  background: color-mix(in srgb, var(--panel) 74%, transparent);
+  box-shadow: inset 0 1px #fff, 0 24px 60px rgba(50, 54, 58, .1);
+}
+
+html[data-color-mode='light'] .experiment-stage::before {
+  background: radial-gradient(circle at 15% 0, rgba(255, 255, 255, .8), transparent 25%);
+}
+
+html[data-theme='claude-light'] .experiment-switcher button,
+html[data-theme='claude-light'] .experiment-stage {
+  border-color: rgba(58, 48, 41, .14);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .85), 0 18px 42px rgba(64, 51, 40, .08);
+}
+
+html[data-theme='claude-light'] .experiment-switcher button.is-active {
+  border-color: rgba(190, 92, 57, .5);
+  background: linear-gradient(145deg, rgba(204, 119, 83, .13), rgba(255, 252, 246, .92));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .9), 0 15px 34px rgba(176, 91, 57, .1);
+}
+
+html[data-theme='claude-dark'] .experiment-switcher button {
+  border-color: rgba(231, 218, 201, .13);
+  background: linear-gradient(145deg, rgba(255, 248, 237, .055), rgba(255, 248, 237, .018));
+}
+
+html[data-theme='claude-dark'] .experiment-switcher button.is-active {
+  border-color: rgba(218, 126, 91, .48);
+  background: linear-gradient(145deg, rgba(204, 119, 83, .15), rgba(255, 248, 237, .03));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 0 32px rgba(188, 88, 54, .08);
+}
+
+html[data-theme='claude-dark'] .experiment-switcher svg {
+  color: #d99070;
+}
+
+html[data-theme='claude-dark'] .experiment-stage {
+  border-color: rgba(231, 218, 201, .12);
+  background: linear-gradient(145deg, rgba(255, 248, 237, .045), rgba(255, 248, 237, .012));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .07), 0 28px 68px rgba(0, 0, 0, .28);
+}

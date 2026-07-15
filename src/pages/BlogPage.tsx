@@ -2,6 +2,7 @@ import { ArrowUpRight, BookMarked, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getBlogPosts } from '../content/content'
+import '../styles/blog.css'
 
 export default function BlogPage() {
   const posts = getBlogPosts()

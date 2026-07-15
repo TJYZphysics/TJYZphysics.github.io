@@ -708,3 +708,151 @@
     backdrop-filter: none;
   }
 }
+
+/* Light themes keep the collision track dark for spatial contrast, while the
+   instrument shell, parameter panel and numerical results become true light UI. */
+html[data-color-mode='light'] .collision-lab {
+  --collision-ink: #202a34;
+  --collision-muted: #657383;
+  --collision-line: rgba(35, 52, 68, .14);
+  --collision-surface: rgba(255, 255, 255, .82);
+  --collision-surface-solid: #f7fafb;
+  --collision-accent: #157e70;
+  color: var(--collision-ink);
+  border-color: rgba(35, 52, 68, .15);
+  background: radial-gradient(circle at 11% -8%, rgba(57, 112, 174, .1), transparent 31%), radial-gradient(circle at 92% 4%, rgba(21, 126, 112, .07), transparent 27%), linear-gradient(145deg, #f8fafb, #e9eef1);
+  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(39, 51, 61, .11);
+}
+
+html[data-color-mode='light'] .collision-lab::before {
+  opacity: .35;
+  background-image: linear-gradient(rgba(52, 79, 109, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 79, 109, .08) 1px, transparent 1px);
+}
+
+html[data-color-mode='light'] .collision-lab__law {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--collision-accent) 10%, transparent), transparent);
+}
+
+html[data-color-mode='light'] .collision-stage,
+html[data-color-mode='light'] .collision-panel,
+html[data-color-mode='light'] .collision-velocity-table,
+html[data-color-mode='light'] .collision-metric {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(241, 245, 247, .9));
+  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(43, 56, 66, .08);
+}
+
+html[data-color-mode='light'] .collision-status {
+  color: #4c5d6c;
+}
+
+html[data-color-mode='light'] .collision-track {
+  border-color: rgba(57, 82, 113, .24);
+  background: radial-gradient(circle at 50% 48%, rgba(75, 127, 218, .13), transparent 37%), linear-gradient(180deg, #0c1728, #111d2d);
+  box-shadow: inset 0 18px 45px rgba(0, 0, 0, .26);
+}
+
+html[data-color-mode='light'] .collision-track .collision-body__velocity {
+  color: #f3f7fb;
+}
+
+html[data-color-mode='light'] .collision-track .collision-body__mass {
+  color: #aebed0;
+}
+
+html[data-color-mode='light'] .collision-transport button:focus-visible,
+html[data-color-mode='light'] .collision-control input:focus-visible {
+  outline-color: var(--collision-accent);
+}
+
+html[data-color-mode='light'] .collision-transport .collision-transport__secondary {
+  color: #3d4d5c;
+  border-color: rgba(35, 52, 68, .16);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: inset 0 1px #fff;
+}
+
+html[data-color-mode='light'] .collision-transport .collision-transport__secondary:hover:not(:disabled) {
+  border-color: rgba(21, 126, 112, .36);
+  background: #fff;
+}
+
+html[data-color-mode='light'] .collision-control__heading {
+  color: #485969;
+}
+
+html[data-color-mode='light'] .collision-control input[type='range']::-webkit-slider-thumb,
+html[data-color-mode='light'] .collision-control input[type='range']::-moz-range-thumb {
+  background: #fff;
+}
+
+html[data-color-mode='light'] .collision-velocity-table .collision-velocity-table__head {
+  color: #788594;
+}
+
+html[data-color-mode='light'] .collision-velocity-table strong {
+  color: #293744;
+}
+
+html[data-color-mode='light'] .collision-metric small {
+  color: #73808d;
+}
+
+html[data-color-mode='light'] .collision-explanation p {
+  color: #445565;
+}
+
+html[data-theme='claude-light'] .collision-lab {
+  --collision-ink: #302925;
+  --collision-muted: #746a62;
+  --collision-line: rgba(66, 53, 44, .15);
+  --collision-surface: rgba(255, 252, 246, .86);
+  --collision-surface-solid: #fffaf3;
+  --collision-accent: #a95639;
+  background: radial-gradient(circle at 11% -8%, rgba(184, 107, 74, .12), transparent 31%), radial-gradient(circle at 92% 4%, rgba(109, 91, 76, .07), transparent 27%), linear-gradient(145deg, #fffdf8, #eee6db);
+  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(78, 58, 43, .11);
+}
+
+html[data-theme='claude-light'] .collision-stage,
+html[data-theme='claude-light'] .collision-panel,
+html[data-theme='claude-light'] .collision-velocity-table,
+html[data-theme='claude-light'] .collision-metric {
+  background: linear-gradient(145deg, rgba(255, 253, 248, .98), rgba(241, 233, 222, .92));
+  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(73, 56, 43, .08);
+}
+
+html[data-theme='claude-light'] .collision-transport button {
+  color: #fffaf5;
+}
+
+html[data-theme='claude-light'] .collision-transport .collision-transport__secondary {
+  color: #4b4038;
+}
+
+html[data-theme='claude-dark'] .collision-lab {
+  --collision-ink: #f2e9df;
+  --collision-muted: #b7aa9e;
+  --collision-line: rgba(232, 218, 202, .13);
+  --collision-surface: rgba(56, 48, 43, .78);
+  --collision-surface-solid: #342c28;
+  --collision-accent: #df8d69;
+  border-color: rgba(232, 218, 202, .14);
+  background: radial-gradient(circle at 11% -8%, rgba(196, 111, 76, .16), transparent 31%), radial-gradient(circle at 92% 4%, rgba(216, 154, 121, .07), transparent 27%), linear-gradient(145deg, #332b27, #1c1a18);
+  box-shadow: inset 0 1px rgba(255, 248, 237, .07), 0 30px 76px rgba(0, 0, 0, .32);
+}
+
+html[data-theme='claude-dark'] .collision-stage,
+html[data-theme='claude-dark'] .collision-panel,
+html[data-theme='claude-dark'] .collision-velocity-table,
+html[data-theme='claude-dark'] .collision-metric {
+  background: linear-gradient(145deg, rgba(255, 248, 237, .05), rgba(255, 248, 237, .015)), var(--collision-surface);
+}
+
+html[data-theme='claude-dark'] .collision-status,
+html[data-theme='claude-dark'] .collision-control__heading,
+html[data-theme='claude-dark'] .collision-explanation p {
+  color: #d4c7bb;
+}
+
+html[data-theme='claude-dark'] .collision-transport button {
+  color: #2a1912;
+}

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { Atom, Boxes, Magnet, Sparkles } from 'lucide-react'
+import '../styles/experiments.css'
 
 const ThreeBodyLab = lazy(() => import('../features/experiments/threeBody/ThreeBodyLab').then((module) => ({ default: module.ThreeBodyLab })))
 const CollisionLab = lazy(() => import('../features/experiments/collision/CollisionLab').then((module) => ({ default: module.CollisionLab })))

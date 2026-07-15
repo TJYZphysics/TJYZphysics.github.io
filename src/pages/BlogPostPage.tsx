@@ -4,6 +4,7 @@ import GiscusComments from '../components/GiscusComments'
 import MarkdownArticle, { getArticleHeadings } from '../components/MarkdownArticle'
 import ReactionBar from '../components/ReactionBar'
 import { getBlogPost } from '../content/content'
+import '../styles/blog.css'
 
 export default function BlogPostPage() {
   const { slug = '' } = useParams()

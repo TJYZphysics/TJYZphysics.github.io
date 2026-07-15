@@ -360,3 +360,190 @@
   .signal { animation: none; }
   .causal-game * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* Theme integration: the optical board remains a dark plotting field, while
+   navigation, tools and feedback use the site's light or dark surface system. */
+html[data-color-mode='light'] .causal-game {
+  --cg-cyan: #16798b;
+  --cg-cyan-soft: rgba(22, 121, 139, .1);
+  --cg-violet: #6658b7;
+  --cg-violet-soft: rgba(102, 88, 183, .1);
+  --cg-green: #197653;
+  --cg-panel: rgba(255, 255, 255, .86);
+  --cg-line: rgba(37, 55, 69, .14);
+  color: #202b34;
+  border-color: rgba(37, 55, 69, .15);
+  background: radial-gradient(circle at 82% -10%, rgba(102, 88, 183, .1), transparent 38%), radial-gradient(circle at -5% 45%, rgba(22, 121, 139, .08), transparent 32%), linear-gradient(145deg, #f9fbfb, #e9eef0);
+  box-shadow: inset 0 1px #fff, 0 24px 62px rgba(39, 52, 61, .11);
+}
+
+html[data-color-mode='light'] .causal-game::before {
+  opacity: .38;
+  background-image: linear-gradient(rgba(44, 72, 91, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(44, 72, 91, .06) 1px, transparent 1px);
+}
+
+html[data-color-mode='light'] .causal-game__header p,
+html[data-color-mode='light'] .causal-game__level-readout span,
+html[data-color-mode='light'] .causal-game__level-readout small,
+html[data-color-mode='light'] .causal-game__level-copy p,
+html[data-color-mode='light'] .causal-game__console-title small,
+html[data-color-mode='light'] .causal-game__tool-copy small,
+html[data-color-mode='light'] .causal-game__legend span,
+html[data-color-mode='light'] .causal-game__rules {
+  color: #657788;
+}
+
+html[data-color-mode='light'] .causal-game__level-readout {
+  border-color: rgba(22, 121, 139, .24);
+  background: linear-gradient(145deg, rgba(22, 121, 139, .08), rgba(102, 88, 183, .05));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .9);
+}
+
+html[data-color-mode='light'] .causal-game__level-panel {
+  border-color: var(--cg-line);
+  background: rgba(255, 255, 255, .62);
+  box-shadow: inset 0 1px #fff;
+}
+
+html[data-color-mode='light'] .causal-game__level-grid button,
+html[data-color-mode='light'] .causal-game__level-nav button,
+html[data-color-mode='light'] .causal-game__actions button {
+  color: #526372;
+  border-color: rgba(37, 55, 69, .15);
+  background: rgba(255, 255, 255, .76);
+}
+
+html[data-color-mode='light'] .causal-game__level-grid button:hover,
+html[data-color-mode='light'] .causal-game__level-grid button:focus-visible,
+html[data-color-mode='light'] .causal-game__level-nav button:hover:not(:disabled),
+html[data-color-mode='light'] .causal-game__level-nav button:focus-visible:not(:disabled),
+html[data-color-mode='light'] .causal-game__actions button:hover:not(:disabled),
+html[data-color-mode='light'] .causal-game__actions button:focus-visible:not(:disabled) {
+  color: #18242d;
+}
+
+html[data-color-mode='light'] .causal-game__level-grid button.is-active {
+  color: #fff;
+}
+
+html[data-color-mode='light'] .causal-game__console {
+  border-color: var(--cg-line);
+  background: linear-gradient(170deg, rgba(255, 255, 255, .94), rgba(235, 241, 244, .92));
+  box-shadow: inset 0 1px #fff, 0 14px 30px rgba(39, 52, 61, .08);
+}
+
+html[data-color-mode='light'] .causal-game__tool {
+  color: #31414f;
+  border-color: rgba(37, 55, 69, .13);
+  background: rgba(255, 255, 255, .66);
+}
+
+html[data-color-mode='light'] .causal-game__tool-count {
+  color: #145c69;
+}
+
+html[data-color-mode='light'] .causal-game__tool--splitter .causal-game__tool-count {
+  color: #57499d;
+}
+
+html[data-color-mode='light'] .causal-game__actions .causal-game__run {
+  color: #fff;
+  background: linear-gradient(135deg, #16798b, #6658b7);
+  box-shadow: 0 10px 24px rgba(60, 74, 119, .18);
+}
+
+html[data-color-mode='light'] .causal-game__legend {
+  border-color: rgba(37, 55, 69, .12);
+}
+
+html[data-color-mode='light'] .causal-game__stage-wrap {
+  border-color: rgba(37, 55, 69, .16);
+  background: rgba(221, 229, 233, .72);
+  box-shadow: inset 0 2px 20px rgba(42, 55, 65, .11);
+}
+
+html[data-color-mode='light'] .causal-game__feedback {
+  color: #465a69;
+  border-color: rgba(37, 55, 69, .15);
+  border-left-color: #687f90;
+  background: rgba(255, 255, 255, .72);
+}
+
+html[data-color-mode='light'] .causal-game__feedback strong,
+html[data-color-mode='light'] .causal-game__rules summary {
+  color: #283944;
+}
+
+html[data-color-mode='light'] .causal-game__feedback.is-success {
+  color: #255f49;
+  background: rgba(25, 118, 83, .08);
+}
+
+html[data-theme='claude-light'] .causal-game {
+  --cg-cyan: #a55336;
+  --cg-cyan-soft: rgba(165, 83, 54, .1);
+  --cg-violet: #79645a;
+  --cg-violet-soft: rgba(121, 100, 90, .1);
+  --cg-green: #417258;
+  --cg-panel: rgba(255, 252, 246, .88);
+  --cg-line: rgba(66, 53, 44, .15);
+  color: #302925;
+  background: radial-gradient(circle at 82% -10%, rgba(165, 83, 54, .11), transparent 38%), radial-gradient(circle at -5% 45%, rgba(121, 100, 90, .08), transparent 32%), linear-gradient(145deg, #fffdf8, #eee6dc);
+  box-shadow: inset 0 1px #fff, 0 24px 62px rgba(77, 58, 44, .11);
+}
+
+html[data-theme='claude-light'] .causal-game__console {
+  background: linear-gradient(170deg, #fffdf8, #f0e8dd);
+}
+
+html[data-theme='claude-light'] .causal-game__level-grid button.is-active,
+html[data-theme='claude-light'] .causal-game__actions .causal-game__run {
+  color: #fffaf5;
+  background: linear-gradient(135deg, #b76344, #8e6f61);
+}
+
+html[data-theme='claude-dark'] .causal-game {
+  --cg-cyan: #df8f6c;
+  --cg-cyan-soft: rgba(223, 143, 108, .13);
+  --cg-violet: #b9a194;
+  --cg-violet-soft: rgba(185, 161, 148, .12);
+  --cg-green: #87c6a1;
+  --cg-panel: rgba(53, 45, 40, .84);
+  --cg-line: rgba(232, 218, 202, .13);
+  color: #f2e9df;
+  border-color: rgba(232, 218, 202, .14);
+  background: radial-gradient(circle at 82% -10%, rgba(192, 105, 72, .17), transparent 38%), radial-gradient(circle at -5% 45%, rgba(193, 161, 139, .08), transparent 32%), linear-gradient(145deg, #352d28, #1b1917);
+  box-shadow: inset 0 1px rgba(255, 248, 237, .07), 0 24px 70px rgba(0, 0, 0, .34);
+}
+
+html[data-theme='claude-dark'] .causal-game__header p,
+html[data-theme='claude-dark'] .causal-game__level-copy p,
+html[data-theme='claude-dark'] .causal-game__console-title small,
+html[data-theme='claude-dark'] .causal-game__tool-copy small,
+html[data-theme='claude-dark'] .causal-game__legend span,
+html[data-theme='claude-dark'] .causal-game__rules {
+  color: #b8aa9e;
+}
+
+html[data-theme='claude-dark'] .causal-game__level-panel,
+html[data-theme='claude-dark'] .causal-game__stage-wrap {
+  border-color: var(--cg-line);
+  background: rgba(20, 18, 17, .34);
+}
+
+html[data-theme='claude-dark'] .causal-game__console {
+  background: linear-gradient(170deg, rgba(61, 52, 46, .9), rgba(30, 27, 24, .92));
+}
+
+html[data-theme='claude-dark'] .causal-game__tool,
+html[data-theme='claude-dark'] .causal-game__level-grid button,
+html[data-theme='claude-dark'] .causal-game__level-nav button,
+html[data-theme='claude-dark'] .causal-game__actions button {
+  border-color: rgba(232, 218, 202, .12);
+  background: rgba(255, 248, 237, .035);
+}
+
+html[data-theme='claude-dark'] .causal-game__actions .causal-game__run {
+  color: #2b1c16;
+  background: linear-gradient(135deg, #e29a79, #b56f54);
+}

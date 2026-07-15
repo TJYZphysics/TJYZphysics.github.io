@@ -492,3 +492,154 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Site theme integration. The simulation viewport intentionally stays dark so
+   body trails remain legible; controls and readouts follow the selected mode. */
+html[data-color-mode='light'] .three-body-lab {
+  --tb-ink: #202831;
+  --tb-muted: #637080;
+  --tb-cyan: #14768d;
+  --tb-blue: #3869a8;
+  --tb-line: rgba(32, 49, 65, .15);
+}
+
+html[data-color-mode='light'] .three-body-console,
+html[data-color-mode='light'] .three-body-metrics {
+  border-color: var(--tb-line);
+  background: linear-gradient(145deg, rgba(255, 255, 255, .98), rgba(239, 244, 247, .92));
+  box-shadow: inset 0 1px #fff, 0 18px 42px rgba(38, 52, 63, .1);
+}
+
+html[data-color-mode='light'] .three-body-console::before {
+  background: radial-gradient(circle at 10% 0%, rgba(20, 118, 141, .09), transparent 34%), linear-gradient(115deg, transparent 55%, rgba(56, 105, 168, .045));
+}
+
+html[data-color-mode='light'] .three-body-heading,
+html[data-color-mode='light'] .three-body-control-stack {
+  border-color: rgba(32, 49, 65, .13);
+}
+
+html[data-color-mode='light'] .three-body-field label,
+html[data-color-mode='light'] .three-body-masses legend,
+html[data-color-mode='light'] .three-body-range > label {
+  color: #394959;
+}
+
+html[data-color-mode='light'] .three-body-field select {
+  color: #202831;
+  color-scheme: light;
+  border-color: rgba(32, 49, 65, .18);
+  background: rgba(255, 255, 255, .84);
+}
+
+html[data-color-mode='light'] .three-body-field p {
+  color: #667587;
+}
+
+html[data-color-mode='light'] .three-body-range input[type='range']::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, rgba(20, 118, 141, .72), rgba(56, 105, 168, .26));
+  box-shadow: inset 0 1px 2px rgba(31, 44, 55, .18);
+}
+
+html[data-color-mode='light'] .three-body-range input[type='range']::-moz-range-track {
+  background: linear-gradient(90deg, rgba(20, 118, 141, .72), rgba(56, 105, 168, .26));
+}
+
+html[data-color-mode='light'] .three-body-actions button {
+  color: #344455;
+  border-color: rgba(32, 49, 65, .17);
+  background: linear-gradient(180deg, #fff, #e9eef2);
+  box-shadow: inset 0 1px #fff, 0 5px 13px rgba(39, 53, 64, .08);
+}
+
+html[data-color-mode='light'] .three-body-actions button:disabled {
+  color: #8b959f;
+}
+
+html[data-color-mode='light'] .three-body-actions .three-body-primary {
+  color: #fff;
+  border-color: #14768d;
+  background: linear-gradient(135deg, #16859d, #397bb7);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .28), 0 8px 18px rgba(20, 118, 141, .2);
+}
+
+html[data-color-mode='light'] .three-body-status {
+  color: #596879;
+  border-color: rgba(32, 49, 65, .12);
+  background: rgba(228, 235, 240, .7);
+}
+
+html[data-color-mode='light'] .three-body-metrics > div {
+  background: rgba(255, 255, 255, .7);
+}
+
+html[data-color-mode='light'] .three-body-metrics span {
+  color: #687687;
+}
+
+html[data-color-mode='light'] .three-body-metrics strong {
+  color: #293746;
+}
+
+html[data-color-mode='light'] .three-body-canvas-frame {
+  border-color: rgba(30, 56, 82, .28);
+  background: #0c152b;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 18px 42px rgba(35, 48, 63, .14);
+}
+
+html[data-theme='claude-light'] .three-body-lab {
+  --tb-ink: #2f2925;
+  --tb-muted: #746b64;
+  --tb-cyan: #a54f31;
+  --tb-blue: #6d625a;
+  --tb-line: rgba(63, 51, 43, .16);
+}
+
+html[data-theme='claude-light'] .three-body-console,
+html[data-theme='claude-light'] .three-body-metrics {
+  background: linear-gradient(145deg, #fffdf8, #f1ebe2);
+  box-shadow: inset 0 1px #fff, 0 18px 42px rgba(74, 57, 45, .1);
+}
+
+html[data-theme='claude-light'] .three-body-field label,
+html[data-theme='claude-light'] .three-body-masses legend,
+html[data-theme='claude-light'] .three-body-range > label {
+  color: #4c433d;
+}
+
+html[data-theme='claude-light'] .three-body-actions .three-body-primary {
+  border-color: #a54f31;
+  background: linear-gradient(135deg, #bd6747, #9e4d32);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .28), 0 8px 18px rgba(165, 79, 49, .2);
+}
+
+html[data-theme='claude-dark'] .three-body-lab {
+  --tb-ink: #f1e9df;
+  --tb-muted: #b6a99d;
+  --tb-cyan: #e09573;
+  --tb-blue: #b8a495;
+  --tb-line: rgba(231, 218, 201, .14);
+}
+
+html[data-theme='claude-dark'] .three-body-console,
+html[data-theme='claude-dark'] .three-body-metrics {
+  background: linear-gradient(145deg, rgba(64, 54, 47, .86), rgba(29, 26, 24, .92));
+  box-shadow: inset 0 1px rgba(255, 248, 237, .07), 0 22px 52px rgba(0, 0, 0, .3);
+}
+
+html[data-theme='claude-dark'] .three-body-field label,
+html[data-theme='claude-dark'] .three-body-masses legend,
+html[data-theme='claude-dark'] .three-body-range > label {
+  color: #d8ccc0;
+}
+
+html[data-theme='claude-dark'] .three-body-field select {
+  border-color: rgba(231, 218, 201, .16);
+  background: rgba(25, 23, 21, .72);
+}
+
+html[data-theme='claude-dark'] .three-body-actions .three-body-primary {
+  color: #261914;
+  border-color: rgba(243, 180, 151, .62);
+  background: linear-gradient(135deg, #efad8e, #ce7452);
+}
