@@ -7,11 +7,13 @@ import BlogPostPage from './pages/BlogPostPage'
 import ExperimentsPage from './pages/ExperimentsPage'
 import AboutPage from './pages/AboutPage'
 import NavigationPage from './pages/NavigationPage'
+import VideosPage from './pages/VideosPage'
 import './styles/global.css'
 
 const navItems = [
   { to: '/', label: '主页', end: true }, { to: '/blog', label: '博客' },
-  { to: '/experiments', label: '实验' }, { to: '/navigation', label: '导航' }, { to: '/about', label: 'About us' },
+  { to: '/experiments', label: '实验' }, { to: '/videos', label: '视频' },
+  { to: '/navigation', label: '导航' }, { to: '/about', label: 'About us' },
 ]
 type Theme = 'dark' | 'light'
 const THEME_STORAGE_KEY = 'tjyz-theme'
@@ -43,8 +45,8 @@ function SiteHeader() {
   </header>
 }
 
-function SiteFooter() { return <footer className="site-footer"><div><strong>TJYZ PHYSICS</strong><span>为终身学习，为万物好奇</span></div><p>© 2026 TJYZ Physics · Built for curious minds.</p></footer> }
+function SiteFooter() { return <footer className="site-footer"><div><strong>TJYZ PHYSICS</strong><span>为往圣继绝学，为万世开太平</span></div><p>© 2026 TJYZ Physics · Built for curious minds.</p></footer> }
 export default function App() { return <div className="site-root"><SiteHeader /><Routes>
-  <Route path="/" element={<HomePage />} /><Route path="/blog" element={<BlogPage />} /><Route path="/blog/:slug" element={<BlogPostPage />} /><Route path="/experiments" element={<ExperimentsPage />} /><Route path="/navigation" element={<NavigationPage />} /><Route path="/about" element={<AboutPage />} />
+  <Route path="/" element={<HomePage />} /><Route path="/blog" element={<BlogPage />} /><Route path="/blog/:slug" element={<BlogPostPage />} /><Route path="/experiments" element={<ExperimentsPage />} /><Route path="/videos" element={<VideosPage />} /><Route path="/navigation" element={<NavigationPage />} /><Route path="/about" element={<AboutPage />} />
   <Route path="*" element={<main className="not-found"><p>404 / 未知坐标</p><h1>这里没有可观测事件。</h1><NavLink to="/">返回主页</NavLink></main>} />
 </Routes><SiteFooter /></div> }

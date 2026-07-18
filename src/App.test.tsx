@@ -5,11 +5,12 @@ import App from './App'
 
 describe('site routes', () => {
   beforeEach(() => window.localStorage.clear())
-  it('renders the five primary navigation modules', () => {
+  it('renders the six primary navigation modules', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
     expect(screen.getByRole('link', { name: '主页' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '博客' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '实验' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '视频' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '导航' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'About us' })).toBeInTheDocument()
   })
@@ -26,7 +27,7 @@ describe('site routes', () => {
   })
   it('renders both About Markdown documents without a theme toggle', () => {
     render(<MemoryRouter initialEntries={['/about']}><App /></MemoryRouter>)
-    expect(screen.getByRole('heading', { name: /关于物理社/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /关于PT物理社/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /社团历史/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /切换.*主题/ })).not.toBeInTheDocument()
   })
@@ -36,5 +37,11 @@ describe('site routes', () => {
     expect(document.documentElement).toHaveAttribute('data-theme', 'light')
     expect(window.localStorage.getItem('tjyz-theme')).toBe('light')
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+  })
+  it('filters HTML videos by search text and tag', () => {
+    render(<MemoryRouter initialEntries={['/videos']}><App /></MemoryRouter>)
+    expect(screen.getByRole('link', { name: /播放《IYPT比赛介绍》/ })).toBeInTheDocument()
+    fireEvent.change(screen.getByPlaceholderText(/搜索标题/), { target: { value: '不存在的影片' } })
+    expect(screen.getByText('没有找到匹配的影片')).toBeInTheDocument()
   })
 })
