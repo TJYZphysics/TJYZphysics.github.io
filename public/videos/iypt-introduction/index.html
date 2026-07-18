@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="通过滚动或自动播放浏览的 IYPT 物理竞赛网页动画。" />
+    <meta name="theme-color" content="#080a0f" />
+    <title>IYPT比赛介绍｜TJYZ Physics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,500;6..72,700;6..72,800&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23080a0f'/%3E%3Cpath d='M5 8h22l-5 16H5z' fill='%23d84a3a'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#story">跳到动画内容</a>
+
+    <header class="chrome" aria-label="当前章节">
+      <a class="wordmark" href="#story" aria-label="返回开场"><span class="wordmark-mark" aria-hidden="true"></span><span>IYPT</span></a>
+      <div class="chapter-readout" aria-live="polite">
+        <span id="chapterIndex">01</span><span class="chapter-divider">/</span><span id="chapterTotal">20</span><span id="chapterName">序章</span>
+      </div>
+    </header>
+
+    <div class="playback-controls" aria-label="自动播放控制">
+      <button id="playbackToggle" class="playback-toggle" type="button" aria-label="开始自动播放" aria-pressed="false">
+        <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5Z" /></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>
+      </button>
+      <label class="sr-only" for="speedControl">自动播放倍速</label>
+      <select id="speedControl" class="speed-control" aria-label="自动播放倍速">
+        <option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+      </select>
+    </div>
+
+    <nav class="chapter-nav" aria-label="章节导航">
+      <button class="chapter-dot is-active" type="button" data-go="0" aria-label="序章"></button>
+      <button class="chapter-dot" type="button" data-go="1" aria-label="竞赛简介"></button>
+      <button class="chapter-dot" type="button" data-go="2" aria-label="竞赛对比"></button>
+      <button class="chapter-dot" type="button" data-go="3" aria-label="开放问题"></button>
+      <button class="chapter-dot" type="button" data-go="4" aria-label="团队合作"></button>
+      <button class="chapter-dot" type="button" data-go="5" aria-label="起步阶段"></button>
+      <button class="chapter-dot" type="button" data-go="6" aria-label="研究日历"></button>
+      <button class="chapter-dot" type="button" data-go="7" aria-label="研究方法"></button>
+      <button class="chapter-dot" type="button" data-go="8" aria-label="Physics Fight"></button>
+      <button class="chapter-dot" type="button" data-go="9" aria-label="正方展示"></button>
+      <button class="chapter-dot" type="button" data-go="10" aria-label="正方准备"></button>
+      <button class="chapter-dot" type="button" data-go="11" aria-label="正方小结"></button>
+      <button class="chapter-dot" type="button" data-go="12" aria-label="反方理论质疑"></button>
+      <button class="chapter-dot" type="button" data-go="13" aria-label="反方实验质疑"></button>
+      <button class="chapter-dot" type="button" data-go="14" aria-label="评论方"></button>
+      <button class="chapter-dot" type="button" data-go="15" aria-label="良性讨论"></button>
+      <button class="chapter-dot" type="button" data-go="16" aria-label="评分重点"></button>
+      <button class="chapter-dot" type="button" data-go="17" aria-label="国际舞台"></button>
+      <button class="chapter-dot" type="button" data-go="18" aria-label="成长旅程"></button>
+      <button class="chapter-dot" type="button" data-go="19" aria-label="尾声"></button>
+    </nav>
+
+    <main id="story" class="story" data-composition-id="iypt-scroll-story" data-duration="20" data-width="1920" data-height="1080">
+      <div class="stage" id="stage">
+        <div class="stage-frame" aria-hidden="true"></div><div class="projector-glow" aria-hidden="true"></div><div class="grain" aria-hidden="true"></div><div class="scanline" aria-hidden="true"></div>
+
+        <section class="scene scene-hero is-active" data-scene="0" aria-label="IYPT 序章">
+          <div class="scene-content hero-layout">
+            <div class="hero-copy">
+              <p class="scene-code" data-enter>INTERNATIONAL YOUNG PHYSICISTS’ TOURNAMENT</p>
+              <h1 class="hero-title" data-enter><span>I</span><span>Y</span><span>P</span><span>T</span></h1>
+              <div class="hero-rule" data-enter></div><p class="hero-cn" data-enter>探索物理边界</p>
+              <p class="hero-sub" data-enter>把课堂知识带到没有标准答案的真实世界，在实验、辩论与协作中接近科学研究的本来面貌。</p>
+            </div>
+            <div class="hero-apparatus" data-enter aria-hidden="true">
+              <svg viewBox="0 0 620 720"><path class="apparatus-faint" d="M50 608 H570 M100 642 H520"/><path class="apparatus-line" d="M118 608 V110 H432 M162 110 H386"/><g class="pendulum"><path class="pendulum-thread" d="M350 110 L432 430"/><circle class="pendulum-bob" cx="432" cy="430" r="30"/><circle class="pendulum-core" cx="432" cy="430" r="5"/></g><path class="arc-guide" d="M245 450 A225 225 0 0 0 486 443"/><path class="wave-path" d="M70 532 C115 470 158 594 204 532 S294 470 340 532 S430 594 476 532 S548 482 578 522"/><circle class="data-pulse" cx="340" cy="532" r="8"/><text class="svg-note" x="68" y="87">OBSERVE</text><text class="svg-note" x="445" y="470">θ(t)</text><text class="svg-note" x="72" y="682">QUESTION → RESEARCH → DEFEND</text></svg>
+            </div>
+          </div>
+          <div class="scroll-cue" data-enter><span>滚动以推进时间</span><span class="scroll-cue-line"></span></div><div class="ghost-word" aria-hidden="true">BOUNDARY</div>
+        </section>
+
+        <section class="scene scene-profile" data-scene="1" aria-label="竞赛简介" aria-hidden="true">
+          <div class="scene-content cinema-split">
+            <div class="cinema-copy"><p class="scene-index" data-enter>01 — WHAT IS IYPT</p><h2 data-enter>中学生的<br><span>物理世界杯</span></h2><p class="body-copy wide-copy" data-enter>国际青年物理学家锦标赛始于 1988 年，最初由苏联科学家发起，如今吸引全球 30 多个国家参与。它与 IPhO 和国际青年学生科学论文竞赛并称三大顶级国际中学生物理竞赛。</p></div>
+            <div class="profile-ledger" data-enter><div><strong>1988</strong><span>赛事走向国际化</span></div><div><strong>30+</strong><span>参与国家和地区</span></div><div><strong>IYPT</strong><span>International</span></div><div><strong>CYPT</strong><span>China Young Physicists’ Tournament</span></div><p>下文中如无特殊说明，IYPT 与 CYPT 的研究和比赛方法可以通用。</p></div>
+          </div><div class="ghost-word ghost-right" aria-hidden="true">1988</div>
+        </section>
+
+        <section class="scene scene-compare" data-scene="2" aria-label="竞赛对比" aria-hidden="true">
+          <div class="scene-content compare-layout"><div class="compare-heading"><p class="scene-index" data-enter>02 — NOT AN OLYMPIAD</p><h2 data-enter>同样是物理，<br>路径完全不同</h2></div>
+            <div class="comparison-table" data-enter role="table" aria-label="IYPT 与其他物理竞赛对比">
+              <div class="compare-row compare-head" role="row"><span>比较维度</span><strong>IYPT</strong><span>IPhO</span><span>传统竞赛</span></div>
+              <div class="compare-row" role="row"><b>题目</b><strong>开放，无标准答案</strong><span>封闭，有标准答案</span><span>封闭，有标准答案</span></div>
+              <div class="compare-row" role="row"><b>形式</b><strong>团队辩论 / 物理对抗</strong><span>个人笔试与实验</span><span>个人笔试</span></div>
+              <div class="compare-row" role="row"><b>重点</b><strong>方法、创新、协作</strong><span>解题与实验技能</span><span>知识与解题</span></div>
+              <div class="compare-row" role="row"><b>周期</b><strong>长达一年的研究</strong><span>集中训练</span><span>短期备考</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene scene-problems" data-scene="3" aria-label="十七道开放问题" aria-hidden="true">
+          <div class="scene-content problems-layout"><div class="problems-copy"><p class="scene-index" data-enter>03 — OPEN PROBLEMS</p><p class="giant-number" data-enter>17</p><h2 data-enter>道来自生活的谜题</h2><p class="body-copy" data-enter>题目通常在前一年夏季公布。它们没有唯一答案，参赛者需要从日常现象中发现规律，以理论、实验与数据构建自己的解释。</p></div>
+            <div class="problem-field" data-enter aria-hidden="true"><article class="problem-sheet sheet-a"><span>OBSERVE / 01</span><strong>现象为什么会发生？</strong><svg viewBox="0 0 360 160"><path d="M20 118 C68 26 112 148 160 70 S254 12 338 108"/><circle cx="160" cy="70" r="7"/></svg></article><article class="problem-sheet sheet-b"><span>VARIABLE / 09</span><strong>哪些参数决定结果？</strong><div class="mini-axis"><i></i><i></i><i></i><i></i><i></i></div></article><article class="problem-sheet sheet-c"><span>LIMIT / 17</span><strong>模型会在哪里失效？</strong><svg viewBox="0 0 360 150"><path d="M24 126 L78 112 L126 84 L180 92 L232 47 L282 60 L336 20"/><path class="dash" d="M24 112 L336 34"/></svg></article></div>
+          </div>
+        </section>
+
+        <section class="scene scene-team" data-scene="4" aria-label="团队合作" aria-hidden="true">
+          <div class="scene-content cinema-split reverse"><div class="team-constellation" data-enter aria-hidden="true"><div class="team-core">ONE<br>TEAM</div><span style="--a:-82deg">理论</span><span style="--a:-18deg">实验</span><span style="--a:48deg">数据</span><span style="--a:116deg">汇报</span><span style="--a:184deg">质询</span><span style="--a:248deg">协作</span></div>
+            <div class="cinema-copy"><p class="scene-index" data-enter>04 — TEAMWORK</p><h2 data-enter><span>3–6</span> 人，<br>共同完成一项研究</h2><p class="body-copy wide-copy" data-enter>一支典型队伍由 3–6 名学生组成。面对 17 道题，他们需要选择课题、明确分工，并共同走完理论分析、实验设计、数据处理和结果呈现的全过程。</p><p class="margin-note" data-enter>个人聪明不够，研究必须能够交接、复核与共同进化。</p></div>
+          </div>
+        </section>
+
+        <section class="scene scene-start" data-scene="5" aria-label="起步阶段" aria-hidden="true">
+          <div class="scene-content timeline-layout"><div class="timeline-copy"><p class="scene-index" data-enter>05 — THE START</p><h2 data-enter>九月建队，<br>开始备赛</h2><p class="body-copy" data-enter>比赛通常从前一年的 9 月左右开始；题目则在更早的夏季发布。例如，2025 年 IYPT 题目于 2024 年 7 月 18 日经国际组织委员会批准发布。</p></div>
+            <div class="season-clock" data-enter><div class="season-hand"></div><div class="season-center">START</div><span class="season summer">JUL<br><b>题目公布</b></span><span class="season autumn">SEP<br><b>建队选题</b></span><span class="season winter">DEC<br><b>研究深入</b></span><span class="season spring">FEB<br><b>准备汇报</b></span></div>
+          </div>
+        </section>
+
+        <section class="scene scene-calendar" data-scene="6" aria-label="研究日历" aria-hidden="true">
+          <div class="scene-content calendar-layout"><div class="calendar-heading"><p class="scene-index" data-enter>06 — FIVE TO SIX MONTHS</p><h2 data-enter>备赛的核心，<br>是一段持续研究</h2></div>
+            <div class="research-calendar" data-enter><div class="month-axis"><span>10 月</span><span>11 月</span><span>12 月</span><span>1 月</span><span>2 月</span></div><div class="calendar-bar bar-1"><b>理论调研与初步分析</b><i></i></div><div class="calendar-bar bar-2"><b>预实验</b><i></i></div><div class="calendar-bar bar-3"><b>基于预实验的理论分析</b><i></i></div><div class="calendar-bar bar-4"><b>理论研究 + 正式实验</b><i></i></div><div class="calendar-bar bar-5"><b>准备汇报</b><i></i></div></div>
+          </div>
+        </section>
+
+        <section class="scene scene-research" data-scene="7" aria-label="研究方法" aria-hidden="true">
+          <div class="scene-content research-layout"><div class="research-visual" data-enter aria-hidden="true"><svg class="research-ring" viewBox="0 0 760 760"><circle class="ring-outer" cx="380" cy="380" r="286"/><circle class="ring-inner" cx="380" cy="380" r="174"/><path class="ring-progress" d="M380 94 A286 286 0 1 1 379 94"/><g class="research-node node-1"><circle cx="380" cy="94" r="38"/><text x="380" y="102">问</text></g><g class="research-node node-2"><circle cx="652" cy="292" r="38"/><text x="652" y="300">思</text></g><g class="research-node node-3"><circle cx="548" cy="614" r="38"/><text x="548" y="622">算</text></g><g class="research-node node-4"><circle cx="212" cy="614" r="38"/><text x="212" y="622">验</text></g><g class="research-node node-5"><circle cx="108" cy="292" r="38"/><text x="108" y="300">答</text></g><g class="drop-rig"><path d="M286 270 H474 M330 270 V486 M430 270 V486 M330 486 H430"/><path d="M380 296 C352 336 360 368 380 374 C400 368 408 336 380 296Z"/><path class="ripple" d="M340 456 C360 438 400 438 420 456 M324 476 C354 446 406 446 436 476"/></g></svg></div>
+            <div class="research-copy"><p class="scene-index" data-enter>07 — RESEARCH LOOP</p><h2 data-enter>问 · 思 · 算<br>验 · 答</h2><ol class="research-steps" data-enter><li><span>01</span>观察现象，提出可研究的问题</li><li><span>02</span>思考机制，查阅资料并建立假设</li><li><span>03</span>推导计算，形成定量模型</li><li><span>04</span>设计实验，用数据检验模型</li><li><span>05</span>回答问题，也明确答案的边界</li></ol></div>
+          </div>
+        </section>
+
+        <section class="scene scene-fight" data-scene="8" aria-label="Physics Fight" aria-hidden="true">
+          <div class="scene-content fight-layout"><div class="fight-copy"><p class="scene-index" data-enter>08 — PHYSICS FIGHT</p><h2 data-enter>研究完成后，<em>开始交锋</em></h2><p class="body-copy" data-enter>IYPT 由多轮选拔赛与决赛组成。每场“物理对抗”模拟真实学术研讨：队伍轮流担任正方、反方与评论方，在报告、质疑和评价中推进讨论。</p><div class="fight-legend" data-enter><span><i class="role-red"></i>正方</span><span><i class="role-ivory"></i>反方</span><span><i class="role-gray"></i>评论方</span></div></div>
+            <div class="fight-orbit" data-enter aria-hidden="true"><div class="fight-ring"></div><div class="role role-reporter"><span>REPORTER</span><strong>正方</strong><small>展示并辩护研究</small></div><div class="role role-opponent"><span>OPPONENT</span><strong>反方</strong><small>建设性地提出质疑</small></div><div class="role role-reviewer"><span>REVIEWER</span><strong>评论方</strong><small>识别焦点并评价讨论</small></div><div class="fight-center"><span>PHYSICS</span><strong>FIGHT</strong><i></i></div><svg class="fight-arrows" viewBox="0 0 700 700"><path d="M350 70 A280 280 0 0 1 594 486"/><path d="M594 486 A280 280 0 0 1 106 486"/><path d="M106 486 A280 280 0 0 1 350 70"/></svg></div>
+          </div>
+        </section>
+
+        <section class="scene scene-role" data-scene="9" aria-label="正方展示" aria-hidden="true">
+          <div class="scene-content role-layout reporter-theme"><div class="role-number" data-enter>R</div><div class="role-copy"><p class="scene-index" data-enter>09 — REPORTER / 正方</p><h2 data-enter>展示研究，<br>也要守住逻辑</h2><p class="body-copy wide-copy" data-enter>正方必须熟悉自己的理论，全面、清晰地展示研究成果，并有效回应反方质疑。PPT 要逻辑明确、画面美观；表达要流利，减少“然后”“嗯”“啊”等语气词，让评委真正听懂。</p><div class="role-principles" data-enter><span>清晰的结构</span><span>可靠的证据</span><span>流畅的表达</span></div></div></div>
+        </section>
+
+        <section class="scene scene-prep" data-scene="10" aria-label="正方准备" aria-hidden="true">
+          <div class="scene-content prep-layout"><div class="prep-copy"><p class="scene-index" data-enter>10 — PREPARE TO DEFEND</p><h2 data-enter>自我辩论<br>协同进化<br>临场发挥<br>赛后总结</h2></div><ol class="prep-steps" data-enter><li><span>01</span><p>先找出自己的研究可能存在的问题，并准备回答。</p></li><li><span>02</span><p>请研究同一题目的同学审核，模拟提问。</p></li><li><span>03</span><p>把成果发给其他队员，让不同视角发现盲点。</p></li><li><span>04</span><p>开展多轮模拟赛，训练抗压与现场应对，并在赛后复盘。</p></li></ol></div>
+        </section>
+
+        <section class="scene scene-summary" data-scene="11" aria-label="正方小结" aria-hidden="true">
+          <div class="scene-content cinema-split"><div class="cinema-copy"><p class="scene-index" data-enter>11 — REPORTER’S LAST WORD</p><h2 data-enter>小结不是重复，<br>而是<span>收束</span></h2><ul class="editorial-list" data-enter><li>补充质询中没有说明清楚的部分</li><li>回答此前没能回答的问题</li><li>明确“研究了什么、做到了什么”</li></ul></div><div class="tip-board" data-enter><p>现场提示</p><blockquote>如果反方暂时没有提出问题，可以主动解释正文简略带过或附录中的内容；但不能把临场应变当作不准备的借口。</blockquote><small>常见质疑更容易集中在实验部分，因为实验通常比复杂理论更容易被快速理解。</small></div></div>
+        </section>
+
+        <section class="scene scene-opponent" data-scene="12" aria-label="反方理论质疑" aria-hidden="true">
+          <div class="scene-content opponent-layout"><div class="opponent-heading"><p class="scene-index" data-enter>12 — OPPONENT / THEORY</p><h2 data-enter>质疑，<br>也要有建设性</h2><p class="body-copy" data-enter>反方的目标不是简单否定，而是沿着“理论 → 实验 → 结论”的链条，让研究暴露边界并继续深入。准备过程同样需要自我辩论、协同进化、临场发挥与赛后总结。</p></div><div class="question-stack" data-enter><div>忽视了哪些损耗或误差？</div><div>模型是否过度简化？</div><div>假设与理论是否适用？</div><div>量纲和数量级是否正确？</div><div>计算过程能否被复核？</div></div></div>
+        </section>
+
+        <section class="scene scene-chain" data-scene="13" aria-label="反方实验质疑" aria-hidden="true">
+          <div class="scene-content chain-layout"><div class="chain-heading"><p class="scene-index" data-enter>13 — OPPONENT / EXPERIMENT</p><h2 data-enter>沿实验链条，<br>层层深入</h2></div><div class="critique-chain" data-enter><article><b>01</b><strong>实验设计</strong><p>控制变量充分吗？条件合理吗？</p></article><article><b>02</b><strong>数据处理</strong><p>统计方法恰当吗？异常值如何处理？</p></article><article><b>03</b><strong>数据结果</strong><p>量纲与数量级正确吗？</p></article><article><b>04</b><strong>结果分析</strong><p>因果关系确凿吗？有无混淆因素？</p></article><article><b>05</b><strong>结论推导</strong><p>是否过度解读？有无替代解释？</p></article></div></div>
+        </section>
+
+        <section class="scene scene-reviewer" data-scene="14" aria-label="评论方" aria-hidden="true">
+          <div class="scene-content reviewer-layout"><div class="reviewer-balance" data-enter aria-hidden="true"><div class="balance-beam"></div><span>正方</span><span>反方</span><strong>焦点</strong></div><div class="reviewer-copy"><p class="scene-index" data-enter>14 — REVIEWER / 评论方</p><h2 data-enter>保持中立，<br>把讨论再提升一层</h2><ul class="editorial-list compact" data-enter><li>用客观语言评价双方，而不是站队</li><li>迅速识别争论焦点，避免陷入细节纠缠</li><li>整合观点，指出共同忽视的方面</li><li>联系更广泛的物理原理，提出未来方向</li></ul></div></div>
+        </section>
+
+        <section class="scene scene-dialogue" data-scene="15" aria-label="良性讨论" aria-hidden="true">
+          <div class="scene-content dialogue-layout"><p class="scene-index" data-enter>15 — CONSTRUCTIVE DIALOGUE</p><h2 class="two-line-statement" data-enter><span>不是“答对”，</span><span>而是说服</span></h2><div class="dialogue-columns" data-enter><p>学术辩论的目标是追求真理，而不是赢过对方。正方用证据守住结论，反方用质疑推动改进，评论方让双方看见更完整的图景。</p><blockquote>“正方进行了有效的变量控制，反方也对数据统计方法提出了合理质疑。”</blockquote></div></div><div class="red-slice" aria-hidden="true"></div>
+        </section>
+
+        <section class="scene scene-values" data-scene="16" aria-label="评分重点" aria-hidden="true">
+          <div class="scene-content values-layout"><div class="values-copy"><p class="scene-index" data-enter>16 — WHAT COUNTS</p><h2 data-enter>评分看见的，<br>不只是最后一张图</h2></div><div class="value-spectrum" data-enter><div style="--v:92%"><span>研究方法</span><i></i></div><div style="--v:84%"><span>创新思维</span><i></i></div><div style="--v:88%"><span>实验与证据</span><i></i></div><div style="--v:78%"><span>学术表达</span><i></i></div><div style="--v:86%"><span>团队协作</span><i></i></div></div><p class="values-note" data-enter>这也是为什么 IYPT 需要长周期研究，而不是短期背题。</p></div>
+        </section>
+
+        <section class="scene scene-world" data-scene="17" aria-label="国际舞台" aria-hidden="true">
+          <div class="scene-content world-layout"><div class="world-globe" data-enter aria-hidden="true"><div class="globe-halo"></div><svg viewBox="0 0 760 760"><circle class="globe-outline" cx="380" cy="380" r="288"/><ellipse class="globe-line" cx="380" cy="380" rx="132" ry="288"/><ellipse class="globe-line" cx="380" cy="380" rx="236" ry="288"/><ellipse class="globe-line" cx="380" cy="380" rx="288" ry="96"/><ellipse class="globe-line" cx="380" cy="380" rx="288" ry="204"/><path class="globe-route" d="M168 238 C270 180 350 266 414 218 S552 160 616 252"/><path class="globe-route route-two" d="M118 460 C244 364 338 520 456 432 S588 360 656 446"/><g class="world-points"><circle cx="168" cy="238" r="9"/><circle cx="414" cy="218" r="9"/><circle cx="616" cy="252" r="9"/><circle cx="118" cy="460" r="9"/><circle cx="456" cy="432" r="9"/><circle cx="656" cy="446" r="9"/></g></svg></div><div class="world-copy"><p class="scene-index" data-enter>17 — THE WORLD STAGE</p><h2 data-enter>物理，是一种共同语言</h2><p class="body-copy" data-enter>来自不同国家和地区的中学生以实验、图表和论证相遇。国际赛叫 IYPT，中国赛称 CYPT；共同的核心，是让年轻研究者体验同行评议和跨文化协作。</p><div class="world-facts" data-enter><div><strong>GLOBAL</strong><span>跨文化团队对话</span></div><div><strong>PEER REVIEW</strong><span>在中学阶段体验同行评议</span></div><div><strong>PHYSICS</strong><span>超越语言差异的共同证据</span></div></div></div></div>
+        </section>
+
+        <section class="scene scene-growth" data-scene="18" aria-label="成长旅程" aria-hidden="true">
+          <div class="scene-content growth-layout"><div class="growth-copy"><p class="scene-index" data-enter>18 — A WINDOW, A BRIDGE, A START</p><h2 data-enter>IYPT 是一扇窗，<br>一座桥，<br>也是一个<span>起点</span></h2><p class="body-copy" data-enter>它让年轻的物理爱好者看见科学研究的真实面貌，连接课堂知识与复杂世界，也可能开启一段持续终身的科学探索。</p></div><div class="growth-words" data-enter><div class="growth-row"><span>观察</span><i></i><strong>WINDOW</strong></div><div class="growth-row"><span>连接</span><i></i><strong>BRIDGE</strong></div><div class="growth-row"><span>探索</span><i></i><strong>JOURNEY</strong></div><div class="growth-row"><span>成长</span><i></i><strong>COURAGE</strong></div></div></div>
+        </section>
+
+        <section class="scene scene-outro" data-scene="19" aria-label="IYPT 尾声" aria-hidden="true">
+          <div class="scene-content outro-layout"><p class="outro-question" data-enter>无论比赛结果如何，参与 IYPT 本身就是一次宝贵的成长旅程。</p><div class="outro-title" data-enter><span>EXPLORE THE</span><strong><span>PHYSICS</span><span>BOUNDARY.</span></strong></div><div class="outro-footer" data-enter><a href="https://iypt.org/" target="_blank" rel="noreferrer">访问 IYPT 官方网站</a><a href="/videos">返回视频资料库</a><span>勇敢尝试，全心投入。</span></div></div><div class="outro-orbit" aria-hidden="true"><i></i><i></i><i></i></div><div class="closing-mark" data-enter><b></b><span>IYPT</span></div>
+        </section>
+
+        <div class="transition-focus" id="transitionFocus" aria-hidden="true"></div><div class="transition-gate" id="transitionGate" aria-hidden="true"></div>
+      </div>
+
+      <div class="scroll-track" aria-hidden="true">
+        <div class="scroll-beat" data-beat="0"></div><div class="scroll-beat" data-beat="1"></div><div class="scroll-beat" data-beat="2"></div><div class="scroll-beat" data-beat="3"></div><div class="scroll-beat" data-beat="4"></div><div class="scroll-beat" data-beat="5"></div><div class="scroll-beat" data-beat="6"></div><div class="scroll-beat" data-beat="7"></div><div class="scroll-beat" data-beat="8"></div><div class="scroll-beat" data-beat="9"></div><div class="scroll-beat" data-beat="10"></div><div class="scroll-beat" data-beat="11"></div><div class="scroll-beat" data-beat="12"></div><div class="scroll-beat" data-beat="13"></div><div class="scroll-beat" data-beat="14"></div><div class="scroll-beat" data-beat="15"></div><div class="scroll-beat" data-beat="16"></div><div class="scroll-beat" data-beat="17"></div><div class="scroll-beat" data-beat="18"></div><div class="scroll-beat" data-beat="19"></div>
+      </div>
+    </main>
+
+    <footer class="source-footer"><p>信息来源：<a href="https://iypt.org/" target="_blank" rel="noreferrer">IYPT 官方网站</a>与公开赛事资料。此页面为独立的非官方介绍作品。</p></footer>
+    <noscript>此网页动画需要 JavaScript 根据滚动位置计算画面。</noscript>
+    <script src="./app.js"></script>
+  </body>
+</html>
