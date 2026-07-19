@@ -183,9 +183,19 @@ export function ElectromagneticGuideGame() {
   useEffect(() => {
     if (!running) return
     let frame = 0
-    let previous = performance.now()
+    let previous: number | null = null
     const tick = (now: number) => {
-      const dt = Math.min(40, now - previous); previous = now
+      if (previous === null) {
+        previous = now
+        frame = requestAnimationFrame(tick)
+        return
+      }
+      const elapsed = now - previous; previous = now
+      if (!Number.isFinite(elapsed) || elapsed <= 0) {
+        frame = requestAnimationFrame(tick)
+        return
+      }
+      const dt = Math.min(40, elapsed)
       if (isSandbox) {
         setSimulation((current: any) => stepSimulation(current ?? createSimulation(level), level, dt / 1000, placements as any))
         frame = requestAnimationFrame(tick)
