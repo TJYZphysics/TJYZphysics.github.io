@@ -16,4 +16,12 @@ export const htmlVideos: HtmlVideo[] = [
     href: '/videos/iypt-introduction/index.html',
     chapters: 20,
   },
+  {
+    slug: 'iypt-2027-problems',
+    title: '2027 IYPT 题目介绍',
+    summary: '通过滚动或自动播放浏览 IYPT 2027 十七道正式题目的网页动画，并查看官方题目资料。',
+    tags: ['IYPT', '初级', '题目', 'CYPT'],
+    href: '/videos/iypt-2027-problems/index.html',
+    chapters: 19,
+  },
 ]
