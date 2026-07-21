@@ -44,4 +44,22 @@ describe('ElectromagneticGuideGame sandbox', () => {
     expect(screen.getByRole('button', { name: '暂停' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '无界电磁实验室' })).toBeInTheDocument()
   })
+
+  it('keeps sandbox wheel zoom independent from page scrolling', () => {
+    render(<ElectromagneticGuideGame />)
+    fireEvent.click(screen.getByRole('button', { name: '25' }))
+
+    const canvas = screen.getByLabelText('电磁粒子轨迹画布')
+    const sandboxWheel = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -100 })
+    act(() => canvas.dispatchEvent(sandboxWheel))
+
+    expect(sandboxWheel.defaultPrevented).toBe(true)
+    expect(screen.getByText('110%')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '24' }))
+    const levelWheel = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -100 })
+    act(() => canvas.dispatchEvent(levelWheel))
+
+    expect(levelWheel.defaultPrevented).toBe(false)
+  })
 })

@@ -165,6 +165,19 @@ export function ElectromagneticGuideGame() {
   const allPlacements = useMemo(() => [...fixed, ...placements], [fixed, placements])
   const selectedPlacement = useMemo(() => placements.find((item) => item.id === selectedPlacementId) ?? null, [placements, selectedPlacementId])
 
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !isSandbox) return
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      setZoom((value) => clamp(value * (event.deltaY > 0 ? .9 : 1.1), .35, 3.5))
+    }
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false })
+    return () => canvas.removeEventListener('wheel', handleWheel)
+  }, [isSandbox])
+
   const used = useMemo(() => placements.reduce((map, item) => {
     map[item.kind] = (map[item.kind] ?? 0) + 1
     return map
@@ -438,11 +451,6 @@ export function ElectromagneticGuideGame() {
     commit(placements.filter((item) => item.id !== hit.id), '已删除双击的元素。')
     setSelectedPlacementId(null)
   }
-  const onWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-    if (!isSandbox) return
-    event.preventDefault(); setZoom((value) => clamp(value * (event.deltaY > 0 ? .9 : 1.1), .35, 3.5))
-  }
-
   const updateSelectedPlacement = (patch: Partial<Placement>, text = '参数已更新，重新发射即可观察变化。') => {
     if (!selectedPlacement) return
     setHistory((items) => [...items, placements])
@@ -496,7 +504,7 @@ export function ElectromagneticGuideGame() {
         </aside>
 
         <div className="em-guide__stage" ref={stageRef}>
-          <canvas className={`${isSandbox ? 'is-sandbox' : ''} ${gestureMode === 'pan' ? 'is-panning' : gestureMode === 'move' ? 'is-moving' : ''}`} ref={canvasRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={cancelDrag} onDoubleClick={onDoubleClick} onContextMenu={(event) => event.preventDefault()} onWheel={onWheel} aria-label="电磁粒子轨迹画布" />
+          <canvas className={`${isSandbox ? 'is-sandbox' : ''} ${gestureMode === 'pan' ? 'is-panning' : gestureMode === 'move' ? 'is-moving' : ''}`} ref={canvasRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={cancelDrag} onDoubleClick={onDoubleClick} onContextMenu={(event) => event.preventDefault()} aria-label="电磁粒子轨迹画布" />
           <div className="em-guide__canvas-label"><Grid3X3 /><span>{isSandbox ? '拖动空白平移 · 拖动元素吸附网格 · 双击删除' : '点击放置 · 拖动元素 · 双击删除'}</span></div>
           {isSandbox ? <div className="em-guide__zoom"><button onClick={() => setZoom((z) => clamp(z / 1.2, .35, 3.5))} aria-label="缩小"><ZoomOut /></button><span>{Math.round(zoom * 100)}%</span><button onClick={() => setZoom((z) => clamp(z * 1.2, .35, 3.5))} aria-label="放大"><ZoomIn /></button></div> : null}
           <div className="em-guide__launch"><button onClick={run}>{running ? <Pause /> : <Play />}<span>{running ? '暂停' : simulation && (isSandbox || progress < 1) ? '继续' : '发射粒子'}</span></button><div className={`em-guide__timeline${isSandbox && running ? ' is-live' : ''}`}><i style={{ width: `${progress * 100}%` }} /></div></div>
