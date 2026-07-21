@@ -41,6 +41,9 @@ describe('site routes', () => {
   it('filters HTML videos by search text and tag', () => {
     render(<MemoryRouter initialEntries={['/videos']}><App /></MemoryRouter>)
     expect(screen.getByRole('link', { name: /播放《IYPT比赛介绍》/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /播放《2027 IYPT 题目介绍》/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /题目 1/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /CYPT 1/ })).toBeInTheDocument()
     fireEvent.change(screen.getByPlaceholderText(/搜索标题/), { target: { value: '不存在的影片' } })
     expect(screen.getByText('没有找到匹配的影片')).toBeInTheDocument()
   })

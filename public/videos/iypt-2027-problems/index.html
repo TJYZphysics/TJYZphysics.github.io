@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="通过滚动或自动播放浏览 IYPT 2027 十七道正式题目的网页动画。" />
+    <meta name="theme-color" content="#090b10" />
+    <title>IYPT 2027｜题目介绍</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,500;6..72,700;6..72,800&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23090b10'/%3E%3Cpath d='M6 8h20l-4 16H6z' fill='%23d65343'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#story">跳到题目动画</a>
+
+    <header class="chrome" aria-label="当前章节">
+      <a class="wordmark" href="#story" aria-label="返回开场">
+        <span class="wordmark-mark" aria-hidden="true"></span>
+        <span>IYPT 2027</span>
+      </a>
+      <div class="chapter-readout" aria-live="polite">
+        <span id="chapterIndex">00</span>
+        <span class="chapter-divider">/</span>
+        <span id="chapterTotal">18</span>
+        <span id="chapterName">序章</span>
+      </div>
+    </header>
+
+    <a class="library-back" href="/videos" aria-label="返回视频界面">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7M8 12h9" /></svg>
+      <span>返回视频</span>
+    </a>
+
+    <div class="playback-controls" aria-label="自动播放控制">
+      <button id="playbackToggle" class="playback-toggle" type="button" aria-label="开始自动播放" aria-pressed="false">
+        <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5Z" /></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>
+      </button>
+      <label class="sr-only" for="speedControl">自动播放倍速</label>
+      <select id="speedControl" class="speed-control" aria-label="自动播放倍速">
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+    </div>
+
+    <nav id="chapterNav" class="chapter-nav" aria-label="题目目录"></nav>
+
+    <main id="story" class="story" data-composition-id="iypt-2027-scroll-story" data-width="1920" data-height="1080" data-duration="137">
+      <div id="stage" class="stage">
+        <div class="stage-frame" aria-hidden="true"></div>
+        <div class="projector-glow" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+        <div class="coordinate-grid" aria-hidden="true"></div>
+
+        <section class="scene scene-intro" data-scene="0" data-title="序章" data-nav="开场" aria-label="IYPT 2027 序章">
+          <div class="scene-content intro-layout">
+            <div class="intro-copy">
+              <p class="scene-kicker" data-enter>PROBLEMS FOR THE 40TH IYPT · 2027</p>
+              <h1 data-enter><span class="intro-year">2027</span><span class="intro-name">IYPT题目介绍</span></h1>
+              <p class="intro-lead" data-enter>十七道没有标准答案的物理问题，从一副针孔太阳镜开始，经过光、声、流体、热与磁，最终落在一本书封下落的瞬间。</p>
+              <div class="intro-meta" data-enter><span>17 个开放问题</span><span>1 年持续研究</span><span>∞ 种可能解释</span></div>
+            </div>
+            <div class="intro-orbit diagram-panel" data-enter aria-hidden="true">
+              <svg viewBox="0 0 700 700">
+                <circle class="diagram-muted" cx="350" cy="350" r="250" />
+                <circle class="diagram-muted dashed motion-spin" cx="350" cy="350" r="184" />
+                <path class="diagram-accent motion-draw" pathLength="1" d="M350 100 A250 250 0 1 1 349.9 100" />
+                <g class="orbit-nodes">
+                  <circle cx="350" cy="100" r="9" /><circle cx="440" cy="117" r="6" /><circle cx="520" cy="166" r="7" />
+                  <circle cx="579" cy="241" r="6" /><circle cx="600" cy="331" r="8" /><circle cx="587" cy="421" r="6" />
+                  <circle cx="537" cy="505" r="7" /><circle cx="461" cy="566" r="6" /><circle cx="372" cy="599" r="8" />
+                  <circle cx="278" cy="589" r="6" /><circle cx="194" cy="543" r="7" /><circle cx="132" cy="470" r="6" />
+                  <circle cx="102" cy="382" r="8" /><circle cx="108" cy="290" r="6" /><circle cx="148" cy="205" r="7" />
+                  <circle cx="219" cy="140" r="6" /><circle cx="304" cy="105" r="8" />
+                </g>
+                <text class="diagram-giant" x="350" y="335" text-anchor="middle">40TH</text>
+                <text class="diagram-label" x="350" y="383" text-anchor="middle">IYPT · 2027</text>
+                <path class="diagram-brass motion-sway" d="M270 440 C310 408 390 408 430 440" />
+              </svg>
+            </div>
+          </div>
+          <div class="scroll-cue" data-enter><span>滚动页面，让时间向前</span><span class="scroll-cue-line"></span></div>
+          <div class="ghost-word" aria-hidden="true">QUESTIONS</div>
+        </section>
+
+        <section class="scene" data-scene="1" data-title="针孔太阳镜" data-nav="01 针孔太阳镜" aria-label="第一题 针孔太阳镜" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>01</span><span>OPTICS · VISION</span></p>
+              <h2 data-enter>自拟题：针孔太阳镜</h2>
+              <p class="english-title" data-enter>Invent yourself: Pinhole sunglasses</p>
+              <p class="problem-original" lang="en" data-enter>Investigate the optimal arrangement of pinholes in an opaque film to produce sunglasses that reduce light intensity and help correct short-sightedness.</p>
+              <p class="problem-translation" data-enter>研究不透明薄膜中小孔的最佳排列方式，以制作出既能降低光照强度又能帮助纠正近视的太阳镜。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>孔径、孔距、排列方式、眼球距离、屈光度与衍射极限</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="针孔太阳镜与成像光路示意图">
+                <title>针孔太阳镜与成像光路示意图</title>
+                <defs><pattern id="pinholePattern" width="34" height="34" patternUnits="userSpaceOnUse"><circle cx="8" cy="8" r="3.2" class="fill-paper" /><circle cx="25" cy="25" r="2.4" class="fill-paper" /></pattern></defs>
+                <path class="diagram-muted" d="M78 290 C126 210 237 205 305 282 C373 205 484 210 532 290 C506 390 398 404 324 329 H286 C212 404 104 390 78 290Z" />
+                <path class="diagram-accent motion-draw" pathLength="1" d="M89 287 C130 229 219 225 287 286 M323 286 C391 225 480 229 521 287" />
+                <path class="fill-grid" d="M104 281 C143 238 218 240 272 289 C222 349 145 350 104 281Z" fill="url(#pinholePattern)" />
+                <path class="fill-grid" d="M338 289 C392 240 467 238 506 281 C465 350 388 349 338 289Z" fill="url(#pinholePattern)" />
+                <g class="motion-slide"><path class="diagram-brass" d="M18 245 L130 270 L287 300" /><path class="diagram-brass" d="M18 328 L130 306 L287 300" /></g>
+                <path class="diagram-paper" d="M540 301 C594 259 650 273 664 313 C650 353 594 367 540 325Z" />
+                <circle class="diagram-accent" cx="610" cy="313" r="16" />
+                <path class="diagram-accent motion-draw" pathLength="1" d="M287 300 L610 313" />
+                <text class="diagram-label" x="74" y="455">PINHOLE ARRAY</text><text class="diagram-note" x="74" y="486">减少弥散斑，同时限制光通量</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="2" data-title="光盘光谱仪" data-nav="02 光盘光谱仪" aria-label="第二题 光盘光谱仪" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>02</span><span>DIFFRACTION · INSTRUMENT</span></p>
+              <h2 data-enter>光盘光谱仪</h2>
+              <p class="english-title" data-enter>Disc spectrometer</p>
+              <p class="problem-original" lang="en" data-enter>Data tracks on optical media (e.g. CDs / Blu-ray discs) behave as high-quality reflection-diffraction gratings. When illuminated, these discs can disperse light into its spectral components. Construct a spectrometer using a digital optical disc. Optimise the design to maximise the resolving power and minimise optical aberrations.</p>
+              <p class="problem-translation" data-enter>光学介质（如 CD 或蓝光光盘）上的数据轨道可作为高质量反射衍射光栅，受光照时能将光分解为光谱成分。使用数字光盘制作光谱仪，并优化设计，以最大化分辨本领并减少光学像差。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>轨道间距、入射角、狭缝宽度、谱级、分辨本领与像差</p></div>
+            </div>
+            <div class="diagram-panel spectrum-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="光盘衍射与光谱仪示意图">
+                <title>光盘衍射与光谱仪示意图</title>
+                <g class="motion-spin slow-spin">
+                  <circle class="diagram-paper" cx="340" cy="312" r="206" /><circle class="diagram-muted" cx="340" cy="312" r="172" />
+                  <circle class="diagram-muted" cx="340" cy="312" r="138" /><circle class="diagram-muted" cx="340" cy="312" r="104" />
+                  <circle class="diagram-accent" cx="340" cy="312" r="34" />
+                  <path class="diagram-brass" d="M340 106 A206 206 0 0 1 528 396" />
+                </g>
+                <path class="diagram-paper motion-draw" pathLength="1" d="M35 252 L154 282 L340 312" />
+                <g class="spectral-rays motion-slide">
+                  <path d="M340 312 L665 122" /><path d="M340 312 L675 190" /><path d="M340 312 L680 262" /><path d="M340 312 L680 334" /><path d="M340 312 L670 408" />
+                </g>
+                <rect class="diagram-muted" x="18" y="202" width="17" height="102" rx="4" />
+                <text class="diagram-label" x="34" y="458">d · sin θ = mλ</text><text class="diagram-note" x="34" y="490">让光盘轨道成为一把测量波长的尺</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="3" data-title="蜗牛球" data-nav="03 蜗牛球" aria-label="第三题 蜗牛球" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>03</span><span>ROTATION · VISCOUS FLOW</span></p>
+              <h2 data-enter>蜗牛球</h2>
+              <p class="english-title" data-enter>Snail ball</p>
+              <p class="problem-original" lang="en" data-enter>A hollow sphere contains a heavy ball and some viscous fluid. The rolling motion of such a sphere down an inclined plane is uneven and surprisingly slow. Explain and investigate this effect.</p>
+              <p class="problem-translation" data-enter>一个空心球内装有重球和一些黏性流体。这样的球沿斜面向下滚动时，运动不均匀且慢得惊人。解释并研究这一效应。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>黏度、填充率、质量比、斜面倾角、滑移与能量耗散</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="蜗牛球在斜面上的运动示意图">
+                <title>蜗牛球在斜面上的运动示意图</title>
+                <path class="diagram-paper" d="M58 499 L650 258" />
+                <g class="motion-sway snail-shell">
+                  <circle class="diagram-paper" cx="354" cy="324" r="150" /><path class="water-fill" d="M214 345 Q354 405 494 345 A150 150 0 0 1 214 345Z" />
+                  <circle class="diagram-accent" cx="320" cy="397" r="46" /><path class="diagram-muted" d="M236 346 Q354 387 472 346" />
+                  <path class="diagram-brass motion-flow" pathLength="1" d="M255 301 C300 250 395 250 450 312" />
+                </g>
+                <path class="diagram-accent motion-draw" pathLength="1" d="M154 510 C230 474 292 445 345 421 C405 394 476 369 554 332" />
+                <path class="diagram-muted dashed" d="M354 154 V512" />
+                <text class="diagram-label" x="68" y="174">UNEQUAL ROTATION</text><text class="diagram-note" x="68" y="205">外壳前进，内部重球却在黏性流体中迟疑</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="4" data-title="会歌唱的电容器" data-nav="04 会歌唱的电容器" aria-label="第四题 会歌唱的电容器" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>04</span><span>ELECTRICITY · ACOUSTICS</span></p>
+              <h2 data-enter>会歌唱的电容器</h2>
+              <p class="english-title" data-enter>Singing capacitor</p>
+              <p class="problem-original" lang="en" data-enter>Certain types of ceramic capacitors emit an audible sound when an alternating voltage is applied across them. Investigate the characteristics of the sound produced and how they depend on relevant parameters, such as voltage, frequency, and capacitor properties.</p>
+              <p class="problem-translation" data-enter>当交流电压加在某些类型的陶瓷电容器两端时，它们会发出可听见的声音。研究所产生声音的特征，以及这些特征如何依赖于电压、频率和电容器性质等相关参数。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>电压、频率、介电材料、几何尺寸、边界固定与谐振峰</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="陶瓷电容器发声示意图">
+                <title>陶瓷电容器发声示意图</title>
+                <g class="capacitor motion-pulse"><rect class="diagram-paper" x="250" y="176" width="204" height="250" rx="34" /><path class="diagram-accent" d="M296 214 V389 M340 214 V389 M384 214 V389 M428 214 V389" /><path class="diagram-paper" d="M302 426 V535 M402 426 V535" /></g>
+                <g class="sound-rings"><path class="diagram-brass motion-draw" pathLength="1" d="M486 242 C554 271 554 359 486 389" /><path class="diagram-brass motion-draw" pathLength="1" d="M519 202 C632 258 632 372 519 430" /><path class="diagram-brass motion-draw" pathLength="1" d="M217 242 C149 271 149 359 217 389" /></g>
+                <path class="diagram-accent motion-flow" pathLength="1" d="M56 116 C91 66 126 166 161 116 S231 66 266 116 S336 166 371 116 S441 66 476 116 S546 166 581 116 S641 73 666 111" />
+                <text class="diagram-label" x="54" y="574">V(t) → STRAIN → SOUND</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="5" data-title="Y 形摆" data-nav="05 Y 形摆" aria-label="第五题 Y 形摆" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>05</span><span>OSCILLATION · GEOMETRY</span></p>
+              <h2 data-enter>Y 形摆</h2>
+              <p class="english-title" data-enter>Y-shaped pendulum</p>
+              <p class="problem-original" lang="en" data-enter>Construct a Bowditch pendulum (a pendulum whose strings form a "Y" shape). Investigate how the Lissajous patterns generated by the bob depend on the relevant parameters.</p>
+              <p class="problem-translation" data-enter>制作一个 Bowditch 摆（悬线呈 Y 形的摆）。研究摆球产生的李萨如图形如何依赖于相关参数。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>分叉点位置、绳长比、初始条件、频率比、相位差与阻尼</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="Y 形摆与李萨如图形示意图">
+                <title>Y 形摆与李萨如图形示意图</title>
+                <path class="diagram-paper" d="M135 92 H565 M205 92 L350 258 L495 92" />
+                <g class="motion-sway"><path class="diagram-accent" d="M350 258 L410 457" /><circle class="fill-red" cx="410" cy="457" r="26" /></g>
+                <path class="diagram-muted dashed" d="M350 258 L350 487" />
+                <path class="diagram-brass motion-draw" pathLength="1" d="M74 340 C111 237 194 237 233 340 C270 443 352 443 390 340 C428 237 512 237 550 340 C589 443 650 420 669 356" />
+                <path class="diagram-muted motion-draw" pathLength="1" d="M82 452 C150 270 222 270 290 452 C358 270 430 270 498 452 C566 270 628 291 664 401" />
+                <text class="diagram-label" x="68" y="548">FREQUENCY RATIO → LISSAJOUS CURVE</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="6" data-title="看见声音" data-nav="06 看见声音" aria-label="第六题 看见声音" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>06</span><span>MEMBRANE · LASER</span></p>
+              <h2 data-enter>看见声音</h2>
+              <p class="english-title" data-enter>Seeing sound</p>
+              <p class="problem-original" lang="en" data-enter>A thin rubber membrane is stretched over a circular frame and driven into vibration by a loudspeaker. A small mirror is attached to the membrane, and a laser beam is reflected off it onto a distant screen. Under certain conditions, the laser spot traces out complex, steady, or evolving geometric patterns. Investigate the relationship between the driving parameters, the membrane’s properties, and the resulting light patterns.</p>
+              <p class="problem-translation" data-enter>一张薄橡胶膜绷紧在圆形框架上，并由扬声器驱动振动。膜上附着一面小镜子，激光束经它反射到远处屏幕上。在特定条件下，激光点会描绘出复杂的、稳定的或不断演化的几何图形。研究驱动参数、膜的性质与所得光图形之间的关系。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>驱动频率、振幅、膜张力、镜片位置、模态叠加与光程</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="振动膜、镜片与激光图形示意图">
+                <title>振动膜、镜片与激光图形示意图</title>
+                <ellipse class="diagram-paper motion-pulse" cx="220" cy="328" rx="140" ry="112" /><path class="diagram-muted motion-flow" pathLength="1" d="M93 330 C142 263 185 394 229 328 S317 263 352 332" />
+                <rect class="fill-red motion-sway" x="248" y="275" width="42" height="18" rx="4" />
+                <path class="diagram-accent motion-draw" pathLength="1" d="M42 153 L269 284 L546 142" />
+                <rect class="diagram-paper" x="516" y="92" width="146" height="392" rx="8" />
+                <path class="diagram-brass motion-draw" pathLength="1" d="M546 142 C638 168 544 236 622 267 C696 297 527 337 612 381 C672 412 567 448 542 402 C502 328 651 328 618 230 C597 169 535 196 546 142Z" />
+                <circle class="fill-red motion-pulse" cx="546" cy="142" r="8" />
+                <text class="diagram-label" x="72" y="531">SOUND → SURFACE MODE → LIGHT</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="7" data-title="下沉漏斗" data-nav="07 下沉漏斗" aria-label="第七题 下沉漏斗" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>07</span><span>BUOYANCY · STABILITY</span></p>
+              <h2 data-enter>下沉漏斗</h2>
+              <p class="english-title" data-enter>Sinking funnel</p>
+              <p class="problem-original" lang="en" data-enter>When a long-stemmed and sufficiently heavy funnel is released vertically into water with the stem pointing downward, it undergoes a series of damped vertical oscillations while gradually sinking. Investigate the motion and stability of the sinking funnel and the conditions under which the funnel tips over.</p>
+              <p class="problem-translation" data-enter>将一只长柄且足够重的漏斗以柄朝下的方向竖直释放到水中时，它会在逐渐下沉的同时经历一系列衰减的竖直振荡。研究下沉漏斗的运动与稳定性，以及漏斗发生倾覆的条件。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>质量分布、排水体积、柄长、阻力、入水姿态与倾覆阈值</p></div>
+            </div>
+            <div class="diagram-panel water-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="漏斗在水中振荡下沉示意图">
+                <title>漏斗在水中振荡下沉示意图</title>
+                <path class="water-surface" d="M38 198 C84 170 130 225 176 198 S268 170 314 198 S406 225 452 198 S544 170 590 198 S654 216 680 198" />
+                <path class="water-fill" d="M38 198 H680 V564 H38Z" />
+                <g class="motion-rise funnel-shape"><path class="diagram-paper" d="M278 102 H454 L404 218 H328Z" /><path class="diagram-paper" d="M366 218 V490" /><path class="diagram-accent" d="M297 138 H435" /></g>
+                <path class="diagram-brass motion-draw" pathLength="1" d="M244 130 C179 192 288 236 225 302 C165 367 287 403 221 487" />
+                <path class="diagram-muted dashed" d="M366 70 V547" />
+                <path class="diagram-accent" d="M184 455 l37 32 38-32" />
+                <text class="diagram-label" x="54" y="558">DAMPED OSCILLATION + SLOW SINKING</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="8" data-title="向上驱动圆盘" data-nav="08 向上驱动圆盘" aria-label="第八题 向上驱动圆盘" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>08</span><span>FRICTION · DRIVEN MOTION</span></p>
+              <h2 data-enter>向上驱动圆盘</h2>
+              <p class="english-title" data-enter>Upward-driven disc</p>
+              <p class="problem-original" lang="en" data-enter>A circular disc is suspended from the point where it is sandwiched between two wheels, making it free to oscillate as a pendulum. One of the wheels is driven by a motor and thus exerts an upward driving force on the disc. Investigate the motion of the disc.</p>
+              <p class="problem-translation" data-enter>一个圆盘悬挂在被两只轮子夹住的接触点上，因此可以像摆一样自由振荡。其中一只轮子由电机驱动，从而对圆盘施加向上的驱动力。研究圆盘的运动。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>轮速、摩擦系数、夹持力、圆盘尺寸、质量分布与非线性稳定态</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="轮子向上驱动悬挂圆盘示意图">
+                <title>轮子向上驱动悬挂圆盘示意图</title>
+                <g class="motion-spin"><circle class="diagram-paper" cx="249" cy="132" r="78" /><path class="diagram-accent" d="M249 78 V186 M195 132 H303" /></g>
+                <g class="motion-spin reverse-spin"><circle class="diagram-paper" cx="451" cy="132" r="78" /><path class="diagram-muted" d="M451 78 V186 M397 132 H505" /></g>
+                <g class="motion-sway disc-pendulum"><path class="diagram-muted" d="M350 132 V276" /><circle class="diagram-paper" cx="350" cy="390" r="146" /><circle class="diagram-accent" cx="350" cy="390" r="20" /></g>
+                <path class="diagram-accent motion-draw" pathLength="1" d="M179 304 C139 364 139 430 179 492" /><path class="diagram-accent" d="M159 325 l20-21 21 20" />
+                <path class="diagram-brass" d="M151 173 V91 M151 91 l-18 23 M151 91 l18 23" />
+                <text class="diagram-label" x="67" y="559">UPWARD DRIVE / PENDULUM RESPONSE</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="9" data-title="摄影散景" data-nav="09 摄影散景" aria-label="第九题 摄影散景" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>09</span><span>IMAGING · APERTURE</span></p>
+              <h2 data-enter>摄影散景</h2>
+              <p class="english-title" data-enter>Photographic bokeh</p>
+              <p class="problem-original" lang="en" data-enter>Bokeh is an effect observed in photographs that show objects at different distances from the camera and have both sharp and out-of-focus areas. If a slit is placed in front of the lens of the camera, the image may have unusual anisotropic distortions in out-of-focus areas, while in-focus areas remain undistorted and sharp. Investigate how the properties and sharpness of resulting images depend on relevant parameters.</p>
+              <p class="problem-translation" data-enter>散景是一种出现在摄影图像中的效果：画面包含距相机不同距离的物体，同时具有清晰区域与焦外区域。若在相机镜头前放置一道狭缝，图像的焦外区域可能出现异常的各向异性畸变，而合焦区域仍保持无畸变且清晰。研究所得图像的性质与锐度如何依赖于相关参数。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>狭缝宽度与方向、焦距、光圈、物距、离焦量与点扩散函数</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="狭缝改变摄影散景示意图">
+                <title>狭缝改变摄影散景示意图</title>
+                <rect class="diagram-muted" x="46" y="89" width="608" height="428" rx="18" />
+                <g class="bokeh-field motion-slide"><circle class="bokeh" cx="139" cy="191" r="58" /><circle class="bokeh" cx="248" cy="401" r="73" /><circle class="bokeh" cx="546" cy="174" r="78" /><circle class="bokeh" cx="557" cy="408" r="49" /></g>
+                <g class="focus-object"><path class="diagram-paper" d="M328 430 V254 M286 430 H408 M310 318 L363 261 L416 318" /><circle class="diagram-accent" cx="363" cy="226" r="32" /></g>
+                <rect class="fill-dark" x="317" y="77" width="92" height="454" rx="8" /><rect class="fill-paper motion-pulse" x="351" y="77" width="24" height="454" rx="10" />
+                <g class="stretched-bokeh"><ellipse class="diagram-brass" cx="124" cy="278" rx="71" ry="18" /><ellipse class="diagram-brass" cx="573" cy="296" rx="74" ry="18" /></g>
+                <text class="diagram-label" x="55" y="570">SLIT APERTURE → ANISOTROPIC BLUR</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="10" data-title="空气涡管" data-nav="10 空气涡管" aria-label="第十题 空气涡管" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>10</span><span>VORTEX · FREE SURFACE</span></p>
+              <h2 data-enter>空气涡管</h2>
+              <p class="english-title" data-enter>Air vortex</p>
+              <p class="problem-original" lang="en" data-enter>Place a small rod-shaped magnet on the bottom of a vessel filled with liquid and set it into rotation using a magnetic stirrer. Above a certain rotation speed, a thin air channel forms, extending from the liquid surface down to the rotating magnet itself. Investigate and explain this phenomenon.</p>
+              <p class="problem-translation" data-enter>将一枚小棒状磁铁放在盛有液体的容器底部，并用磁力搅拌器使其旋转。当转速超过某一数值时，会形成一条细长的空气通道，从液面一直延伸到旋转磁铁本身。研究并解释这一现象。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>转速、液深、黏度、容器尺度、表面张力与核心稳定性</p></div>
+            </div>
+            <div class="diagram-panel water-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="液体旋涡形成空气通道示意图">
+                <title>液体旋涡形成空气通道示意图</title>
+                <path class="diagram-paper" d="M128 94 L176 544 H524 L572 94" />
+                <path class="water-fill" d="M151 215 Q350 284 549 215 L514 524 H186Z" />
+                <path class="water-surface" d="M151 215 Q350 284 549 215" />
+                <path class="air-core motion-draw" pathLength="1" d="M350 245 C320 310 331 386 350 492 C369 386 380 310 350 245Z" />
+                <g class="motion-spin"><rect class="fill-red" x="288" y="493" width="124" height="28" rx="14" /><path class="diagram-paper" d="M307 507 H393" /></g>
+                <path class="diagram-brass motion-flow" pathLength="1" d="M230 342 C270 297 430 297 470 342 C430 388 270 388 230 342Z" />
+                <path class="diagram-brass motion-flow" pathLength="1" d="M269 419 C301 390 399 390 431 419 C399 448 301 448 269 419Z" />
+                <text class="diagram-label" x="75" y="581">ROTATION THRESHOLD → AIR CORE</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="11" data-title="隔音缺口" data-nav="11 隔音缺口" aria-label="第十一题 隔音缺口" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>11</span><span>ACOUSTICS · OPENING</span></p>
+              <h2 data-enter>隔音缺口</h2>
+              <p class="english-title" data-enter>Sound isolation</p>
+              <p class="problem-original" lang="en" data-enter>The sound isolation of a room may become breached if the door is not shut properly, even if the gap is negligibly small. Investigate how the shape and size of a small opening affect the transmission of sound.</p>
+              <p class="problem-translation" data-enter>如果房门没有正确关紧，即使缝隙小到可以忽略，也可能破坏房间的隔音效果。研究微小开口的形状与尺寸如何影响声音的传播。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>缝隙面积、长宽比、位置、声波频率、边缘效应与腔体共振</p></div>
+            </div>
+            <div class="diagram-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="声波穿过门缝示意图">
+                <title>声波穿过门缝示意图</title>
+                <rect class="diagram-paper" x="294" y="72" width="124" height="470" rx="5" /><rect class="fill-dark" x="401" y="72" width="17" height="470" />
+                <g class="sound-wave-left"><path class="diagram-brass motion-draw" pathLength="1" d="M54 198 C143 198 143 416 54 416" /><path class="diagram-brass motion-draw" pathLength="1" d="M103 227 C165 227 165 387 103 387" /><path class="diagram-brass motion-draw" pathLength="1" d="M159 256 C195 256 195 358 159 358" /></g>
+                <g class="sound-wave-right"><path class="diagram-accent motion-draw" pathLength="1" d="M429 289 C520 289 520 474 429 474" /><path class="diagram-accent motion-draw" pathLength="1" d="M429 318 C488 318 488 445 429 445" /><path class="diagram-accent motion-draw" pathLength="1" d="M429 346 C458 346 458 417 429 417" /></g>
+                <path class="diagram-muted dashed" d="M419 382 H661" />
+                <text class="diagram-label" x="51" y="568">A TINY GAP CAN DOMINATE THE WHOLE WALL</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="12" data-title="虚线把戏" data-nav="12 虚线把戏" aria-label="第十二题 虚线把戏" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>12</span><span>STICK-SLIP · WRITING</span></p>
+              <h2 data-enter>虚线把戏</h2>
+              <p class="english-title" data-enter>Dotted line trick</p>
+              <p class="problem-original" lang="en" data-enter>Under certain conditions, when a piece of chalk is dragged across a blackboard, the resulting trace is not a continuous line but a periodic sequence of dots, even though the motion is uninterrupted. This can happen with other writing materials and surfaces. Investigate the physical parameters that govern this phenomenon.</p>
+              <p class="problem-translation" data-enter>在特定条件下，当粉笔划过黑板时，即使运动从未中断，留下的痕迹也不是连续线，而是一列周期性圆点。其他书写材料与表面也可能出现这种现象。研究控制该现象的物理参数。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>速度、压力、倾角、材料弹性、表面粗糙度与黏滑振荡</p></div>
+            </div>
+            <div class="diagram-panel chalk-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="粉笔在黑板上留下周期点迹示意图">
+                <title>粉笔在黑板上留下周期点迹示意图</title>
+                <path class="diagram-paper" d="M64 464 H648" />
+                <g class="dot-trace motion-slide"><circle cx="98" cy="452" r="7" /><circle cx="158" cy="452" r="11" /><circle cx="230" cy="452" r="8" /><circle cx="302" cy="452" r="13" /><circle cx="386" cy="452" r="8" /><circle cx="468" cy="452" r="11" /></g>
+                <g class="motion-sway chalk"><path class="chalk-body" d="M456 109 L554 151 L450 414 L352 371Z" /><path class="diagram-accent" d="M450 414 L352 371" /><path class="diagram-muted" d="M475 130 L377 393" /></g>
+                <path class="diagram-brass motion-draw" pathLength="1" d="M89 312 C138 234 188 385 237 312 S336 234 386 312 S485 385 534 312 S615 253 651 301" />
+                <path class="diagram-accent" d="M84 515 H520 M520 515 l-22-18 M520 515 l-22 18" />
+                <text class="diagram-label" x="69" y="569">CONTINUOUS MOTION / PERIODIC CONTACT</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="13" data-title="涡激摆" data-nav="13 涡激摆" aria-label="第十三题 涡激摆" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>13</span><span>FLOW · VORTEX SHEDDING</span></p>
+              <h2 data-enter>涡激摆</h2>
+              <p class="english-title" data-enter>Vortex pendulum</p>
+              <p class="problem-original" lang="en" data-enter>A pendulum with a vertically oriented cylindrical bob is suspended above a channel of flowing water. When the bob is partially submerged, the flow may cause the pendulum to oscillate in a direction perpendicular to the flow. Explain this phenomenon and determine how it depends on relevant parameters.</p>
+              <p class="problem-translation" data-enter>一个摆锤为竖直圆柱体的摆悬挂在流水槽上方。当摆锤部分浸入水中时，水流可能使摆沿垂直于流向的方向振荡。解释这一现象，并确定它如何依赖于相关参数。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>流速、浸没深度、圆柱直径、摆长、斯特劳哈尔数与同步区间</p></div>
+            </div>
+            <div class="diagram-panel water-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="水流驱动圆柱摆横向振荡示意图">
+                <title>水流驱动圆柱摆横向振荡示意图</title>
+                <path class="water-fill" d="M55 278 H653 V532 H55Z" /><path class="water-surface" d="M55 278 H653" />
+                <g class="motion-sway vortex-bob"><path class="diagram-paper" d="M354 64 V261" /><rect class="diagram-paper" x="316" y="237" width="76" height="216" rx="36" /><path class="diagram-accent" d="M316 278 H392" /></g>
+                <g class="flow-arrows"><path class="diagram-brass motion-flow" pathLength="1" d="M69 352 H288" /><path class="diagram-brass motion-flow" pathLength="1" d="M69 422 H288" /><path class="diagram-brass motion-flow" pathLength="1" d="M416 352 H635" /><path class="diagram-brass motion-flow" pathLength="1" d="M416 422 H635" /></g>
+                <g class="vortex-street motion-slide"><path class="diagram-accent" d="M432 324 C495 274 531 376 467 382 C423 387 424 336 457 332" /><path class="diagram-accent" d="M442 430 C501 486 545 389 482 379 C436 372 432 424 469 430" /></g>
+                <path class="diagram-muted dashed" d="M220 180 H486" />
+                <text class="diagram-label" x="63" y="573">FLOW → VORTEX STREET → CROSS-FLOW MOTION</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="14" data-title="非牛顿流体蠕虫" data-nav="14 非牛顿流体蠕虫" aria-label="第十四题 非牛顿流体蠕虫" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>14</span><span>NON-NEWTONIAN · PATTERN</span></p>
+              <h2 data-enter>非牛顿流体“蠕虫”</h2>
+              <p class="english-title" data-enter>Non-Newtonian worms</p>
+              <p class="problem-original" lang="en" data-enter>If a dilatant non-Newtonian fluid (e.g. a suspension of water and cornflour) is vibrated vertically in a reservoir. When certain conditions are met, wormlike structures that rise from the surface may form. Explain and investigate this phenomenon.</p>
+              <p class="problem-translation" data-enter>若在容器中竖直振动剪切增稠型非牛顿流体（例如水与玉米粉的悬浊液），在满足特定条件时，表面可能形成向上升起的虫状结构。解释并研究这一现象。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>加速度、频率、浓度、层深、屈服行为、表面张力与图样阈值</p></div>
+            </div>
+            <div class="diagram-panel nonnewtonian-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="振动非牛顿流体表面形成虫状结构示意图">
+                <title>振动非牛顿流体表面形成虫状结构示意图</title>
+                <path class="diagram-paper" d="M95 304 L130 527 H570 L605 304" /><path class="fluid-opaque" d="M105 335 C195 318 245 355 350 335 C455 315 510 356 595 335 L566 513 H134Z" />
+                <g class="worms motion-rise"><path class="diagram-accent worm" d="M177 349 C132 278 220 257 176 180 C146 128 225 105 239 171 C252 230 189 270 221 336" /><path class="diagram-accent worm" d="M326 342 C290 264 382 246 343 165 C321 118 388 93 407 153 C425 211 363 270 386 335" /><path class="diagram-accent worm" d="M472 347 C446 292 521 263 495 210 C474 166 536 143 557 196 C578 250 514 287 528 341" /></g>
+                <g class="vibration-arrows"><path class="diagram-brass" d="M63 390 V302 M63 302 l-18 25 M63 302 l18 25" /><path class="diagram-brass" d="M637 390 V302 M637 302 l-18 25 M637 302 l18 25" /></g>
+                <path class="diagram-muted motion-flow" pathLength="1" d="M133 392 C204 358 276 425 348 392 S492 358 566 392" />
+                <text class="diagram-label" x="66" y="577">VERTICAL VIBRATION → SELF-ORGANIZED SHAPES</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="15" data-title="冰镇饮料" data-nav="15 冰镇饮料" aria-label="第十五题 冰镇饮料" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>15</span><span>THERMODYNAMICS · COOLING</span></p>
+              <h2 data-enter>冰镇饮料</h2>
+              <p class="english-title" data-enter>Cold drink</p>
+              <p class="problem-original" lang="en" data-enter>A can or bottle of drink at room temperature can be cooled in a cooler containing ice. Adding salt and alcohol to the ice can increase the rate of cooling and affect the drink's final temperature. Investigate how the relevant parameters affect the lowest achievable temperature and the maximum cooling rate.</p>
+              <p class="problem-translation" data-enter>室温下的一罐或一瓶饮料可以在装有冰的冷却容器中降温。向冰中加入盐和酒精能够提高冷却速率，并影响饮料的最终温度。研究相关参数如何影响可达到的最低温度与最大冷却速率。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>盐与酒精浓度、冰水比、搅拌、接触面积、相变与换热系数</p></div>
+            </div>
+            <div class="diagram-panel cold-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="冰盐混合物冷却饮料示意图">
+                <title>冰盐混合物冷却饮料示意图</title>
+                <path class="diagram-paper" d="M114 162 L157 535 H543 L586 162" /><path class="ice-fill" d="M136 276 L562 276 L533 514 H167Z" />
+                <g class="ice-cubes motion-slide"><path d="M173 295 l61-20 27 62-63 23Z" /><path d="M470 294 l56 24-28 59-62-21Z" /><path d="M201 405 l62-24 27 61-66 25Z" /><path d="M445 419 l57-28 30 57-61 29Z" /></g>
+                <g class="can motion-pulse"><rect class="can-body" x="285" y="109" width="130" height="380" rx="28" /><ellipse class="diagram-paper" cx="350" cy="117" rx="62" ry="15" /><path class="diagram-accent" d="M317 180 H383 M317 401 H383" /><text class="can-text" x="350" y="306" text-anchor="middle">COOL</text></g>
+                <g class="thermometer"><path class="diagram-paper" d="M616 176 V424" /><circle class="diagram-accent" cx="616" cy="452" r="28" /><path class="diagram-accent motion-rise" d="M616 452 V250" /></g>
+                <text class="diagram-label" x="70" y="579">LOWEST TEMPERATURE / FASTEST COOLING RATE</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="16" data-title="磁力旋转木马" data-nav="16 磁力旋转木马" aria-label="第十六题 磁力旋转木马" aria-hidden="true">
+          <div class="scene-content problem-layout reverse">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>16</span><span>MAGNETISM · TRANSPORT</span></p>
+              <h2 data-enter>磁力旋转木马</h2>
+              <p class="english-title" data-enter>Magnetic carousel</p>
+              <p class="problem-original" lang="en" data-enter>Several neodymium magnets are attached to a horizontal disc, with adjacent magnets oriented in opposite directions. A fixed non-magnetic plate is placed horizontally above the disc. When the disc rotates about its vertical axis and a steel ball is placed on the plate, the ball may move either in the same direction as, or opposite to, the rotation of the disc. Investigate this phenomenon and determine how the motion depends on relevant parameters.</p>
+              <p class="problem-translation" data-enter>若干钕磁铁固定在水平圆盘上，相邻磁铁的方向彼此相反。圆盘上方水平放置一块固定的非磁性平板。当圆盘绕竖直轴旋转并把钢球放在平板上时，钢球既可能沿圆盘转动方向运动，也可能反向运动。研究这一现象，并确定该运动如何依赖于相关参数。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>转速、磁极排列、板厚、球尺寸、涡流、滚动摩擦与相位滞后</p></div>
+            </div>
+            <div class="diagram-panel magnetic-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="交替磁极圆盘驱动钢球示意图">
+                <title>交替磁极圆盘驱动钢球示意图</title>
+                <g class="motion-spin carousel-disc"><ellipse class="disc-fill" cx="350" cy="392" rx="236" ry="94" /><g class="magnets"><rect x="321" y="284" width="58" height="44" rx="7" /><rect x="478" y="326" width="58" height="44" rx="7" /><rect x="511" y="422" width="58" height="44" rx="7" /><rect x="321" y="462" width="58" height="44" rx="7" /><rect x="164" y="422" width="58" height="44" rx="7" /><rect x="164" y="326" width="58" height="44" rx="7" /></g></g>
+                <ellipse class="plate-fill" cx="350" cy="282" rx="255" ry="83" /><circle class="steel-ball motion-slide" cx="469" cy="244" r="34" />
+                <path class="diagram-accent motion-draw" pathLength="1" d="M164 237 C235 148 473 148 548 238" /><path class="diagram-accent" d="M525 219 l23 19-31 7" />
+                <path class="diagram-brass motion-draw" pathLength="1" d="M493 487 C398 566 196 524 164 430" /><path class="diagram-brass" d="M180 451 l-16-21-3 31" />
+                <text class="diagram-label" x="71" y="579">WITH THE DISC — OR AGAINST IT?</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" data-scene="17" data-title="落下的书封" data-nav="17 落下的书封" aria-label="第十七题 落下的书封" aria-hidden="true">
+          <div class="scene-content problem-layout">
+            <div class="problem-copy-block">
+              <p class="problem-eyebrow" data-enter><span>17</span><span>RIGID BODY · CONTACT</span></p>
+              <h2 data-enter>落下的书封</h2>
+              <p class="english-title" data-enter>Falling book cover</p>
+              <p class="problem-original" lang="en" data-enter>A book is placed horizontally, and the partially open cover is allowed to fall. Investigate the motion of the falling book cover.</p>
+              <p class="problem-translation" data-enter>将一本书水平放置，并让部分张开的封面自行落下。研究书封下落时的运动。</p>
+              <div class="research-line" data-enter><span>研究线索：</span><p>初始角、封面刚度、质量分布、书脊结构、空气阻力与碰撞过程</p></div>
+            </div>
+            <div class="diagram-panel book-panel" data-enter>
+              <svg viewBox="0 0 700 620" role="img" aria-label="书封绕书脊下落示意图">
+                <title>书封绕书脊下落示意图</title>
+                <path class="book-pages" d="M96 416 Q314 389 352 438 Q390 389 608 416 L588 508 Q410 487 352 519 Q294 487 116 508Z" />
+                <path class="diagram-paper" d="M352 438 V519" />
+                <g class="cover-ghosts"><path d="M352 438 L395 102 L426 109 L377 441Z" /><path d="M352 438 L523 164 L549 181 L378 451Z" /><path d="M352 438 L610 309 L624 338 L378 466Z" /></g>
+                <g class="motion-fall falling-cover"><path class="cover-fill" d="M352 438 L395 102 L426 109 L377 441Z" /><path class="diagram-accent" d="M352 438 L395 102" /></g>
+                <path class="diagram-brass motion-draw" pathLength="1" d="M428 112 A343 343 0 0 1 625 342" /><path class="diagram-brass" d="M600 329 l25 13-4-28" />
+                <circle class="fill-red" cx="352" cy="438" r="10" />
+                <text class="diagram-label" x="63" y="575">GRAVITY → ROTATION → IMPACT</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene scene-outro" data-scene="18" data-title="从问题出发" data-nav="尾声与来源" aria-label="尾声与信息来源" aria-hidden="true">
+          <div class="scene-content outro-layout">
+            <div class="outro-copy">
+              <p class="scene-kicker" data-enter>THE 40TH INTERNATIONAL YOUNG PHYSICISTS’ TOURNAMENT</p>
+              <h2 data-enter>答案尚未写下，研究已经开始。</h2>
+              <p class="outro-lead" data-enter>IYPT 的题目不是十七道等待套公式的习题，而是十七个可以被观察、建模、质疑和重新实验的世界。下一步，从选中一个现象开始。</p>
+              <div class="source-list" data-enter>
+                <span>题目来源</span>
+                <a href="./sources/IYPT-Problems-for-2027-final-edition-web.pdf" target="_blank" rel="noreferrer">IYPT 2027 官方英文题目 PDF</a>
+                <a href="https://zhuanlan.zhihu.com/p/2061145203105388102" target="_blank" rel="noreferrer">知乎中文资料</a>
+                <a href="https://mp.weixin.qq.com/s/65Z8M1GABm_c0qvbvLPtTg" target="_blank" rel="noreferrer">微信公众号中文资料</a>
+              </div>
+            </div>
+            <div class="outro-mark diagram-panel" data-enter aria-hidden="true">
+              <svg viewBox="0 0 700 700">
+                <circle class="diagram-muted" cx="350" cy="350" r="246" /><circle class="diagram-muted dashed motion-spin" cx="350" cy="350" r="184" />
+                <path class="diagram-accent motion-draw" pathLength="1" d="M350 104 A246 246 0 1 1 349.9 104" />
+                <path class="diagram-brass motion-draw" pathLength="1" d="M181 350 H519 M350 181 V519" />
+                <circle class="fill-red motion-pulse" cx="350" cy="350" r="45" />
+                <text class="diagram-giant outro-number" x="350" y="596" text-anchor="middle">17 → ∞</text>
+              </svg>
+            </div>
+          </div>
+          <div class="outro-foot" data-enter>NON-OFFICIAL INTERACTIVE PRESENTATION · 2026</div>
+        </section>
+
+        <div id="transitionFocus" class="transition-focus" aria-hidden="true"></div>
+        <div id="transitionGate" class="transition-gate" aria-hidden="true"></div>
+      </div>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
