@@ -1,0 +1,194 @@
+.wave-lab {
+  --wave-panel: rgba(9, 16, 38, .84);
+  --wave-panel-strong: rgba(8, 13, 31, .94);
+  --wave-line: rgba(143, 183, 245, .18);
+  --wave-text: #eff5ff;
+  --wave-muted: #8e9db9;
+  --wave-cyan: #63e7ff;
+  display: grid;
+  grid-template-columns: minmax(260px, 306px) minmax(0, 1fr);
+  gap: 16px;
+  width: 100%;
+  color: var(--wave-text);
+  font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+
+.wave-lab *, .wave-lab *::before, .wave-lab *::after { box-sizing: border-box; }
+
+.wave-lab__console,
+.wave-lab__toolbar,
+.wave-lab__canvas-frame,
+.wave-lab__receiver,
+.wave-lab__transport,
+.wave-lab__readouts {
+  border: 1px solid var(--wave-line);
+  background: linear-gradient(145deg, rgba(28, 42, 76, .55), rgba(7, 12, 30, .82));
+  box-shadow: inset 0 1px rgba(255,255,255,.07), 0 20px 48px rgba(0,0,0,.24);
+}
+
+.wave-lab__console {
+  padding: 18px;
+  border-radius: 22px;
+}
+
+.wave-lab__heading { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--wave-line); }
+.wave-lab__heading > span { display: grid; width: 42px; height: 42px; place-items: center; color: var(--wave-cyan); border: 1px solid rgba(99,231,255,.3); border-radius: 12px; background: rgba(99,231,255,.08); }
+.wave-lab__heading svg { width: 22px; }
+.wave-lab__heading small { color: var(--wave-cyan); font: 700 9px/1.2 "SFMono-Regular", Consolas, monospace; letter-spacing: .16em; }
+.wave-lab__heading h2 { margin: 4px 0 5px; font-size: 23px; line-height: 1.1; }
+.wave-lab__heading p { margin: 0; color: var(--wave-muted); font-size: 12px; line-height: 1.55; }
+
+.wave-lab__mode { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 15px; padding: 4px; border: 1px solid rgba(143,183,245,.14); border-radius: 12px; background: rgba(2,7,20,.52); }
+.wave-lab__mode button,
+.wave-lab__toolbar button,
+.wave-lab__speed button { min-height: 32px; padding: 5px 8px; color: #aebad0; font-size: 11px; font-weight: 650; border: 0; border-radius: 8px; background: transparent; cursor: pointer; transition: .16s ease; }
+.wave-lab__mode button:hover,
+.wave-lab__toolbar button:hover,
+.wave-lab__speed button:hover { color: #fff; background: rgba(255,255,255,.06); }
+.wave-lab__mode button.is-active,
+.wave-lab__toolbar button.is-active,
+.wave-lab__speed button.is-active { color: #07131e; background: linear-gradient(135deg, #9df3ff, #6cbcff); box-shadow: 0 5px 14px rgba(72,190,255,.14); }
+.wave-lab__mode-note { min-height: 38px; margin: 8px 3px 0; color: #7f8eaa; font-size: 11px; line-height: 1.55; }
+
+.wave-lab__group { display: grid; gap: 12px; min-width: 0; margin: 15px 0 0; padding: 15px 0 0; border: 0; border-top: 1px solid var(--wave-line); }
+.wave-lab__group legend { width: 100%; padding: 0; color: #c7d3e9; font-size: 12px; font-weight: 700; }
+.wave-lab__range { display: grid; grid-template-columns: 1fr auto; gap: 5px 10px; align-items: center; }
+.wave-lab__range > span { color: #aebbd2; font-size: 11px; font-weight: 650; }
+.wave-lab__range > span i { margin-left: 6px; color: #6e809f; font: normal 600 10px "SFMono-Regular", Consolas, monospace; }
+.wave-lab__range output { color: var(--wave-cyan); font: 650 10px "SFMono-Regular", Consolas, monospace; }
+.wave-lab__range input { grid-column: 1/-1; width: 100%; height: 17px; margin: 0; appearance: none; background: transparent; cursor: pointer; }
+.wave-lab__range input::-webkit-slider-runnable-track { height: 4px; border-radius: 9px; background: linear-gradient(90deg, rgba(99,231,255,.75), rgba(100,135,255,.3)); }
+.wave-lab__range input::-webkit-slider-thumb { width: 14px; height: 14px; margin-top: -5px; appearance: none; border: 2px solid #e7fcff; border-radius: 50%; background: #64ddf7; box-shadow: 0 0 0 3px rgba(99,231,255,.1), 0 0 10px rgba(99,231,255,.4); }
+.wave-lab__range input::-moz-range-track { height: 4px; border-radius: 9px; background: linear-gradient(90deg, rgba(99,231,255,.75), rgba(100,135,255,.3)); }
+.wave-lab__range input::-moz-range-thumb { width: 11px; height: 11px; border: 2px solid #e7fcff; border-radius: 50%; background: #64ddf7; }
+.wave-lab__derived { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px; border: 1px solid rgba(99,231,255,.12); border-radius: 9px; background: rgba(99,231,255,.045); }
+.wave-lab__derived span { color: #8998b4; font-size: 10px; }
+.wave-lab__derived strong { color: #dffcff; font: 650 10px "SFMono-Regular", Consolas, monospace; }
+
+.wave-lab__workspace { display: grid; grid-template-rows: auto minmax(430px, 1fr) auto auto auto auto; gap: 9px; min-width: 0; }
+.wave-lab__toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 7px; border-radius: 14px; }
+.wave-lab__toolbar > div { display: flex; flex-wrap: wrap; gap: 3px; }
+.wave-lab__canvas-frame { position: relative; min-height: 450px; overflow: hidden; border-radius: 22px; background: #060a17; }
+.wave-lab__canvas-frame::after { position: absolute; inset: 10px; border: 1px solid rgba(152,196,255,.11); border-radius: 15px; pointer-events: none; content: ""; }
+.wave-lab__canvas-frame canvas { display: block; width: 100%; height: 100%; min-height: 450px; touch-action: none; cursor: grab; }
+.wave-lab__canvas-frame canvas.is-dragging { cursor: grabbing; }
+.wave-lab__canvas-tag,
+.wave-lab__camera-hint { position: absolute; z-index: 2; display: flex; align-items: center; gap: 7px; color: rgba(211,225,247,.72); font-size: 10px; pointer-events: none; }
+.wave-lab__canvas-tag { top: 18px; left: 20px; padding: 7px 9px; border: 1px solid rgba(143,183,245,.15); border-radius: 9px; background: rgba(4,9,23,.62); backdrop-filter: blur(8px); }
+.wave-lab__canvas-tag svg { width: 14px; color: var(--wave-cyan); }
+.wave-lab__camera-hint { right: 19px; bottom: 16px; }
+.wave-lab__camera-hint svg { width: 14px; }
+.wave-lab__legend { position: absolute; z-index: 2; top: 20px; right: 20px; display: grid; grid-template-columns: auto 72px auto; gap: 6px; align-items: center; color: rgba(205,218,240,.65); font: 600 9px "SFMono-Regular", Consolas, monospace; }
+.wave-lab__legend i { height: 5px; border-radius: 8px; background: linear-gradient(90deg,#474aca,#40dbff,#da6fff); }
+.wave-lab__legend--thermal i { background: linear-gradient(90deg,#111c5c,#1fbed6,#f9cb48,#f44741); }
+.wave-lab__legend--mono i { background: linear-gradient(90deg,#2a313a,#e8efff); }
+
+.wave-lab__receiver { display: grid; grid-template-columns: minmax(160px, .72fr) minmax(300px, 1.8fr) minmax(170px, .78fr); gap: 12px; align-items: stretch; padding: 11px 12px; border-radius: 16px; }
+.wave-lab__receiver-heading { display: grid; align-content: center; gap: 7px; min-width: 0; padding: 3px 8px; border-right: 1px solid var(--wave-line); }
+.wave-lab__receiver-heading > div { display: grid; gap: 4px; }
+.wave-lab__receiver-heading span { color: var(--wave-cyan); font: 700 8px/1.2 "SFMono-Regular", Consolas, monospace; letter-spacing: .14em; }
+.wave-lab__receiver-heading strong { font-size: 14px; }
+.wave-lab__receiver-heading p { margin: 0; color: #7f8eaa; font-size: 9px; line-height: 1.55; }
+.wave-lab__receiver-chart { min-width: 0; overflow: hidden; border: 1px solid rgba(143,183,245,.12); border-radius: 11px; background: rgba(2,7,20,.58); }
+.wave-lab__receiver-chart canvas { display: block; width: 100%; height: 126px; }
+.wave-lab__receiver-readouts { display: grid; align-content: center; gap: 7px; min-width: 0; }
+.wave-lab__receiver-readouts > div { display: flex; justify-content: space-between; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(143,183,245,.1); }
+.wave-lab__receiver-readouts > div:last-child { padding-bottom: 0; border-bottom: 0; }
+.wave-lab__receiver-readouts span { color: #7889a6; font-size: 9px; }
+.wave-lab__receiver-readouts strong { color: #dffcff; font: 650 9px "SFMono-Regular", Consolas, monospace; white-space: nowrap; }
+
+.wave-lab__transport { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 9px; padding: 8px 10px; border-radius: 14px; }
+.wave-lab__actions, .wave-lab__speed { display: flex; flex-wrap: wrap; gap: 6px; }
+.wave-lab__actions button { display: inline-flex; min-height: 34px; align-items: center; gap: 7px; padding: 6px 11px; color: #c4d1e6; font-size: 11px; font-weight: 650; border: 1px solid rgba(143,183,245,.17); border-radius: 9px; background: rgba(255,255,255,.035); cursor: pointer; }
+.wave-lab__actions button:hover { border-color: rgba(99,231,255,.36); }
+.wave-lab__actions svg { width: 14px; }
+.wave-lab__actions .wave-lab__primary { color: #07131e; border-color: rgba(157,243,255,.7); background: linear-gradient(135deg,#9df3ff,#6cbcff); }
+.wave-lab__speed { padding: 3px; border: 1px solid rgba(143,183,245,.13); border-radius: 10px; background: rgba(2,7,20,.45); }
+
+.wave-lab__readouts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; overflow: hidden; border-radius: 14px; }
+.wave-lab__readouts > div { display: grid; gap: 4px; min-width: 0; padding: 10px 12px; background: rgba(7,12,29,.72); }
+.wave-lab__readouts span { color: #73829e; font-size: 9px; }
+.wave-lab__readouts strong { overflow: hidden; color: #d7e5f8; font: 650 10px "SFMono-Regular", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+.wave-lab__footnote { margin: 0 4px; color: #65728b; font-size: 10px; line-height: 1.5; }
+
+html[data-color-mode='light'] .wave-lab { --wave-text:#142936; --wave-muted:#40586a; --wave-cyan:#006e82; --wave-line:#c8d5dd; }
+html[data-color-mode='light'] .wave-lab__console,
+html[data-color-mode='light'] .wave-lab__toolbar,
+html[data-color-mode='light'] .wave-lab__receiver,
+html[data-color-mode='light'] .wave-lab__transport,
+html[data-color-mode='light'] .wave-lab__readouts { border-color:#c8d5dd; background:#fff; box-shadow:0 12px 30px rgba(38,52,63,.08); }
+html[data-color-mode='light'] .wave-lab__mode,
+html[data-color-mode='light'] .wave-lab__speed { border-color:#cdd9e0; background:#eef4f7; }
+html[data-color-mode='light'] .wave-lab__mode button,
+html[data-color-mode='light'] .wave-lab__toolbar button,
+html[data-color-mode='light'] .wave-lab__speed button,
+html[data-color-mode='light'] .wave-lab__actions button { color:#4b5c6c; }
+html[data-color-mode='light'] .wave-lab__mode button:hover,
+html[data-color-mode='light'] .wave-lab__toolbar button:hover,
+html[data-color-mode='light'] .wave-lab__speed button:hover,
+html[data-color-mode='light'] .wave-lab__actions button:hover { color:#1d2c37; background:rgba(20,117,138,.08); }
+html[data-color-mode='light'] .wave-lab__mode button.is-active,
+html[data-color-mode='light'] .wave-lab__toolbar button.is-active,
+html[data-color-mode='light'] .wave-lab__speed button.is-active,
+html[data-color-mode='light'] .wave-lab__actions .wave-lab__primary { color:#fff; background:linear-gradient(135deg,#16879e,#397bb7); }
+html[data-color-mode='light'] .wave-lab__range > span,
+html[data-color-mode='light'] .wave-lab__group legend { color:#263d4c; }
+html[data-color-mode='light'] .wave-lab__mode-note,
+html[data-color-mode='light'] .wave-lab__receiver-heading p,
+html[data-color-mode='light'] .wave-lab__receiver-readouts span,
+html[data-color-mode='light'] .wave-lab__footnote { color:#40586a; }
+html[data-color-mode='light'] .wave-lab__heading h2 { color:#102633; font-weight:750; }
+html[data-color-mode='light'] .wave-lab__heading p { color:#40586a; }
+html[data-color-mode='light'] .wave-lab__range > span i { color:#607383; }
+html[data-color-mode='light'] .wave-lab__range output { color:#006e82; }
+html[data-color-mode='light'] .wave-lab__derived { border-color:#bad8df; background:#edf8fa; }
+html[data-color-mode='light'] .wave-lab__derived span { color:#40586a; }
+html[data-color-mode='light'] .wave-lab__derived strong { color:#00687b; }
+html[data-color-mode='light'] .wave-lab__receiver { color:#142936; border-color:#b8cad4; }
+html[data-color-mode='light'] .wave-lab__receiver-heading { border-color:#c8d5dd; }
+html[data-color-mode='light'] .wave-lab__receiver-heading strong { color:#102633; }
+html[data-color-mode='light'] .wave-lab__receiver-heading p { font-size:10px; }
+html[data-color-mode='light'] .wave-lab__receiver-chart { border-color:#aebfc9; background:#071329; box-shadow:inset 0 1px rgba(255,255,255,.05); }
+html[data-color-mode='light'] .wave-lab__receiver-readouts > div { border-color:#d2dde3; }
+html[data-color-mode='light'] .wave-lab__receiver-readouts span { color:#334b5c; font-size:10px; font-weight:600; }
+html[data-color-mode='light'] .wave-lab__receiver-readouts strong { color:#092b38; font-size:10px; font-weight:750; }
+html[data-color-mode='light'] .wave-lab__readouts > div { background:#fff; }
+html[data-color-mode='light'] .wave-lab__readouts span { color:#40586a; }
+html[data-color-mode='light'] .wave-lab__readouts strong { color:#203744; }
+
+@media (max-width: 930px) {
+  .wave-lab { grid-template-columns: 1fr; }
+  .wave-lab__console { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 18px; }
+  .wave-lab__heading, .wave-lab__mode, .wave-lab__mode-note { grid-column: 1/-1; }
+  .wave-lab__workspace { grid-template-rows: auto minmax(390px,1fr) auto auto auto auto; }
+  .wave-lab__receiver { grid-template-columns: minmax(150px, .7fr) minmax(280px, 1.5fr); }
+  .wave-lab__receiver-readouts { grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); }
+  .wave-lab__receiver-readouts > div { display: grid; gap: 3px; padding: 8px; border: 1px solid rgba(143,183,245,.1); border-radius: 8px; }
+}
+
+@media (max-width: 650px) {
+  .wave-lab__console { display: block; padding: 14px; border-radius: 17px; }
+  .wave-lab__canvas-frame, .wave-lab__canvas-frame canvas { min-height: 360px; }
+  .wave-lab__workspace { grid-template-rows: auto minmax(360px,auto) auto auto auto auto; }
+  .wave-lab__receiver { grid-template-columns: 1fr; }
+  .wave-lab__receiver-heading { border-right: 0; border-bottom: 1px solid var(--wave-line); padding: 4px 4px 10px; }
+  .wave-lab__receiver-chart canvas { width: 680px; max-width: none; }
+  .wave-lab__receiver-chart { overflow-x: auto; }
+  .wave-lab__toolbar { align-items: flex-start; }
+  .wave-lab__toolbar > div { width: 100%; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .wave-lab__readouts { grid-template-columns: 1fr 1fr; }
+  .wave-lab__camera-hint { display: none; }
+}
+
+@media (max-width: 420px) {
+  .wave-lab__mode { grid-template-columns: 1fr; }
+  .wave-lab__toolbar > div:last-child { grid-auto-flow: row; }
+  .wave-lab__transport { align-items: stretch; }
+  .wave-lab__actions { width: 100%; }
+  .wave-lab__actions button { flex: 1; justify-content: center; }
+  .wave-lab__readouts { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-lab *, .wave-lab *::before, .wave-lab *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

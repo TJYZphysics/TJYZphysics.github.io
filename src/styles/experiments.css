@@ -38,6 +38,16 @@ html[data-color-mode='light'] .experiment-stage::before {
   background: radial-gradient(circle at 15% 0, rgba(255, 255, 255, .8), transparent 25%);
 }
 
+html[data-color-mode='light'] .experiment-stage:has(.wave-lab),
+html[data-color-mode='light'] .experiment-stage:has(.projectile-lab) {
+  background: #f7fafb;
+}
+
+html[data-color-mode='light'] .experiment-stage:has(.wave-lab)::before,
+html[data-color-mode='light'] .experiment-stage:has(.projectile-lab)::before {
+  display: none;
+}
+
 html[data-theme='claude-light'] .experiment-switcher button,
 html[data-theme='claude-light'] .experiment-stage {
   border-color: rgba(58, 48, 41, .14);
@@ -69,4 +79,24 @@ html[data-theme='claude-dark'] .experiment-stage {
   border-color: rgba(231, 218, 201, .12);
   background: linear-gradient(145deg, rgba(255, 248, 237, .045), rgba(255, 248, 237, .012));
   box-shadow: inset 0 1px rgba(255, 255, 255, .07), 0 28px 68px rgba(0, 0, 0, .28);
+}
+
+@media (max-width: 800px) {
+  .experiments-page .experiment-switcher {
+    display: flex;
+    gap: 10px;
+    margin-right: -24px;
+    margin-left: -24px;
+    padding: 2px 24px 12px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  .experiments-page .experiment-switcher button {
+    flex: 0 0 min(280px, 78vw);
+    min-height: 78px;
+    scroll-snap-align: start;
+  }
 }

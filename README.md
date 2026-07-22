@@ -1,6 +1,6 @@
 # TJYZ Physics Official Website
 
-TJYZ Physics 物理社官网，包含主页、Markdown 博客、四个浏览器互动实验与社团介绍。
+TJYZ Physics 物理社官网，包含主页、Markdown 博客、七个浏览器互动实验与社团介绍。
 
 ## 本地开发
 
