@@ -39,12 +39,14 @@ html[data-color-mode='light'] .experiment-stage::before {
 }
 
 html[data-color-mode='light'] .experiment-stage:has(.wave-lab),
-html[data-color-mode='light'] .experiment-stage:has(.projectile-lab) {
+html[data-color-mode='light'] .experiment-stage:has(.projectile-lab),
+html[data-color-mode='light'] .experiment-stage:has(.potential-lab) {
   background: #f7fafb;
 }
 
 html[data-color-mode='light'] .experiment-stage:has(.wave-lab)::before,
-html[data-color-mode='light'] .experiment-stage:has(.projectile-lab)::before {
+html[data-color-mode='light'] .experiment-stage:has(.projectile-lab)::before,
+html[data-color-mode='light'] .experiment-stage:has(.potential-lab)::before {
   display: none;
 }
 
