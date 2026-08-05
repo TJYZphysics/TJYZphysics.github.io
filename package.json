@@ -20,7 +20,8 @@
     "rehype-highlight": "^7.0.2",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "latest",
-    "remark-math": "^6.0.0"
+    "remark-math": "^6.0.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "latest",
@@ -28,6 +29,7 @@
     "@testing-library/user-event": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/three": "^0.185.3",
     "jsdom": "latest",
     "typescript": "latest",
     "vite": "latest",
