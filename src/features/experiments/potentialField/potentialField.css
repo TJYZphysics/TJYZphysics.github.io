@@ -246,3 +246,21 @@ html[data-theme='claude-dark'] .potential-lab { --potential-cyan: #df8f6c; --pot
     animation-duration: .01ms !important;
   }
 }
+
+/* Let the Three.js viewport and control columns shrink without page overflow. */
+.potential-lab,
+.potential-lab__console,
+.potential-lab__workspace,
+.potential-lab__toolbar,
+.potential-lab__readouts { min-width: 0; }
+.potential-lab__heading > div,
+.potential-lab__group,
+.potential-lab__toolbar-label { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .potential-lab__mode button,
+  .potential-lab__toolbar button,
+  .potential-lab__presets button,
+  .potential-lab__actions button,
+  .potential-lab__reset { min-height: 44px; touch-action: manipulation; }
+  .potential-lab__range input { height: 44px; }
+}

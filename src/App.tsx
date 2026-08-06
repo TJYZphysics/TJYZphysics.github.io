@@ -1,14 +1,15 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from 'react'
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { Menu, Moon, Sun, X } from 'lucide-react'
-import HomePage from './pages/HomePage'
-import BlogPage from './pages/BlogPage'
-import BlogPostPage from './pages/BlogPostPage'
-import ExperimentsPage from './pages/ExperimentsPage'
-import AboutPage from './pages/AboutPage'
-import NavigationPage from './pages/NavigationPage'
-import VideosPage from './pages/VideosPage'
 import './styles/global.css'
+
+const HomePage = lazy(() => import('./pages/HomePage'))
+const BlogPage = lazy(() => import('./pages/BlogPage'))
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
+const ExperimentsPage = lazy(() => import('./pages/ExperimentsPage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const NavigationPage = lazy(() => import('./pages/NavigationPage'))
+const VideosPage = lazy(() => import('./pages/VideosPage'))
 
 const navItems = [
   { to: '/', label: '主页', end: true }, { to: '/blog', label: '博客' },
@@ -46,7 +47,7 @@ function SiteHeader() {
 }
 
 function SiteFooter() { return <footer className="site-footer"><div><strong>TJYZ PHYSICS</strong><span>为往圣继绝学，为万世开太平</span></div><p>© 2026 TJYZ Physics · Built for curious minds.</p></footer> }
-export default function App() { return <div className="site-root"><SiteHeader /><Routes>
+export default function App() { return <div className="site-root"><SiteHeader /><Suspense fallback={<main className="experiment-loading" aria-label="页面加载中" />}><Routes>
   <Route path="/" element={<HomePage />} /><Route path="/blog" element={<BlogPage />} /><Route path="/blog/:slug" element={<BlogPostPage />} /><Route path="/experiments" element={<ExperimentsPage />} /><Route path="/videos" element={<VideosPage />} /><Route path="/navigation" element={<NavigationPage />} /><Route path="/about" element={<AboutPage />} />
   <Route path="*" element={<main className="not-found"><p>404 / 未知坐标</p><h1>这里没有可观测事件。</h1><NavLink to="/">返回主页</NavLink></main>} />
-</Routes><SiteFooter /></div> }
+</Routes></Suspense><SiteFooter /></div> }

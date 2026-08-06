@@ -643,3 +643,19 @@ html[data-theme='claude-dark'] .three-body-actions .three-body-primary {
   border-color: rgba(243, 180, 151, .62);
   background: linear-gradient(135deg, #efad8e, #ce7452);
 }
+
+/* Keep the instrument shrinkable inside the page shell on narrow phones. */
+.three-body-lab,
+.three-body-console,
+.three-body-viewport,
+.three-body-heading > div,
+.three-body-metrics { min-width: 0; }
+.three-body-heading h2,
+.three-body-heading p,
+.three-body-field p,
+.three-body-status { overflow-wrap: anywhere; }
+.three-body-canvas-frame canvas { touch-action: none; }
+@media (max-width: 620px) {
+  .three-body-actions button { min-height: 44px; touch-action: manipulation; }
+  .three-body-range input[type="range"] { height: 44px; }
+}

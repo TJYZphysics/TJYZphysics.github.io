@@ -1,7 +1,26 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ElectromagneticGuideGame } from './ElectromagneticGuideGame'
+import { ElectromagneticGuideGame, sampleParticleRenderFrame } from './ElectromagneticGuideGame'
+
+describe('electromagnetic particle rendering', () => {
+  it('interpolates between sampled physics points during level playback', () => {
+    const frame = sampleParticleRenderFrame({ path: [{ x: 0, y: 0 }, { x: 10, y: 4 }] }, false, 0.25)
+
+    expect(frame.completedIndex).toBe(0)
+    expect(frame.position).toEqual({ x: 2.5, y: 1 })
+  })
+
+  it('uses the live physics position between sandbox path samples', () => {
+    const frame = sampleParticleRenderFrame({
+      path: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+      position: { x: 1.4, y: 1.25 },
+    }, true, 1)
+
+    expect(frame.completedIndex).toBe(1)
+    expect(frame.position).toEqual({ x: 1.4, y: 1.25 })
+  })
+})
 
 describe('ElectromagneticGuideGame sandbox', () => {
   let callbacks: Map<number, FrameRequestCallback>
@@ -61,5 +80,15 @@ describe('ElectromagneticGuideGame sandbox', () => {
     act(() => canvas.dispatchEvent(levelWheel))
 
     expect(levelWheel.defaultPrevented).toBe(false)
+  })
+
+  it('cancels the active animation when switching levels', () => {
+    render(<ElectromagneticGuideGame />)
+    fireEvent.click(screen.getByRole('button', { name: '25' }))
+    fireEvent.click(screen.getByRole('button', { name: '发射粒子' }))
+    expect(callbacks.size).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getByRole('button', { name: '24' }))
+    expect(callbacks.size).toBe(0)
   })
 })

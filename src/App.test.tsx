@@ -14,20 +14,20 @@ describe('site routes', () => {
     expect(screen.getByRole('link', { name: '导航' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'About us' })).toBeInTheDocument()
   })
-  it('lists Markdown posts without a hand-maintained index', () => {
+  it('lists Markdown posts without a hand-maintained index', async () => {
     render(<MemoryRouter initialEntries={['/blog']}><App /></MemoryRouter>)
-    expect(screen.getByRole('heading', { name: /从一束光开始/ })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /从一束光开始/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /三体系统/ })).toBeInTheDocument()
   })
-  it('filters blog posts by search text and tag', () => {
+  it('filters blog posts by search text and tag', async () => {
     render(<MemoryRouter initialEntries={['/blog']}><App /></MemoryRouter>)
-    fireEvent.change(screen.getByPlaceholderText(/搜索标题/), { target: { value: '三体' } })
+    fireEvent.change(await screen.findByPlaceholderText(/搜索标题/), { target: { value: '三体' } })
     expect(screen.getByRole('heading', { name: /三体系统/ })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /从一束光开始/ })).not.toBeInTheDocument()
   })
-  it('renders both About Markdown documents without a theme toggle', () => {
+  it('renders both About Markdown documents without a theme toggle', async () => {
     render(<MemoryRouter initialEntries={['/about']}><App /></MemoryRouter>)
-    expect(screen.getByRole('heading', { name: /关于PT物理社/ })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /关于PT物理社/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /社团历史/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /切换.*主题/ })).not.toBeInTheDocument()
   })
@@ -38,9 +38,9 @@ describe('site routes', () => {
     expect(window.localStorage.getItem('tjyz-theme')).toBe('light')
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
-  it('filters HTML videos by search text and tag', () => {
+  it('filters HTML videos by search text and tag', async () => {
     render(<MemoryRouter initialEntries={['/videos']}><App /></MemoryRouter>)
-    expect(screen.getByRole('link', { name: /播放《IYPT比赛介绍》/ })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /播放《IYPT比赛介绍》/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /播放《2027 IYPT 题目介绍》/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /题目 1/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /CYPT 1/ })).toBeInTheDocument()

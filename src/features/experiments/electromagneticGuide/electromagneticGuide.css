@@ -9,6 +9,13 @@
 @media(max-width:1050px){.em-guide__workspace{grid-template-columns:220px minmax(380px,1fr)}.em-guide__readout{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}.em-guide__readout .em-guide__panel-title{grid-column:1/-1;margin:0}.em-guide__readout .em-guide__legend{grid-column:1/-1;margin:0}.em-guide__particles{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}.em-guide__goal{margin:0}.em-guide__level-strip{grid-template-columns:repeat(25,30px)}}
 @media(max-width:760px){.em-guide{padding:16px;border-radius:21px}.em-guide__header{align-items:flex-start}.em-guide__level-badge{min-width:82px;padding:10px}.em-guide__level-badge strong{font-size:1.55rem}.em-guide__mission{grid-template-columns:1fr;gap:7px}.em-guide__workspace{grid-template-columns:1fr}.em-guide__toolbox{order:2}.em-guide__stage{order:1;min-height:390px}.em-guide__stage canvas{min-height:390px}.em-guide__readout{order:3;grid-column:auto;display:block}.em-guide__readout .em-guide__panel-title{margin-bottom:11px}.em-guide__readout .em-guide__goal,.em-guide__readout .em-guide__legend{margin-top:12px}.em-guide__tools{grid-template-columns:1fr 1fr}.em-guide__transform,.em-guide__edit-actions{max-width:440px}.em-guide__status{align-items:flex-start}.em-guide__status>button{display:none}}
 @media(max-width:480px){.em-guide__header p{font-size:.8rem}.em-guide h2{font-size:2.45rem}.em-guide__level-badge small{font-size:.5rem}.em-guide__levels{grid-template-columns:30px minmax(0,1fr) 30px;padding:7px}.em-guide__mission{padding:10px 12px}.em-guide__tools{grid-template-columns:1fr}.em-guide__stage,.em-guide__stage canvas{min-height:340px}.em-guide__launch{width:calc(100% - 20px)}.em-guide__canvas-label span{display:none}.em-guide__status{font-size:.65rem}}
+@media(max-width:480px){
+  .em-guide__levels { grid-template-columns:44px minmax(0,1fr) 44px; }
+  .em-guide__levels > .em-guide__level-arrow,
+  .em-guide__level-strip > button { min-width:44px; min-height:44px; }
+  .em-guide__level-strip { min-width:0; max-width:100%; display:flex; gap:6px; overflow-x:auto; overscroll-behavior-x:contain; }
+  .em-guide__level-strip > button { flex:0 0 44px; }
+}
 @media(prefers-reduced-motion:reduce){.em-guide__timeline i{transition:none}}
 .em-guide__stage canvas.is-sandbox{cursor:grab}.em-guide__stage canvas.is-panning{cursor:grabbing}.em-guide__stage canvas.is-moving{cursor:move}
 .em-guide__inspector{display:grid;gap:9px;margin-top:10px;padding:11px;border:1px solid rgba(213,140,255,.22);border-radius:11px;background:linear-gradient(145deg,rgba(213,140,255,.075),rgba(99,217,238,.035));box-shadow:inset 0 1px rgba(255,255,255,.035)}.em-guide__inspector-title{display:flex;align-items:center;justify-content:space-between;padding-bottom:7px;border-bottom:1px solid var(--em-line)}.em-guide__inspector-title span{color:#a9c0cd;font-size:.61rem;letter-spacing:.11em}.em-guide__inspector-title b{color:#e9d2ff;font-size:.67rem}.em-guide__inspector label{display:grid;gap:5px;color:#91a9b8;font-size:.61rem}.em-guide__inspector label>span{display:flex;align-items:center;justify-content:space-between}.em-guide__inspector output{color:#e9faff;font:700 .61rem 'Space Grotesk',sans-serif}.em-guide__inspector input[type=range]{width:100%;height:4px;margin:3px 0;accent-color:#d58cff;cursor:pointer}.em-guide__inspector input[type=number],.em-guide__inspector select{width:100%;min-width:0;padding:6px 7px;border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#e6f7ff;background:#10212d;font:600 .62rem 'Segoe UI',sans-serif;outline:none}.em-guide__inspector input:focus,.em-guide__inspector select:focus{border-color:var(--em-cyan);box-shadow:0 0 0 2px rgba(99,217,238,.12)}.em-guide__inspector-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.em-guide__inspector>small{color:#6f8999;font-size:.56rem;line-height:1.45}.em-guide__inspector--empty{min-height:66px;place-content:center;text-align:center;border-style:dashed}.em-guide__inspector--empty>span{color:#b5cbd6;font-size:.65rem}.em-guide__inspector--empty>small{margin-top:3px}
@@ -61,3 +68,25 @@ html[data-theme='claude-dark'] .em-guide__tools>button.is-active{background:rgba
 html[data-theme='claude-dark'] .em-guide__status{background:rgba(20,18,17,.32)}
 html[data-theme='claude-dark'] .em-guide__inspector{border-color:rgba(223,143,108,.2);background:linear-gradient(145deg,rgba(223,143,108,.07),rgba(255,248,237,.025))}
 html[data-theme='claude-dark'] .em-guide__inspector input[type=number],html[data-theme='claude-dark'] .em-guide__inspector select{border-color:rgba(232,218,202,.13);background:#302a26}
+
+/* Level navigation may scroll horizontally; the workspace and labels must not
+   force the document wider than the viewport. */
+.em-guide,
+.em-guide__header,
+.em-guide__header > div,
+.em-guide__mission,
+.em-guide__workspace,
+.em-guide__panel,
+.em-guide__readout,
+.em-guide__status { min-width: 0; }
+.em-guide__header > div,
+.em-guide__mission > div,
+.em-guide__panel-title,
+.em-guide__status > div { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .em-guide__levels button,
+  .em-guide__transform button,
+  .em-guide__edit-actions button,
+  .em-guide__launch button { min-height: 44px; touch-action: manipulation; }
+  .em-guide__inspector input[type="range"] { min-height: 44px; }
+}

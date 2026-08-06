@@ -48,7 +48,7 @@ function drawScene(
   const context = canvas.getContext('2d')
   if (!context) return
 
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.5 : 2)
   const width = canvas.width / pixelRatio
   const height = canvas.height / pixelRatio
   if (width <= 0 || height <= 0) return
@@ -216,6 +216,7 @@ export function ThreeBodyLab() {
   const [trailLength, setTrailLength] = useState(260)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [status, setStatus] = useState('已暂停，可调整参数或开始模拟。')
+  const [isDocumentHidden, setIsDocumentHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const bodiesRef = useRef(bodies)
@@ -227,6 +228,7 @@ export function ThreeBodyLab() {
   const previousTimeRef = useRef<number | null>(null)
   const accumulatorRef = useRef(0)
   const elapsedRef = useRef(0)
+  const lastUiUpdateRef = useRef(0)
 
   const selectedPreset = useMemo(
     () => THREE_BODY_PRESETS.find((preset) => preset.key === presetKey),
@@ -234,9 +236,9 @@ export function ThreeBodyLab() {
   )
   const massCenter = centerOfMass(bodies)
 
-  const replaceBodies = (next: Body[]) => {
+  const replaceBodies = (next: Body[], notify = true) => {
     bodiesRef.current = next
-    setBodies(next)
+    if (notify) setBodies(next)
   }
 
   const setRunningState = (next: boolean) => {
@@ -265,7 +267,7 @@ export function ThreeBodyLab() {
     setStatus('检测到数值异常，已自动恢复当前预设。')
   }
 
-  const integrateOnce = (duration = FIXED_STEP) => {
+  const integrateOnce = (duration = FIXED_STEP, notify = true) => {
     try {
       const next = stepSystem(
         bodiesRef.current,
@@ -277,7 +279,7 @@ export function ThreeBodyLab() {
         recoverFromInstability()
         return false
       }
-      replaceBodies(next)
+      replaceBodies(next, notify)
       return true
     } catch {
       recoverFromInstability()
@@ -293,7 +295,7 @@ export function ThreeBodyLab() {
       const bounds = canvas.getBoundingClientRect()
       const width = Math.max(1, Math.round(bounds.width || 760))
       const height = Math.max(1, Math.round(bounds.height || 470))
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.5 : 2)
       canvas.width = Math.round(width * pixelRatio)
       canvas.height = Math.round(height * pixelRatio)
       drawScene(canvas, bodiesRef.current, trailsRef.current, runningRef.current)
@@ -310,12 +312,18 @@ export function ThreeBodyLab() {
   }, [])
 
   useEffect(() => {
+    const updateVisibility = () => setIsDocumentHidden(document.hidden)
+    document.addEventListener('visibilitychange', updateVisibility)
+    return () => document.removeEventListener('visibilitychange', updateVisibility)
+  }, [])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     if (canvas) drawScene(canvas, bodies, trailsRef.current, isRunning)
   }, [bodies, isRunning])
 
   useEffect(() => {
-    if (!isRunning) return
+    if (!isRunning || isDocumentHidden) return
 
     const animate = (time: number) => {
       if (!runningRef.current) return
@@ -331,7 +339,7 @@ export function ThreeBodyLab() {
       let iterations = 0
       let advanced = false
       while (accumulatorRef.current >= FIXED_STEP && iterations < 16) {
-        if (!integrateOnce(FIXED_STEP)) return
+        if (!integrateOnce(FIXED_STEP, false)) return
         accumulatorRef.current -= FIXED_STEP
         elapsedRef.current += FIXED_STEP
         advanced = true
@@ -340,7 +348,12 @@ export function ThreeBodyLab() {
 
       if (advanced) {
         recordTrails(bodiesRef.current)
-        setElapsedTime(elapsedRef.current)
+        drawScene(canvasRef.current!, bodiesRef.current, trailsRef.current, true)
+        if (time - lastUiUpdateRef.current >= 100) {
+          setBodies([...bodiesRef.current])
+          setElapsedTime(elapsedRef.current)
+          lastUiUpdateRef.current = time
+        }
       }
       frameRef.current = requestAnimationFrame(animate)
     }
@@ -349,7 +362,7 @@ export function ThreeBodyLab() {
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
     }
-  }, [isRunning])
+  }, [isDocumentHidden, isRunning])
 
   const handlePresetChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const nextKey = event.target.value as ThreeBodyPresetKey

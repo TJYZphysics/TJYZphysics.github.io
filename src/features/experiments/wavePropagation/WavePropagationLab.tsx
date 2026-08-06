@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject, type PointerEvent as ReactPointerEvent } from 'react'
 import { Aperture, Move3d, Pause, Play, RotateCcw, Waves } from 'lucide-react'
 import { createWaveField, sampleReceiverProfile, waveNumber, waveSpeed, type WaveExperimentMode, type WaveField, type WaveReceiverProfile } from './physics'
-import { renderWaveScene, type WaveCamera, type WaveColorTheme, type WaveDisplayMode } from './renderer'
+import { renderWaveOverlay, renderWaveScene, type WaveCamera, type WaveColorTheme, type WaveDisplayMode } from './renderer'
+import { disposeWaveMeshWebGL, renderWaveMeshWebGL } from './webglRenderer'
 import './wavePropagation.css'
 
 interface RangeControlProps {
@@ -99,12 +100,14 @@ function WaveReceiver({
   frequency,
   timeRef,
   displayScale,
+  running,
 }: {
   field: WaveField
   distance: number
   frequency: number
   timeRef: MutableRefObject<number>
   displayScale: number
+  running: boolean
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [readout, setReadout] = useState(() => sampleReceiverProfile(field, distance, timeRef.current, frequency))
@@ -134,7 +137,7 @@ function WaveReceiver({
     }
     const resize = () => {
       const rectangle = canvas.getBoundingClientRect()
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.5 : 2)
       cssWidth = Math.max(1, rectangle.width)
       cssHeight = Math.max(1, rectangle.height)
       canvas.width = Math.round(cssWidth * dpr)
@@ -145,16 +148,19 @@ function WaveReceiver({
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
     resize()
-    const animate = (now: number) => {
-      if (!document.hidden) paint(now)
+    if (running && !document.hidden) {
+      const animate = (now: number) => {
+        if (document.hidden) return
+        paint(now)
+        frameId = requestAnimationFrame(animate)
+      }
       frameId = requestAnimationFrame(animate)
     }
-    frameId = requestAnimationFrame(animate)
     return () => {
       cancelAnimationFrame(frameId)
       observer.disconnect()
     }
-  }, [displayScale, distance, field, frequency, timeRef])
+  }, [displayScale, distance, field, frequency, running, timeRef])
 
   return (
     <section className="wave-lab__receiver" aria-label="接收屏波幅读数">
@@ -179,6 +185,7 @@ function WaveReceiver({
 
 export function WavePropagationLab() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const surfaceCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const timeRef = useRef(0)
   const needsRenderRef = useRef(true)
   const cameraRef = useRef<WaveCamera>({ ...initialCamera })
@@ -195,14 +202,20 @@ export function WavePropagationLab() {
   const [displayMode, setDisplayMode] = useState<WaveDisplayMode>('mesh')
   const [colorTheme, setColorTheme] = useState<WaveColorTheme>('neon')
   const [speed, setSpeed] = useState(1)
-  const [running, setRunning] = useState(true)
+  const [running, setRunning] = useState(() => !(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches))
   const [displayTime, setDisplayTime] = useState(0)
   const [dragging, setDragging] = useState(false)
+  const [isDocumentHidden, setIsDocumentHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
 
   const runningRef = useRef(running)
   const speedRef = useRef(speed)
   useEffect(() => { runningRef.current = running }, [running])
   useEffect(() => { speedRef.current = speed }, [speed])
+  useEffect(() => {
+    const updateVisibility = () => setIsDocumentHidden(document.hidden)
+    document.addEventListener('visibilitychange', updateVisibility)
+    return () => document.removeEventListener('visibilitychange', updateVisibility)
+  }, [])
 
   const effectiveSlitSpacing = Math.max(slitSpacing, slitWidth + 0.4)
   const field = useMemo(() => createWaveField({
@@ -218,8 +231,9 @@ export function WavePropagationLab() {
   const effectiveReceiverDistance = Math.min(receiverDistance, receiverMaxDistance)
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
-    const context = canvas.getContext('2d', { alpha: false })
+    const surfaceCanvas = surfaceCanvasRef.current
+    if (!canvas || !surfaceCanvas) return
+    const context = canvas.getContext('2d', { alpha: true })
     if (!context) return
     let frame = 0
     let previous = performance.now()
@@ -227,19 +241,33 @@ export function WavePropagationLab() {
     let lastReadout = 0
     let cssWidth = 0
     let cssHeight = 0
+    let overlayReady = false
     const paint = () => {
       if (cssWidth <= 0 || cssHeight <= 0) return
-      renderWaveScene(context, cssWidth, cssHeight, field, timeRef.current, frequency, effectiveReceiverDistance, displayMode, colorTheme, cameraRef.current)
+      const webglRendered = displayMode === 'mesh' && renderWaveMeshWebGL(surfaceCanvas, cssWidth, cssHeight, field, timeRef.current, frequency, colorTheme, cameraRef.current)
+      if (surfaceCanvas.hidden === webglRendered) surfaceCanvas.hidden = !webglRendered
+      if (webglRendered) {
+        if (!overlayReady || needsRenderRef.current) {
+          renderWaveOverlay(context, cssWidth, cssHeight, field, effectiveReceiverDistance, cameraRef.current)
+          overlayReady = true
+        }
+      } else {
+        renderWaveScene(context, cssWidth, cssHeight, field, timeRef.current, frequency, effectiveReceiverDistance, displayMode, colorTheme, cameraRef.current)
+        overlayReady = false
+      }
       needsRenderRef.current = false
     }
     const resize = () => {
       const rectangle = canvas.getBoundingClientRect()
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.5 : 2)
       cssWidth = Math.max(1, rectangle.width)
       cssHeight = Math.max(1, rectangle.height)
       canvas.width = Math.round(cssWidth * dpr)
       canvas.height = Math.round(cssHeight * dpr)
+      surfaceCanvas.width = canvas.width
+      surfaceCanvas.height = canvas.height
       context.setTransform(dpr, 0, 0, dpr, 0, 0)
+      overlayReady = false
       needsRenderRef.current = true
       paint()
     }
@@ -270,13 +298,17 @@ export function WavePropagationLab() {
       }
       frame = requestAnimationFrame(animate)
     }
-    frame = requestAnimationFrame(animate)
+    if (!isDocumentHidden) frame = requestAnimationFrame(animate)
     return () => {
       cancelAnimationFrame(frame)
       observer.disconnect()
       canvas.removeEventListener('wheel', onWheel)
     }
-  }, [colorTheme, displayMode, effectiveReceiverDistance, field, frequency])
+  }, [colorTheme, displayMode, effectiveReceiverDistance, field, frequency, isDocumentHidden])
+
+  useEffect(() => () => {
+    if (surfaceCanvasRef.current) disposeWaveMeshWebGL(surfaceCanvasRef.current)
+  }, [])
 
   const reset = () => {
     timeRef.current = 0
@@ -373,9 +405,10 @@ export function WavePropagationLab() {
         </div>
 
         <div className="wave-lab__canvas-frame">
+          <canvas ref={surfaceCanvasRef} className="wave-lab__surface-canvas" aria-hidden="true" />
           <canvas
             ref={canvasRef}
-            className={dragging ? 'is-dragging' : ''}
+            className={`wave-lab__interaction-canvas${dragging ? ' is-dragging' : ''}`}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerEnd}
@@ -393,6 +426,7 @@ export function WavePropagationLab() {
           frequency={frequency}
           timeRef={timeRef}
           displayScale={field.unitAmplitudeMagnitude * 0.5}
+          running={running && !isDocumentHidden}
         />
 
         <div className="wave-lab__transport">
