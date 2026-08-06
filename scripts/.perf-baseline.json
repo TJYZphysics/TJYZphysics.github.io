@@ -1,0 +1,62 @@
+{
+  "date": "2026-08-05",
+  "sizes": {
+    "indexJsGzipKB": 275.5,
+    "indexCssGzipKB": 26.31,
+    "potentialGzipKB": 144.15
+  },
+  "fps": {
+    "wave": {
+      "fps": 3,
+      "worstGapMs": 466.60000000000036
+    },
+    "threeBody": {
+      "fps": 24.333333333333332,
+      "worstGapMs": 83.39999999999964
+    },
+    "electromagnetic": {
+      "fps": 22.333333333333332,
+      "worstGapMs": 83.40000000000055
+    },
+    "potential": {
+      "fps": 60.333333333333336,
+      "worstGapMs": 16.800000000000182
+    },
+    "collision": {
+      "fps": 59,
+      "worstGapMs": 50
+    },
+    "pursuit": {
+      "fps": 60.666666666666664,
+      "worstGapMs": 16.800000000000182
+    },
+    "projectile": {
+      "fps": 60.666666666666664,
+      "worstGapMs": 16.800000000000182
+    },
+    "causal": {
+      "fps": 60.666666666666664,
+      "worstGapMs": 16.800000000000182
+    }
+  },
+  "layouts": [
+    {
+      "width": 320,
+      "emOverlap": 100,
+      "postCardOverflow": true
+    },
+    {
+      "width": 360,
+      "emOverlap": 100,
+      "postCardOverflow": true
+    },
+    {
+      "width": 390,
+      "emOverlap": 100,
+      "postCardOverflow": true
+    }
+  ],
+  "testGreen": true,
+  "skipped": 0,
+  "testCount": "174"
+}

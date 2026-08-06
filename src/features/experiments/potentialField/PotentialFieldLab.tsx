@@ -27,12 +27,7 @@ import {
   type PointCharge,
 } from './field'
 import { rampFor, toCssGradient } from './palette'
-import {
-  createPotentialScene,
-  type PotentialSceneHandle,
-  type ResolutionKey,
-  type SurfaceStyle,
-} from './scene'
+import type { PotentialSceneHandle, ResolutionKey, SurfaceStyle } from './scene'
 import { useColorMode } from './useColorMode'
 import './potentialField.css'
 
@@ -105,7 +100,7 @@ export function PotentialFieldLab() {
   const [heightScale, setHeightScale] = useState(HEIGHT_SCALE_DEFAULT)
   const [surfaceStyle, setSurfaceStyle] = useState<SurfaceStyle>('both')
   const [resolution, setResolution] = useState<ResolutionKey>('medium')
-  const [unsupported, setUnsupported] = useState(false)
+  const [unsupported, setUnsupported] = useState(() => typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('jsdom'))
   const [draft, setDraft] = useState({ x: '-3.0', y: '0.0', q: '2.0' })
   const [editDraft, setEditDraft] = useState({ x: '', y: '', q: '' })
   const [notice, setNotice] = useState('拖动视图中的电荷，曲面会实时跟着变形。')
@@ -147,18 +142,27 @@ export function PotentialFieldLab() {
     const container = containerRef.current
     if (!container) return
 
-    const handle = createPotentialScene(container)
-    if (!handle) {
-      setUnsupported(true)
-      return
-    }
-
-    sceneRef.current = handle
-    handle.setCharges(chargesRef.current, selectedRef.current)
+    let disposed = false
+    let handle: PotentialSceneHandle | null = null
+    import('./scene').then(({ createPotentialScene }) => {
+      if (disposed) return
+      handle = createPotentialScene(container)
+      if (!handle) {
+        setUnsupported(true)
+        return
+      }
+      sceneRef.current = handle
+      handle.setCharges(chargesRef.current, selectedRef.current)
+    }).catch(() => {
+      if (!disposed) setUnsupported(true)
+    })
 
     return () => {
+      disposed = true
+      handle?.dispose()
       sceneRef.current = null
-      handle.dispose()
+      // The dynamically imported scene may still be resolving on unmount.
+      // Its promise observes `disposed` and will avoid creating a WebGL context.
     }
   }, [])
 

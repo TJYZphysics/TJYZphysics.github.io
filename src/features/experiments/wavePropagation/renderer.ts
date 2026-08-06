@@ -1,4 +1,4 @@
-import { receiverScreenZ, sampleInstantaneousDisplacement, type WaveField } from './physics'
+import { receiverScreenZ, type WaveField } from './physics'
 
 export type WaveDisplayMode = 'mesh' | 'projection'
 export type WaveColorTheme = 'neon' | 'thermal' | 'mono'
@@ -309,10 +309,18 @@ interface WaveRenderCache {
   values: Float32Array
   pointX: Float32Array
   pointY: Float32Array
+  baseRotatedX: Float32Array
+  baseYawDepth: Float32Array
   cellDepth: Float32Array
   cellOrder: number[]
   lastYaw: number
   lastPitch: number
+  lastWidth: number
+  lastHeight: number
+  lastZoom: number
+  lastPanX: number
+  lastPanY: number
+  renderStride: number
 }
 
 interface BarrierSegment {
@@ -331,10 +339,18 @@ function getRenderCache(field: WaveField) {
     values: new Float32Array(field.real.length),
     pointX: new Float32Array(field.real.length),
     pointY: new Float32Array(field.real.length),
+    baseRotatedX: new Float32Array(field.real.length),
+    baseYawDepth: new Float32Array(field.real.length),
     cellDepth: new Float32Array(cellCount),
     cellOrder: Array.from({ length: cellCount }, (_, index) => index),
     lastYaw: Number.NaN,
     lastPitch: Number.NaN,
+    lastWidth: Number.NaN,
+    lastHeight: Number.NaN,
+    lastZoom: Number.NaN,
+    lastPanX: Number.NaN,
+    lastPanY: Number.NaN,
+    renderStride: 1,
   }
   renderCaches.set(field, cache)
   return cache
@@ -392,6 +408,7 @@ function drawMesh(
   theme: WaveColorTheme,
   camera: WaveCamera,
   cache: WaveRenderCache,
+  renderStride: number,
 ) {
   const verticalScale = Math.min(field.width, field.depth) * 0.12
   const cosYaw = Math.cos(camera.yaw)
@@ -399,12 +416,25 @@ function drawMesh(
   const cosPitch = Math.cos(camera.pitch)
   const sinPitch = Math.sin(camera.pitch)
   const baseScale = Math.min(width / field.width, height / field.depth) * 0.78 * camera.zoom
+  const geometryChanged = cache.lastYaw !== camera.yaw
+    || cache.lastPitch !== camera.pitch
+    || cache.lastWidth !== width
+    || cache.lastHeight !== height
+    || cache.lastZoom !== camera.zoom
+    || cache.lastPanX !== camera.panX
+    || cache.lastPanY !== camera.panY
+  if (geometryChanged) {
+    for (let index = 0; index < values.length; index += 1) {
+      const x = field.x[index]
+      const z = field.z[index] - field.depth / 2
+      cache.baseRotatedX[index] = cosYaw * x - sinYaw * z
+      cache.baseYawDepth[index] = sinYaw * x + cosYaw * z
+    }
+  }
   for (let index = 0; index < values.length; index += 1) {
-    const x = field.x[index]
     const y = values[index] * verticalScale
-    const z = field.z[index] - field.depth / 2
-    const rotatedX = cosYaw * x - sinYaw * z
-    const yawDepth = sinYaw * x + cosYaw * z
+    const rotatedX = cache.baseRotatedX[index]
+    const yawDepth = cache.baseYawDepth[index]
     const rotatedY = cosPitch * y - sinPitch * yawDepth
     const depth = sinPitch * y + cosPitch * yawDepth
     const perspective = clamp(1 / (1 + depth / 34), 0.48, 1.9)
@@ -412,9 +442,10 @@ function drawMesh(
     cache.pointY[index] = height * 0.53 + camera.panY - rotatedY * baseScale * perspective
   }
 
-  if (cache.lastYaw !== camera.yaw || cache.lastPitch !== camera.pitch) {
-    for (let row = 0; row < field.rows - 1; row += 1) {
-      for (let column = 0; column < field.columns - 1; column += 1) {
+  if (geometryChanged || cache.renderStride !== renderStride) {
+    cache.cellOrder.length = 0
+    for (let row = 0; row < field.rows - 1; row += renderStride) {
+      for (let column = 0; column < field.columns - 1; column += renderStride) {
         const ordinal = row * (field.columns - 1) + column
         const index = row * field.columns + column
         let depth = 0
@@ -424,11 +455,18 @@ function drawMesh(
           depth += cosPitch * (sinYaw * x + cosYaw * z)
         }
         cache.cellDepth[ordinal] = depth / 4
+        cache.cellOrder.push(ordinal)
       }
     }
     cache.cellOrder.sort((a, b) => cache.cellDepth[b] - cache.cellDepth[a])
     cache.lastYaw = camera.yaw
     cache.lastPitch = camera.pitch
+    cache.lastWidth = width
+    cache.lastHeight = height
+    cache.lastZoom = camera.zoom
+    cache.lastPanX = camera.panX
+    cache.lastPanY = camera.panY
+    cache.renderStride = renderStride
   }
 
   const barrierSegments = buildBarrierSegments(field, camera, width, height)
@@ -436,6 +474,46 @@ function drawMesh(
 
   context.save()
   context.lineJoin = 'round'
+
+  // Mobile keeps every authored cell, but batches fills into a small number of
+  // paths. This removes thousands of fill calls without changing the sampled
+  // field or the visible mesh resolution.
+  if (width < 600 && typeof Path2D !== 'undefined') {
+    while (barrierIndex < barrierSegments.length) {
+      strokeBarrierSegment(context, barrierSegments[barrierIndex])
+      barrierIndex += 1
+    }
+    const bucketCount = 32
+    const buckets: Array<Path2D | undefined> = Array.from({ length: bucketCount }, () => undefined)
+    for (const ordinal of cache.cellOrder) {
+      const row = Math.floor(ordinal / (field.columns - 1))
+      const column = ordinal % (field.columns - 1)
+      const index = row * field.columns + column
+      const rightIndex = index + 1
+      const lowerIndex = index + field.columns
+      const lowerRightIndex = lowerIndex + 1
+      const average = (values[index] + values[rightIndex] + values[lowerIndex] + values[lowerRightIndex]) / 4
+      const bucket = Math.min(bucketCount - 1, Math.max(0, Math.floor((average + 1) * bucketCount / 2)))
+      const path = buckets[bucket] ?? new Path2D()
+      path.moveTo(cache.pointX[index], cache.pointY[index])
+      path.lineTo(cache.pointX[rightIndex], cache.pointY[rightIndex])
+      path.lineTo(cache.pointX[lowerRightIndex], cache.pointY[lowerRightIndex])
+      path.lineTo(cache.pointX[lowerIndex], cache.pointY[lowerIndex])
+      path.closePath()
+      buckets[bucket] = path
+    }
+    context.globalAlpha = 0.72
+    buckets.forEach((path, bucket) => {
+      if (!path) return
+      context.fillStyle = palette(theme, (bucket + 0.5) * 2 / bucketCount - 1)
+      context.fill(path)
+    })
+    context.globalAlpha = 1
+    drawMeshSources(context, width, height, field, camera)
+    context.restore()
+    return
+  }
+
   for (const ordinal of cache.cellOrder) {
     while (barrierIndex < barrierSegments.length && barrierSegments[barrierIndex].depth >= cache.cellDepth[ordinal]) {
       strokeBarrierSegment(context, barrierSegments[barrierIndex])
@@ -443,22 +521,29 @@ function drawMesh(
     }
     const row = Math.floor(ordinal / (field.columns - 1))
     const column = ordinal % (field.columns - 1)
+    const nextRow = Math.min(field.rows - 1, row + renderStride)
+    const nextColumn = Math.min(field.columns - 1, column + renderStride)
     const index = row * field.columns + column
-    const average = (values[index] + values[index + 1] + values[index + field.columns] + values[index + field.columns + 1]) / 4
+    const rightIndex = row * field.columns + nextColumn
+    const lowerIndex = nextRow * field.columns + column
+    const lowerRightIndex = nextRow * field.columns + nextColumn
+    const average = (values[index] + values[rightIndex] + values[lowerIndex] + values[lowerRightIndex]) / 4
     context.beginPath()
     context.moveTo(cache.pointX[index], cache.pointY[index])
-    context.lineTo(cache.pointX[index + 1], cache.pointY[index + 1])
-    context.lineTo(cache.pointX[index + field.columns + 1], cache.pointY[index + field.columns + 1])
-    context.lineTo(cache.pointX[index + field.columns], cache.pointY[index + field.columns])
+    context.lineTo(cache.pointX[rightIndex], cache.pointY[rightIndex])
+    context.lineTo(cache.pointX[lowerRightIndex], cache.pointY[lowerRightIndex])
+    context.lineTo(cache.pointX[lowerIndex], cache.pointY[lowerIndex])
     context.closePath()
     context.shadowBlur = 0
     context.globalAlpha = 0.72
     context.fillStyle = palette(theme, average)
     context.fill()
-    context.globalAlpha = theme === 'mono' ? 0.18 : 0.22
-    context.strokeStyle = theme === 'mono' ? '#dbe7f4' : '#9beeff'
-    context.lineWidth = 0.55
-    context.stroke()
+    if (width >= 600) {
+      context.globalAlpha = theme === 'mono' ? 0.18 : 0.22
+      context.strokeStyle = theme === 'mono' ? '#dbe7f4' : '#9beeff'
+      context.lineWidth = 0.55
+      context.stroke()
+    }
   }
   context.globalAlpha = 1
   while (barrierIndex < barrierSegments.length) {
@@ -485,13 +570,31 @@ export function renderWaveScene(
   drawBackdrop(context, width, height)
   const cache = getRenderCache(field)
   const values = cache.values
+  const phase = Math.PI * 2 * frequency * time
+  const cosine = Math.cos(phase)
+  const sine = Math.sin(phase)
   for (let index = 0; index < values.length; index += 1) {
     const physicalDisplayScale = field.unitAmplitudeMagnitude * 0.5
-    values[index] = clamp(sampleInstantaneousDisplacement(field, index, time, frequency) / physicalDisplayScale, -1, 1)
+    values[index] = clamp((field.real[index] * cosine + field.imaginary[index] * sine) / physicalDisplayScale, -1, 1)
   }
   if (displayMode === 'projection') drawProjection(context, width, height, field, values, theme, camera, receiverDistance)
   else {
-    drawMesh(context, width, height, field, values, theme, camera, cache)
+    const renderStride = 1
+    drawMesh(context, width, height, field, values, theme, camera, cache, renderStride)
     drawMeshReceiver(context, width, height, field, camera, receiverDistance)
   }
+}
+
+export function renderWaveOverlay(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  field: WaveField,
+  receiverDistance: number,
+  camera: WaveCamera,
+) {
+  context.clearRect(0, 0, width, height)
+  for (const segment of buildBarrierSegments(field, camera, width, height)) strokeBarrierSegment(context, segment)
+  drawMeshSources(context, width, height, field, camera)
+  drawMeshReceiver(context, width, height, field, camera, receiverDistance)
 }
