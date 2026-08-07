@@ -231,7 +231,7 @@
 
 .causal-game__stage {
   position: relative;
-  min-width: 576px;
+  min-width: 0;
   margin: auto;
   border-radius: 16px;
   background-color: rgba(11, 28, 44, .72);
@@ -348,8 +348,8 @@
   .causal-game__actions .causal-game__run { grid-column: auto; }
   .causal-game__actions button span { display: none; }
   .causal-game__legend { margin-top: 10px; }
-  .causal-game__stage-wrap { overflow-x: auto !important; margin-inline: -6px; }
-  .causal-game__stage { min-width: 396px !important; }
+  .causal-game__stage-wrap { overflow: hidden; margin-inline: -6px; }
+  .causal-game__stage { width: 100% !important; min-width: 0 !important; }
   .causal-event { width: 36px; height: 36px; }
   .causal-event::before { position: absolute; inset: -4px; content: ''; }
   .causal-game__feedback { align-items: flex-start; }

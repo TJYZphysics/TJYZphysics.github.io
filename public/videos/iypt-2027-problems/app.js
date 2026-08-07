@@ -56,6 +56,7 @@
   let autoplaying = false;
   let autoplayFrame = 0;
   let lastAutoplayTime = 0;
+  let autoplayProgress = 0;
   let playbackSpeed = Number(speedControl?.value || 1);
   const secondsPerScene = 7.6;
 
@@ -256,6 +257,7 @@
   }
 
   function requestRender() {
+    if (autoplaying) return;
     targetProgress = getStoryProgress();
     if (!renderQueued) {
       renderQueued = true;
@@ -265,14 +267,62 @@
   }
 
   function goToChapter(index, behavior = reducedMotion.matches ? "auto" : "smooth") {
+    setPlaybackState(false, false);
     const safeIndex = Math.round(clamp(index, 0, scenes.length - 1));
     const { storyTop, available } = getStoryMetrics();
     const target = storyTop + available * (safeIndex / (scenes.length - 1));
     window.scrollTo({ top: target, behavior });
   }
 
-  function setPlaybackState(playing) {
+  function syncScrollToProgress(progress) {
+    const { storyTop, available } = getStoryMetrics();
+    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo({ top: storyTop + available * clamp(progress), behavior: "auto" });
+    document.documentElement.style.scrollBehavior = previousScrollBehavior;
+  }
+
+  // Measure from the frame centre so overflow above or to the left is included.
+  // scrollWidth/scrollHeight alone only report overflow towards the end edge.
+  function fitSceneContents() {
+    scenes.forEach((scene) => {
+      const content = scene.querySelector(".scene-content");
+      if (!content) return;
+      content.style.setProperty("--scene-fit", "1");
+      const frame = content.getBoundingClientRect();
+      const availableWidth = frame.width;
+      const availableHeight = frame.height;
+      if (!availableWidth || !availableHeight) return;
+
+      const centreX = frame.left + availableWidth / 2;
+      const centreY = frame.top + availableHeight / 2;
+      let left = frame.left;
+      let right = Math.max(frame.right, frame.left + content.scrollWidth);
+      let top = frame.top;
+      let bottom = Math.max(frame.bottom, frame.top + content.scrollHeight);
+
+      content.querySelectorAll("*").forEach((element) => {
+        const bounds = element.getBoundingClientRect();
+        if (!bounds.width && !bounds.height) return;
+        left = Math.min(left, bounds.left);
+        right = Math.max(right, bounds.right);
+        top = Math.min(top, bounds.top);
+        bottom = Math.max(bottom, bounds.bottom);
+      });
+
+      const horizontalExtent = Math.max(availableWidth / 2, centreX - left, right - centreX);
+      const verticalExtent = Math.max(availableHeight / 2, centreY - top, bottom - centreY);
+      const widthFit = (availableWidth / 2 - 6) / horizontalExtent;
+      const heightFit = (availableHeight / 2 - 6) / verticalExtent;
+      const fit = Math.max(0.5, Math.min(1, widthFit, heightFit));
+      content.style.setProperty("--scene-fit", fit.toFixed(4));
+    });
+  }
+
+  function setPlaybackState(playing, syncPosition = true) {
+    const wasPlaying = autoplaying;
     autoplaying = Boolean(playing);
+    document.documentElement.classList.toggle("is-autoplaying", autoplaying);
     playbackToggle?.classList.toggle("is-playing", autoplaying);
     playbackToggle?.setAttribute("aria-pressed", String(autoplaying));
     playbackToggle?.setAttribute("aria-label", autoplaying ? "暂停自动播放" : "开始自动播放");
@@ -280,8 +330,17 @@
     cancelAnimationFrame(autoplayFrame);
 
     if (autoplaying) {
-      if (getStoryProgress() >= 0.999) goToChapter(0, "auto");
+      autoplayProgress = getStoryProgress();
+      if (autoplayProgress >= 0.999) {
+        autoplayProgress = 0;
+        targetProgress = 0;
+        renderedProgress = 0;
+        render(0);
+        syncScrollToProgress(0);
+      }
       autoplayFrame = requestAnimationFrame(runAutoplay);
+    } else if (wasPlaying && syncPosition) {
+      syncScrollToProgress(autoplayProgress);
     }
   }
 
@@ -291,13 +350,14 @@
     const deltaSeconds = Math.min(0.05, (timestamp - lastAutoplayTime) / 1000);
     lastAutoplayTime = timestamp;
 
-    const { storyTop, available } = getStoryMetrics();
-    const current = clamp((window.scrollY - storyTop) / available);
     const duration = secondsPerScene * (scenes.length - 1);
-    const next = clamp(current + (deltaSeconds * playbackSpeed) / duration);
+    autoplayProgress = clamp(autoplayProgress + (deltaSeconds * playbackSpeed) / duration);
 
-    window.scrollTo(0, storyTop + available * next);
-    if (next >= 1) {
+    targetProgress = autoplayProgress;
+    renderedProgress = autoplayProgress;
+    render(autoplayProgress);
+
+    if (autoplayProgress >= 1) {
       setPlaybackState(false);
       return;
     }
@@ -310,6 +370,13 @@
     playbackSpeed = Number(speedControl.value || 1);
     lastAutoplayTime = 0;
   });
+
+  function pauseForDirectInteraction(event) {
+    const target = event.target;
+    const isPlaybackControl = target instanceof Element
+      && target.closest(".playback-controls, .library-back, .chapter-nav");
+    if (autoplaying && !isPlaybackControl) setPlaybackState(false);
+  }
 
   document.addEventListener("keydown", (event) => {
     const target = event.target;
@@ -335,9 +402,14 @@
   });
 
   window.addEventListener("scroll", requestRender, { passive: true });
-  window.addEventListener("resize", requestRender);
+  window.addEventListener("resize", () => {
+    fitSceneContents();
+    requestRender();
+  });
+  window.addEventListener("wheel", pauseForDirectInteraction, { passive: true });
+  window.addEventListener("touchstart", pauseForDirectInteraction, { passive: true });
   document.addEventListener("visibilitychange", () => {
-    lastAutoplayTime = 0;
+    if (document.hidden) setPlaybackState(false);
   });
   window.addEventListener("pagehide", () => setPlaybackState(false));
   reducedMotion.addEventListener?.("change", requestRender);
@@ -346,4 +418,7 @@
   targetProgress = getStoryProgress();
   renderedProgress = targetProgress;
   render(renderedProgress);
+  fitSceneContents();
+  window.requestAnimationFrame(fitSceneContents);
+  document.fonts?.ready.then(fitSceneContents).catch(() => {});
 })();

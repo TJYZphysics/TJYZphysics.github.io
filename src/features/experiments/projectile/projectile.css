@@ -358,8 +358,8 @@
   .projectile-lab__formula { min-width: 0; }
   .projectile-stage,
   .projectile-controls { padding: 13px; border-radius: 16px; }
-  .projectile-stage__viewport { overflow-x: auto; }
-  .projectile-stage__viewport svg { width: 720px; max-width: none; min-height: 360px; }
+  .projectile-stage__viewport { overflow: hidden; }
+  .projectile-stage__viewport svg { width: 100%; max-width: 100%; min-height: 0; aspect-ratio: 2 / 1; }
   .projectile-transport { grid-template-columns: 1fr 1fr; }
   .projectile-speed { grid-column: 1 / -1; justify-content: flex-start; margin-top: 2px; }
   .projectile-controls { display: block; }

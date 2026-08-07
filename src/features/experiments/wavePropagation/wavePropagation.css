@@ -174,8 +174,8 @@ html[data-color-mode='light'] .wave-lab__readouts strong { color:#203744; }
   .wave-lab__workspace { grid-template-rows: auto minmax(360px,auto) auto auto auto auto; }
   .wave-lab__receiver { grid-template-columns: 1fr; }
   .wave-lab__receiver-heading { border-right: 0; border-bottom: 1px solid var(--wave-line); padding: 4px 4px 10px; }
-  .wave-lab__receiver-chart canvas { width: 680px; max-width: none; }
-  .wave-lab__receiver-chart { overflow-x: auto; }
+  .wave-lab__receiver-chart canvas { width: 100%; max-width: 100%; }
+  .wave-lab__receiver-chart { overflow: hidden; }
   .wave-lab__toolbar { align-items: flex-start; }
   .wave-lab__toolbar > div { width: 100%; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
   .wave-lab__readouts { grid-template-columns: 1fr 1fr; }

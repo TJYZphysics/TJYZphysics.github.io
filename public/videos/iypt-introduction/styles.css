@@ -386,3 +386,140 @@ blockquote { max-width: 32rem; margin: 0; padding-left: 1.4rem; border-left: 1px
   .two-line-statement { font-size: clamp(4rem, 8.5vmin, 6.2rem); }
   .hero-title { font-size: clamp(5rem, 13vmin, 9rem); }
 }
+
+/* Keep mobile playback controls in a reserved toolbar instead of over the story. */
+.library-back,
+.speed-control {
+  transition: opacity 180ms var(--ease), transform 180ms var(--ease), border-color 180ms var(--ease), color 180ms var(--ease);
+}
+
+html.is-autoplaying .library-back,
+html.is-autoplaying .speed-control {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.35rem);
+}
+
+@media (max-width: 850px) {
+  .chrome {
+    height: 3.8rem;
+    padding: 0 1rem;
+    background: linear-gradient(180deg, rgba(8, 10, 15, 0.94), rgba(8, 10, 15, 0.74) 76%, transparent);
+  }
+
+  .library-back,
+  .playback-controls {
+    top: 4.15rem;
+  }
+
+  .library-back {
+    left: 1rem;
+    right: auto;
+    height: 2.35rem;
+  }
+
+  .playback-controls {
+    right: 1rem;
+  }
+
+  .playback-toggle,
+  .speed-control {
+    height: 2.35rem;
+  }
+
+  .playback-toggle {
+    width: 2.35rem;
+  }
+
+  .scene-content {
+    padding-top: max(8.5rem, 13svh) !important;
+    padding-bottom: max(1.4rem, 3svh) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .library-back span { display: none; }
+  .library-back { width: 2.35rem; justify-content: center; padding: 0; }
+  .speed-control { width: 4.7rem; }
+}
+
+@media (max-width: 850px) and (max-height: 700px) {
+  .scene-content {
+    gap: min(1.25rem, 2.4vh);
+    padding-top: 7.4rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
+/* The script sets --scene-fit only for compositions that overflow. */
+.scene-content {
+  transform: scale(var(--scene-fit, 1));
+  transform-origin: center center;
+}
+
+@media (max-width: 850px) {
+  .scene-content {
+    gap: clamp(0.55rem, 1.4vh, 0.95rem);
+  }
+
+  .research-layout {
+    gap: clamp(0.65rem, 1.5vh, 1.05rem);
+  }
+
+  .research-visual {
+    width: min(60vw, 22rem);
+  }
+
+  .research-copy h2 {
+    margin: 0.45rem 0 0.75rem;
+  }
+
+  .research-steps {
+    gap: 0.42rem;
+    font-size: 0.68rem;
+    line-height: 1.45;
+  }
+
+  .fight-orbit {
+    width: min(68vw, 24rem);
+  }
+
+  .world-globe {
+    width: min(66vw, 24rem);
+  }
+
+  .season-clock {
+    width: min(60vw, 21rem);
+  }
+}
+
+.hero-apparatus,
+.research-visual,
+.fight-orbit,
+.world-globe,
+.team-constellation,
+.season-clock,
+.evidence-board,
+.reviewer-balance {
+  max-width: 100%;
+}
+
+@media (min-width: 851px) {
+  .scene-content > *,
+  .hero-copy,
+  .research-copy,
+  .fight-copy,
+  .world-copy,
+  .calendar-heading,
+  .outro-copy {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .body-copy,
+  .intro-lead,
+  .hero-sub,
+  .dialogue-columns p {
+    max-width: 100%;
+  }
+}
