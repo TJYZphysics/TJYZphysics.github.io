@@ -20,4 +20,13 @@ describe('MarkdownArticle', () => {
     fireEvent.click(screen.getByRole('button', { name: '关闭图片预览' }))
     expect(screen.queryByRole('dialog', { name: '图片预览' })).not.toBeInTheDocument()
   })
+
+  it('wraps Markdown tables for narrow-screen scrolling', () => {
+    const { container } = render(
+      <MarkdownArticle body={'| Q | A |\n| --- | --- |\n| 问题 | 回答 |'} />,
+    )
+
+    expect(container.querySelector('.markdown-table table')).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Q' })).toBeInTheDocument()
+  })
 })

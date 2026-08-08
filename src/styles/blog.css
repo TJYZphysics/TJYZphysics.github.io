@@ -139,6 +139,9 @@ html[data-theme='claude-dark'] .article-page {
 .post-row:hover { background: var(--blog-control-hover) !important; }
 .post-row p { color: var(--blog-accent) !important; }
 .post-row div > span { color: var(--blog-paper-muted) !important; }
+.post-row__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
+.post-row__pinned { display: inline-flex; align-items: center; gap: 4px; color: var(--blog-accent); }
+.post-row__pinned svg { width: 12px; height: 12px; fill: currentColor; }
 .blog-empty { color: var(--blog-paper-muted) !important; }
 .blog-empty > svg { color: var(--blog-accent) !important; }
 .blog-empty h3 { color: var(--blog-paper-text) !important; }
@@ -157,6 +160,14 @@ html[data-theme='claude-dark'] .article-page {
 .markdown-body code { color: var(--blog-paper-text); background: var(--blog-inline-code) !important; }
 .markdown-body pre { color: var(--blog-code-text) !important; background: var(--blog-code) !important; border-color: var(--blog-line) !important; }
 .markdown-body pre code { color: inherit !important; }
+.markdown-table { width: 100%; margin: 1.8em 0; overflow-x: auto; border: 1px solid var(--blog-line); border-radius: 10px; }
+.markdown-table table { width: 100%; min-width: 560px; border-collapse: collapse; background: color-mix(in srgb, var(--blog-paper) 94%, var(--blog-accent)); }
+.markdown-table th,
+.markdown-table td { padding: 12px 14px; border-right: 1px solid var(--blog-line); border-bottom: 1px solid var(--blog-line); text-align: left; vertical-align: top; line-height: 1.65; }
+.markdown-table th { color: var(--blog-paper-text); background: var(--blog-inline-code); font-size: 14px; }
+.markdown-table tr:last-child td { border-bottom: 0; }
+.markdown-table th:last-child,
+.markdown-table td:last-child { border-right: 0; }
 .heading-anchor { color: var(--blog-accent) !important; }
 .article-toc > div { border-color: var(--blog-line) !important; }
 .article-toc p { color: var(--blog-muted) !important; }
@@ -188,3 +199,12 @@ html[data-color-mode='light'] .markdown-body .hljs-attr { color: #a5d6ff; }
 .notebook-shell { padding-left: 0 !important; }
 .notebook-binding { display: none !important; }
 .notebook-paper { border-radius: 18px 28px 28px 18px !important; padding-left: clamp(28px, 6vw, 76px) !important; }
+
+@media (max-width: 600px) {
+  .markdown-table { margin: 1.35em 0; border-radius: 8px; }
+  .markdown-table table { min-width: 0; table-layout: fixed; }
+  .markdown-table th,
+  .markdown-table td { padding: 9px 10px; font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+  .markdown-table th:last-child,
+  .markdown-table td:last-child { width: 32%; }
+}

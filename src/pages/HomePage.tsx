@@ -2,10 +2,10 @@ import { ArrowRight, Atom, BookOpenText, FlaskConical, Orbit } from 'lucide-reac
 import { Link } from 'react-router-dom'
 import OrbitalField from '../components/OrbitalField'
 import PostCarousel from '../components/PostCarousel'
-import { getBlogPosts } from '../content/content'
+import { getBlogPosts, selectHomepagePosts } from '../content/content'
 
 export default function HomePage() {
-  const recentPosts = getBlogPosts().slice(0, 6)
+  const recentPosts = selectHomepagePosts(getBlogPosts())
 
   return (
     <main className="home-page">

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookMarked, Search, X } from 'lucide-react'
+import { ArrowUpRight, BookMarked, Search, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getBlogPosts } from '../content/content'
@@ -56,7 +56,13 @@ export default function BlogPage() {
             {visiblePosts.length === 0 ? <div className="empty-state blog-empty"><Search /><h3>没有找到匹配的笔记</h3><p>换一个关键词或标签，也许会有新的发现。</p></div> : visiblePosts.map((post, index) => (
               <Link className="post-row" to={`/blog/${post.slug}`} key={post.slug}>
                 <span className="post-number">{String(index + 1).padStart(2, '0')}</span>
-                <div><p>{post.tags.join(' · ') || '观察记录'}</p><h2>{post.title}</h2><span>{post.summary}</span></div>
+                <div>
+                  <p className="post-row__meta">
+                    {post.pinned ? <span className="post-row__pinned"><Star aria-hidden="true" /> 星标置顶</span> : null}
+                    <span>{post.tags.join(' · ') || '观察记录'}</span>
+                  </p>
+                  <h2>{post.title}</h2><span>{post.summary}</span>
+                </div>
                 <time>{post.date || '未标注日期'}</time><ArrowUpRight />
               </Link>
             ))}

@@ -10,6 +10,8 @@ export interface BlogPost extends MarkdownDocument {
   summary: string
   tags: string[]
   cover?: string
+  pinned: boolean
+  featured: boolean
 }
 
 const toTitle = (path: string) => {
@@ -30,6 +32,7 @@ function parseScalar(value: string): unknown {
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     return trimmed.slice(1, -1).split(',').map((item) => item.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean)
   }
+  if (/^(true|false)$/i.test(trimmed)) return trimmed.toLowerCase() === 'true'
   return trimmed.replace(/^['"]|['"]$/g, '')
 }
 
@@ -77,6 +80,8 @@ export function normalizePost(path: string, raw: string): BlogPost {
     summary: typeof parsed.data.summary === 'string' ? parsed.data.summary : '',
     tags,
     cover: typeof parsed.data.cover === 'string' ? parsed.data.cover : undefined,
+    pinned: parsed.data.pinned === true,
+    featured: parsed.data.featured === true,
     body,
     sourcePath: path,
   }
@@ -94,11 +99,18 @@ export function normalizeDocument(path: string, raw: string): MarkdownDocument {
 
 export function sortPosts(posts: BlogPost[]) {
   return [...posts].sort((left, right) => {
+    if (left.pinned !== right.pinned) return left.pinned ? -1 : 1
     if (!left.date && !right.date) return left.title.localeCompare(right.title, 'zh-CN')
     if (!left.date) return 1
     if (!right.date) return -1
     return new Date(right.date).getTime() - new Date(left.date).getTime()
   })
+}
+
+export function selectHomepagePosts(posts: BlogPost[], limit = 6) {
+  const featured = posts.filter((post) => post.featured)
+  const remaining = posts.filter((post) => !post.featured)
+  return [...featured, ...remaining].slice(0, limit)
 }
 
 const blogModules = import.meta.glob('/blog/*.md', {

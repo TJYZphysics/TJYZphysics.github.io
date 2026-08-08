@@ -26,10 +26,14 @@ title: 文章标题
 date: 2026-07-12
 summary: 一句话摘要
 tags: [标签一, 标签二]
+pinned: false
+featured: false
 ---
 
 # 正文
 ```
+
+`pinned: true` 会让文章长期显示在博客列表顶部，`featured: true` 会让文章长期保留在主页博客轮播中。
 
 推送到 `main` 后，GitHub Actions 会自动测试、构建并部署 GitHub Pages。
 

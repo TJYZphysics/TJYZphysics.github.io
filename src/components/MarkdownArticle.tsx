@@ -95,6 +95,11 @@ export default function MarkdownArticle({ body, className = '' }: { body: string
               const external = href?.startsWith('http')
               return <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined} {...props}>{children}</a>
             },
+            table: ({ children, node: _node, ...props }) => (
+              <div className="markdown-table">
+                <table {...props}>{children}</table>
+              </div>
+            ),
             img: ({ src, alt = '', ...props }) => src ? (
               <button className="markdown-image" type="button" onClick={() => setLightbox({ src, alt })} aria-label={`放大图片${alt ? `：${alt}` : ''}`}>
                 <img src={src} alt={alt} loading="lazy" {...props} />
