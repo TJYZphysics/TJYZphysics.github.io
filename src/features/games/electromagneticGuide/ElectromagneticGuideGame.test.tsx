@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ElectromagneticGuideGame, sampleParticleRenderFrame } from './ElectromagneticGuideGame'
+import { ElectromagneticCanvas } from '../../experiments/electromagneticCanvas/ElectromagneticCanvas'
 
 describe('electromagnetic particle rendering', () => {
   it('interpolates between sampled physics points during level playback', () => {
@@ -62,6 +63,21 @@ describe('ElectromagneticGuideGame sandbox', () => {
     expect(() => runNextFrame(116)).not.toThrow()
     expect(screen.getByRole('button', { name: '暂停' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '无界电磁实验室' })).toBeInTheDocument()
+  })
+
+  it('renders level 25 as the standalone electromagnetic canvas', () => {
+    render(<ElectromagneticCanvas />)
+
+    expect(screen.getByRole('heading', { name: '电磁画布' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '搭建你的电磁世界' })).toBeInTheDocument()
+    expect(screen.getByText('在无限画布上布置电荷与场，自由观察粒子的运动轨迹。')).toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: '选择电磁指南关卡' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '24' })).not.toBeInTheDocument()
+    expect(screen.queryByText('LEVEL')).not.toBeInTheDocument()
+    expect(screen.queryByText('SANDBOX')).not.toBeInTheDocument()
+    expect(screen.queryByText('本关目标')).not.toBeInTheDocument()
+    expect(screen.queryByText('让粒子沿你设计的轨道抵达收集器。')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '参考' })).not.toBeInTheDocument()
   })
 
   it('keeps sandbox wheel zoom independent from page scrolling', () => {

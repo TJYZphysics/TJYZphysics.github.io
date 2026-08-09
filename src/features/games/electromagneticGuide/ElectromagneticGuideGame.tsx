@@ -48,6 +48,12 @@ type TrailCache = {
   lastProgress: number
 }
 
+export type ElectromagneticGuideMode = 'guide' | 'canvas'
+
+type ElectromagneticGuideGameProps = {
+  mode?: ElectromagneticGuideMode
+}
+
 const TOOLS: Array<{ kind: ToolKind; name: string; hint: string; icon: typeof Atom }> = [
   { kind: 'positive-charge', name: '正电荷', hint: '排斥正粒子，吸引负粒子', icon: CirclePlus },
   { kind: 'negative-charge', name: '负电荷', hint: '吸引正粒子，排斥负粒子', icon: CircleMinus },
@@ -57,6 +63,7 @@ const TOOLS: Array<{ kind: ToolKind; name: string; hint: string; icon: typeof At
 ]
 
 const DIFFICULTY = { beginner: '初级', intermediate: '中级', advanced: '高级', expert: '专家', sandbox: '自由' } as Record<string, string>
+const ELECTROMAGNETIC_CANVAS_LEVEL_INDEX = ELECTROMAGNETIC_LEVELS.findIndex(({ id }) => id === 25)
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
 function toolLimit(level: any, kind: ToolKind) {
@@ -182,15 +189,17 @@ function drawEmitter(ctx: CanvasRenderingContext2D, point: Point, velocity: Poin
   ctx.restore()
 }
 
-export function ElectromagneticGuideGame() {
-  const [levelIndex, setLevelIndex] = useState(0)
+export function ElectromagneticGuideGame({ mode = 'guide' }: ElectromagneticGuideGameProps) {
+  const isCanvasMode = mode === 'canvas'
+  const [guideLevelIndex, setGuideLevelIndex] = useState(0)
+  const levelIndex = isCanvasMode ? ELECTROMAGNETIC_CANVAS_LEVEL_INDEX : guideLevelIndex
   const [selectedTool, setSelectedTool] = useState<ToolKind>('positive-charge')
   const [placements, setPlacements] = useState<Placement[]>([])
   const [history, setHistory] = useState<Placement[][]>([])
   const [simulation, setSimulation] = useState<any>(null)
   const [progress, setProgress] = useState(1)
   const [running, setRunning] = useState(false)
-  const [message, setMessage] = useState('选择一种场源，再点击画布完成布置。')
+  const [message, setMessage] = useState(() => isCanvasMode ? '自由实验室已开启：拖动画布探索无限空间。' : '选择一种场源，再点击画布完成布置。')
   const [zoom, setZoom] = useState(1)
   const [camera, setCamera] = useState<Point>({ x: 0, y: 0 })
   const [selectedPlacementId, setSelectedPlacementId] = useState<string | null>(null)
@@ -239,14 +248,15 @@ export function ElectromagneticGuideGame() {
   }, {} as Partial<Record<ToolKind, number>>), [placements])
 
   const selectLevel = useCallback((index: number) => {
+    if (isCanvasMode) return
     if (index < 0 || index >= ELECTROMAGNETIC_LEVELS.length) return
-    setLevelIndex(index); setPlacements([]); setHistory([]); simulationRef.current = null; setSimulation(null); setRunning(false)
+    setGuideLevelIndex(index); setPlacements([]); setHistory([]); simulationRef.current = null; setSimulation(null); setRunning(false)
     progressRef.current = 1; setProgress(1); setZoom(1); setCamera({ x: 0, y: 0 }); setSelectedPlacementId(null); setGestureMode('idle')
     const next = ELECTROMAGNETIC_LEVELS[index] as any
     const first = TOOLS.find(({ kind }) => (next.availableTools ?? []).includes(kind))?.kind ?? 'positive-charge'
     setSelectedTool(first)
     setMessage(index === ELECTROMAGNETIC_LEVELS.length - 1 ? '自由实验室已开启：拖动画布探索无限空间。' : '关卡已就绪。观察粒子参数与目标出口，然后开始布置。')
-  }, [])
+  }, [isCanvasMode])
 
   useEffect(() => {
     if (!running || isDocumentHidden) return
@@ -599,19 +609,19 @@ export function ElectromagneticGuideGame() {
   }
 
   return (
-    <section className="em-guide" aria-labelledby="em-guide-title">
+    <section className={`em-guide${isCanvasMode ? ' em-guide--canvas' : ''}`} aria-labelledby="em-guide-title">
       <header className="em-guide__header">
-        <div><span className="em-guide__eyebrow">ELECTROMAGNETIC LAB · 04</span><h2 id="em-guide-title">电磁指南</h2><p>布置电荷与场，让粒子沿你设计的轨道抵达收集器。</p></div>
-        <div className="em-guide__level-badge"><span>LEVEL</span><strong>{String(levelIndex + 1).padStart(2, '0')}</strong><small>{String(level.difficulty).toUpperCase()}</small></div>
+        <div><span className="em-guide__eyebrow">{isCanvasMode ? 'ELECTROMAGNETIC CANVAS' : 'ELECTROMAGNETIC LAB · 04'}</span><h2 id="em-guide-title">{isCanvasMode ? '电磁画布' : '电磁指南'}</h2><p>{isCanvasMode ? '在无限画布上布置电荷与场，自由观察粒子的运动轨迹。' : '布置电荷与场，让粒子沿你设计的轨道抵达收集器。'}</p></div>
+        {!isCanvasMode ? <div className="em-guide__level-badge"><span>LEVEL</span><strong>{String(levelIndex + 1).padStart(2, '0')}</strong><small>{String(level.difficulty).toUpperCase()}</small></div> : null}
       </header>
 
-      <nav className="em-guide__levels" aria-label="选择电磁指南关卡">
+      {!isCanvasMode ? <nav className="em-guide__levels" aria-label="选择电磁指南关卡">
         <button className="em-guide__level-arrow" onClick={() => selectLevel(levelIndex - 1)} disabled={!levelIndex} aria-label="上一关"><ChevronLeft /></button>
         <div className="em-guide__level-strip">{ELECTROMAGNETIC_LEVELS.map((item: any, index: number) => <button key={item.id} className={index === levelIndex ? 'is-active' : ''} onClick={() => selectLevel(index)} title={`${item.title} · ${item.difficulty}`} aria-pressed={index === levelIndex}>{index + 1}</button>)}</div>
         <button className="em-guide__level-arrow" onClick={() => selectLevel(levelIndex + 1)} disabled={levelIndex === ELECTROMAGNETIC_LEVELS.length - 1} aria-label="下一关"><ChevronRight /></button>
-      </nav>
+      </nav> : null}
 
-      <div className="em-guide__mission"><div><span>{DIFFICULTY[level.difficulty] ?? level.difficulty} · {isSandbox ? '无限画布' : `${world.width} × ${world.height} 网格`}</span><h3>{level.title}</h3></div><p>{level.briefing ?? level.subtitle}</p></div>
+      <div className="em-guide__mission"><div><span>{isCanvasMode ? '自由实验 · 无限画布' : `${DIFFICULTY[level.difficulty] ?? level.difficulty} · ${isSandbox ? '无限画布' : `${world.width} × ${world.height} 网格`}`}</span><h3>{isCanvasMode ? '搭建你的电磁世界' : level.title}</h3></div><p>{isCanvasMode ? '平移、缩放并组合场源，比较不同参数如何改变粒子运动。' : level.briefing ?? level.subtitle}</p></div>
 
       <div className="em-guide__workspace">
         <aside className="em-guide__panel em-guide__toolbox" aria-label="场源工具箱">
@@ -640,7 +650,7 @@ export function ElectromagneticGuideGame() {
             {selectedPlacement.kind === 'velocity-selector' ? <label><span>选择速度 v₀ <output>{(selectedPlacement.selectorSpeed ?? 4).toFixed(1)}</output></span><input type="range" min="0.5" max="12" step="0.5" value={selectedPlacement.selectorSpeed ?? 4} onChange={(event) => updateSelectedPlacement({ selectorSpeed: Number(event.target.value) })} /></label> : null}
             <small>拖动元素可重新定位；双击元素可删除。</small>
           </div> : <div className="em-guide__inspector em-guide__inspector--empty"><span>选择画布中的元素</span><small>单击元素后可旋转、翻转或调整参数。</small></div>}
-          <div className="em-guide__edit-actions"><button onClick={() => { const previous = history.at(-1); if (!previous) return; setPlacements(previous); setHistory((items) => items.slice(0, -1)); simulationRef.current = null; setSimulation(null); setRunning(false); progressRef.current = 1; setProgress(1) }} disabled={!history.length}><Undo2 />撤销</button><button onClick={() => commit([], '已清空所有自定义场源。')} disabled={!placements.length}><Trash2 />清空</button><button onClick={loadReference} disabled={isSandbox || !(level.referenceSolution ?? []).length}><Sparkles />参考</button></div>
+          <div className="em-guide__edit-actions"><button onClick={() => { const previous = history.at(-1); if (!previous) return; setPlacements(previous); setHistory((items) => items.slice(0, -1)); simulationRef.current = null; setSimulation(null); setRunning(false); progressRef.current = 1; setProgress(1) }} disabled={!history.length}><Undo2 />撤销</button><button onClick={() => commit([], '已清空所有自定义场源。')} disabled={!placements.length}><Trash2 />清空</button>{!isCanvasMode ? <button onClick={loadReference} disabled={isSandbox || !(level.referenceSolution ?? []).length}><Sparkles />参考</button> : null}</div>
         </aside>
 
         <div className="em-guide__stage" ref={stageRef}>
@@ -650,15 +660,15 @@ export function ElectromagneticGuideGame() {
           <div className="em-guide__launch"><button onClick={run}>{running ? <Pause /> : <Play />}<span>{running ? '暂停' : simulation && (isSandbox || progress < 1) ? '继续' : '发射粒子'}</span></button><div className={`em-guide__timeline${isSandbox && running ? ' is-live' : ''}`}><i style={{ width: `${progress * 100}%` }} /></div></div>
         </div>
 
-        <aside className="em-guide__panel em-guide__readout" aria-label="粒子与目标参数">
+        <aside className="em-guide__panel em-guide__readout" aria-label={isCanvasMode ? '粒子与观察参数' : '粒子与目标参数'}>
           <div className="em-guide__panel-title"><span>粒子读数</span><small>实时参数</small></div>
           <div className="em-guide__particles">{(level.particles ?? []).map((particle: any) => <article key={particle.id}><i style={{ background: particle.color }} /><div><strong>{particle.label}</strong><small>{particle.charge > 0 ? '正电' : particle.charge < 0 ? '负电' : '中性'}粒子</small></div><dl><div><dt>q</dt><dd>{particle.charge > 0 ? '+' : ''}{particle.charge}</dd></div><div><dt>m</dt><dd>{particle.mass}</dd></div><div><dt>v₀</dt><dd>{Math.hypot(particle.startVelocity.x, particle.startVelocity.y).toFixed(1)}</dd></div></dl></article>)}</div>
-          <div className="em-guide__goal"><span>本关目标</span><p>{level.goal?.description ?? (isSandbox ? '没有目标限制，自由研究电磁场中的粒子运动。' : '让所有粒子进入正确的收集器，并避开红色障碍。')}</p></div>
-          <div className="em-guide__legend"><span><i className="is-particle" />粒子</span><span><i className="is-collector" />收集器</span><span><i className="is-obstacle" />障碍</span></div>
+          <div className="em-guide__goal"><span>{isCanvasMode ? '观察建议' : '本关目标'}</span><p>{isCanvasMode ? '从单个场源开始，改变强度、方向与位置，比较轨迹变化。' : level.goal?.description ?? '让所有粒子进入正确的收集器，并避开红色障碍。'}</p></div>
+          {!isCanvasMode ? <div className="em-guide__legend"><span><i className="is-particle" />粒子</span><span><i className="is-collector" />收集器</span><span><i className="is-obstacle" />障碍</span></div> : null}
         </aside>
       </div>
 
-      <footer className="em-guide__status" role="status" aria-live="polite"><div><Eraser /><span>{message}</span></div>{!isSandbox && levelIndex < ELECTROMAGNETIC_LEVELS.length - 1 ? <button onClick={() => selectLevel(levelIndex + 1)}>下一关 <ChevronRight /></button> : null}</footer>
+      <footer className="em-guide__status" role="status" aria-live="polite"><div><Eraser /><span>{message}</span></div>{!isCanvasMode && !isSandbox && levelIndex < ELECTROMAGNETIC_LEVELS.length - 1 ? <button onClick={() => selectLevel(levelIndex + 1)}>下一关 <ChevronRight /></button> : null}</footer>
     </section>
   )
 }

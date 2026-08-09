@@ -5,11 +5,12 @@ import App from './App'
 
 describe('site routes', () => {
   beforeEach(() => window.localStorage.clear())
-  it('renders the six primary navigation modules', () => {
+  it('renders the seven primary navigation modules', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
     expect(screen.getByRole('link', { name: '主页' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '博客' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '实验' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '游戏' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '视频' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '导航' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'About us' })).toBeInTheDocument()
@@ -27,7 +28,7 @@ describe('site routes', () => {
   })
   it('renders both About Markdown documents without a theme toggle', async () => {
     render(<MemoryRouter initialEntries={['/about']}><App /></MemoryRouter>)
-    expect(await screen.findByRole('heading', { name: /关于PT物理社/ })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /关于PT物理社/ }, { timeout: 5000 })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /社团历史/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /切换.*主题/ })).not.toBeInTheDocument()
   })

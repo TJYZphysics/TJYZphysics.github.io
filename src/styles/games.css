@@ -1,0 +1,76 @@
+.games-page {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.games-intro {
+  position: relative;
+}
+
+.games-intro::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -20px;
+  width: min(180px, 38vw);
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+}
+
+.game-switcher button {
+  grid-template-columns: 27px 31px minmax(0, 1fr);
+}
+
+.game-switcher button small {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.game-switcher button.is-active svg {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--cyan) 45%, transparent));
+}
+
+.game-stage {
+  min-height: 560px;
+}
+
+.game-stage--turing,
+.game-stage--gomoku-3d {
+  padding: 0;
+  background: #09101f;
+}
+
+.game-stage--turing::before,
+.game-stage--gomoku-3d::before {
+  display: none;
+}
+
+html[data-color-mode='light'] .game-stage--turing,
+html[data-color-mode='light'] .game-stage--gomoku-3d {
+  background: #f7fafb;
+}
+
+@media (max-width: 800px) {
+  .games-page .game-switcher {
+    display: flex;
+    gap: 10px;
+    margin-right: -24px;
+    margin-left: -24px;
+    padding: 2px 24px 12px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    touch-action: pan-x;
+  }
+
+  .games-page .game-switcher button {
+    flex: 0 0 min(310px, 82vw);
+    min-height: 78px;
+    scroll-snap-align: start;
+  }
+
+  .game-stage {
+    min-height: 500px;
+  }
+}

@@ -1,26 +1,24 @@
 import { lazy, Suspense, useState } from 'react'
-import { Atom, Boxes, CircleDot, Gauge, Magnet, Mountain, Sparkles, Waves } from 'lucide-react'
+import { Atom, Boxes, CircleDot, Gauge, Magnet, Mountain, Waves } from 'lucide-react'
 import '../styles/experiments.css'
 
 const ThreeBodyLab = lazy(() => import('../features/experiments/threeBody/ThreeBodyLab').then((module) => ({ default: module.ThreeBodyLab })))
 const CollisionLab = lazy(() => import('../features/experiments/collision/CollisionLab').then((module) => ({ default: module.CollisionLab })))
-const CausalOrigamiGame = lazy(() => import('../features/experiments/causalOrigami/CausalOrigamiGame').then((module) => ({ default: module.CausalOrigamiGame })))
-const ElectromagneticGuideGame = lazy(() => import('../features/experiments/electromagneticGuide/ElectromagneticGuideGame').then((module) => ({ default: module.ElectromagneticGuideGame })))
+const ElectromagneticCanvas = lazy(() => import('../features/experiments/electromagneticCanvas/ElectromagneticCanvas').then((module) => ({ default: module.ElectromagneticCanvas })))
 const WavePropagationLab = lazy(() => import('../features/experiments/wavePropagation/WavePropagationLab').then((module) => ({ default: module.WavePropagationLab })))
 const PursuitLab = lazy(() => import('../features/experiments/pursuit/PursuitLab').then((module) => ({ default: module.PursuitLab })))
 const ProjectileLab = lazy(() => import('../features/experiments/projectile/ProjectileLab').then((module) => ({ default: module.ProjectileLab })))
 const PotentialFieldLab = lazy(() => import('../features/experiments/potentialField/PotentialFieldLab').then((module) => ({ default: module.PotentialFieldLab })))
 
-type ExperimentId = 'three-body' | 'collision' | 'causal' | 'electromagnetic' | 'wave' | 'pursuit' | 'projectile' | 'potential'
+type ExperimentId = 'three-body' | 'collision' | 'wave' | 'pursuit' | 'projectile' | 'potential' | 'electromagnetic-canvas'
 const experiments = [
   { id: 'three-body' as const, number: '01', title: '三体模拟器', subtitle: '引力与混沌', icon: Atom },
   { id: 'collision' as const, number: '02', title: '碰撞模拟器', subtitle: '动量传递', icon: Boxes },
-  { id: 'causal' as const, number: '03', title: '光路寻踪', subtitle: '镜片与棱镜', icon: Sparkles },
-  { id: 'electromagnetic' as const, number: '04', title: '电磁指南', subtitle: '电场与洛伦兹力', icon: Magnet },
-  { id: 'wave' as const, number: '05', title: '波的传播', subtitle: '干涉与衍射', icon: Waves },
-  { id: 'pursuit' as const, number: '06', title: '追及相遇', subtitle: '相对运动', icon: Gauge },
-  { id: 'projectile' as const, number: '07', title: '平抛运动', subtitle: '运动的分解', icon: CircleDot },
-  { id: 'potential' as const, number: '08', title: '电势曲面', subtitle: '点电荷与场强', icon: Mountain },
+  { id: 'wave' as const, number: '03', title: '波的传播', subtitle: '干涉与衍射', icon: Waves },
+  { id: 'pursuit' as const, number: '04', title: '追及相遇', subtitle: '相对运动', icon: Gauge },
+  { id: 'projectile' as const, number: '05', title: '平抛运动', subtitle: '运动的分解', icon: CircleDot },
+  { id: 'potential' as const, number: '06', title: '电势曲面', subtitle: '点电荷与场强', icon: Mountain },
+  { id: 'electromagnetic-canvas' as const, number: '07', title: '电磁画布', subtitle: '无界电磁实验室', icon: Magnet },
 ]
 
 function readInitialExperiment(): ExperimentId {
@@ -48,12 +46,11 @@ export default function ExperimentsPage() {
         <Suspense fallback={<div className="experiment-loading">正在校准实验仪器…</div>}>
           {active === 'three-body' && <ThreeBodyLab />}
           {active === 'collision' && <CollisionLab />}
-          {active === 'causal' && <CausalOrigamiGame />}
-          {active === 'electromagnetic' && <ElectromagneticGuideGame />}
           {active === 'wave' && <WavePropagationLab />}
           {active === 'pursuit' && <PursuitLab />}
           {active === 'projectile' && <ProjectileLab />}
           {active === 'potential' && <PotentialFieldLab />}
+          {active === 'electromagnetic-canvas' && <ElectromagneticCanvas />}
         </Suspense>
       </section>
       <p className="experiment-safety">数值模拟用于探索与演示；它简化了真实世界中的部分条件。</p>
