@@ -8,3 +8,11 @@ vite.config.d.ts
 .codex/
 docs/superpowers/
 screenshots/
+test-results/
+.playwright-mcp/
+.claude/
+scripts/.chrome-tmp/
+.vite-*.log
+PROGRESS.md
+BLOCKED.md
+GITHUB_OPERATIONS_SKILL.md

@@ -3,12 +3,15 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: process.env.VITE_BASE_PATH ?? '/',
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          if (id.replaceAll('\\', '/').includes('/node_modules/three/')) return 'three'
-          return undefined
+        codeSplitting: {
+          groups: [
+            { name: 'phaser', test: /phaser/i, priority: 10, includeDependenciesRecursively: false },
+            { name: 'three', test: /node_modules[\\/]three[\\/]/, priority: 10 },
+          ],
         },
       },
     },
@@ -17,5 +20,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     maxWorkers: 4,
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 })

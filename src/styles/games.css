@@ -35,19 +35,35 @@
 }
 
 .game-stage--turing,
-.game-stage--gomoku-3d {
+.game-stage--gomoku-3d,
+.game-stage--optical-defense {
   padding: 0;
   background: #09101f;
 }
 
 .game-stage--turing::before,
-.game-stage--gomoku-3d::before {
+.game-stage--gomoku-3d::before,
+.game-stage--optical-defense::before {
   display: none;
 }
 
 html[data-color-mode='light'] .game-stage--turing,
-html[data-color-mode='light'] .game-stage--gomoku-3d {
+html[data-color-mode='light'] .game-stage--gomoku-3d,
+html[data-color-mode='light'] .game-stage--optical-defense {
   background: #f7fafb;
+}
+
+.game-stage--optical-defense {
+  width: min(1600px, calc(100vw - 32px));
+  max-width: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  overflow: visible;
+  background: #07121e;
+}
+
+body:has(.game-stage--optical-defense) .site-header {
+  position: absolute;
 }
 
 @media (max-width: 800px) {
