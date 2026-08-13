@@ -16,3 +16,9 @@ scripts/.chrome-tmp/
 PROGRESS.md
 BLOCKED.md
 GITHUB_OPERATIONS_SKILL.md
+# 内部设计/说明文档，仅保留在本地，不上传 GitHub
+尚未完成.md
+数值设计.md
+规则手册.md
+预期效果.md
+src/features/games/opticalDefense/iteration.tools.test.ts
