@@ -51,9 +51,9 @@ describe('optical defense levels and simulation', () => {
 
   it('applies the documented health curve, type multipliers, and power rewards to all nineteen levels', () => {
     const waveMultipliers = [0.82, 0.94, 1.06, 1.18, 1.3, 1.42]
-    const typeMultipliers = { normal: 1, fast: 0.78, armored: 2.8, resistant: 1.65, boss: 7.5 }
+    const typeMultipliers = { normal: 1, fast: 0.78, armored: 2.4, resistant: 1.65, boss: 4.5 }
     OPTICAL_DEFENSE_LEVELS.forEach((level) => {
-      const segmentMultiplier = level.id <= 3 ? 0.65 : level.id <= 10 ? 0.85 : 1
+      const segmentMultiplier = level.id <= 3 ? 0.65 : level.id <= 10 ? 0.85 : 0.9
       level.waves.forEach((wave, waveIndex) => wave.enemies.forEach((enemy) => {
         expect(enemy.health).toBe(Math.round((26 + 7 * level.id) * typeMultipliers[enemy.kind] * waveMultipliers[waveIndex] * segmentMultiplier))
         expect(enemy.rewardPowerW).toBe(enemy.kind === 'boss' ? 20 : enemy.kind === 'armored' || enemy.kind === 'resistant' ? 2 : 1)
@@ -406,7 +406,7 @@ describe('optical defense levels and simulation', () => {
     state = advanceBattle(state, level, 0.1)
     const enemy = state.enemies[0]
     expect(enemy.status.shield).toBe(100)
-    expect(500 - enemy.health).toBeCloseTo((15 + 450 * 0.18) * 0.35 * 0.45)
+    expect(500 - enemy.health).toBeCloseTo((15 + 450 * 0.18) * 0.7)
     expect(state.placements.some((placement) => placement.kind === 'capacitor')).toBe(false)
   })
 

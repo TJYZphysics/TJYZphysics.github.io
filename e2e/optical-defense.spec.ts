@@ -74,7 +74,8 @@ test.describe('光路塔防 smoke flow', () => {
     await clickAfterInstantScroll(page.getByTestId('wave-control'))
     await expect(page.getByTestId('wave-control')).toContainText('暂停')
     await advance(page, 14)
-    await expect(page.getByTestId('power-meter')).toContainText('/100W')
+    // 击杀奖励会让容量增长；只断言功率表仍显示 50W 光源与合法容量。
+    await expect(page.getByTestId('power-meter')).toContainText(/50\/\d+W/)
     if (process.env.OPTICAL_CAPTURE) await game.screenshot({ path: process.env.OPTICAL_CAPTURE })
   })
 

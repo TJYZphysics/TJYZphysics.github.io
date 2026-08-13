@@ -181,7 +181,7 @@ describe('optical defense rules', () => {
   it('lets non-white damage leak through shields without consuming them', () => {
     const hit = applyOpticalHit(target({ status: { ...EMPTY_STATUS, shield: 25 } }), { r: 50, g: 0, b: 0 }, 1)
     expect(hit.status.shield).toBe(25)
-    expect(200 - hit.health).toBeCloseTo(50 * 0.06 * 0.35)
+    expect(200 - hit.health).toBeCloseTo(50 * 0.06 * 0.7)
   })
 
   it('reduces only the resisted color channel and slows matching status buildup', () => {

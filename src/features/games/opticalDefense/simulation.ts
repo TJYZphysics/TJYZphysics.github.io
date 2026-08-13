@@ -596,7 +596,7 @@ function spawnEnemy(entry: SpawnEntry, id: number, levelId: number): EnemyState 
     status: {
       ...EMPTY_STATUS,
       shield: entry.kind === 'boss'
-        ? Math.max(160, entry.health * 0.18)
+        ? Math.max(120, entry.health * 0.15)
         : entry.kind === 'armored' && levelId >= 5
           ? Math.max(30, entry.health * 0.12)
           : 0,
@@ -678,7 +678,7 @@ function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): 
       next.events.push({ id: next.nextEntityId++, type: 'kill', value: current.rewardPowerW, point: pointOnPath(enemyPath(level, current), current.progress) })
     }
     if (!previous.escaped && current?.escaped) {
-      next.coreHealth -= current.kind === 'boss' ? 4 : 1
+      next.coreHealth -= current.kind === 'boss' ? 3 : 1
       next.events.push({ id: next.nextEntityId++, type: 'escape', point: enemyPath(level, current).at(-1) ?? { x: 900, y: 260 } })
     }
   })

@@ -35,6 +35,8 @@ export const OPTICAL_REACTIONS = {
   armorBreakSeconds: 2,
   vulnerableSeconds: 4,
   vulnerableDamageMultiplier: 1.25,
+  armoredDamageMultiplier: 0.55,
+  shieldDamageMultiplier: 0.7,
 } as const
 
 export const totalPower = (power: RgbPower) => power.r + power.g + power.b
@@ -232,10 +234,12 @@ export function applyOpticalHit(
       healthDamage = 0
       if (next.status.shield <= 0) next.status.vulnerableSeconds = OPTICAL_REACTIONS.vulnerableSeconds
     } else {
-      healthDamage *= 0.35
+      // Shield and armor reductions do not stack: a shielded target takes the shield cut only.
+      healthDamage *= OPTICAL_REACTIONS.shieldDamageMultiplier
     }
+  } else if (enemy.kind === 'armored' && next.status.armorBrokenSeconds <= 0) {
+    healthDamage *= OPTICAL_REACTIONS.armoredDamageMultiplier
   }
-  if (enemy.kind === 'armored' && next.status.armorBrokenSeconds <= 0) healthDamage *= 0.45
   next.health = Math.max(0, next.health - healthDamage)
   next.dead = next.health <= 0
   return next
@@ -247,8 +251,8 @@ export function tickStatuses(enemy: EnemyState, deltaSeconds: number): EnemyStat
   let damage = (next.status.poisonSeconds > 0 ? OPTICAL_REACTIONS.poisonDps * next.status.poisonPotency : 0)
     + (next.status.burnSeconds > 0 ? OPTICAL_REACTIONS.burnDps * next.status.burnPotency : 0)
   if (next.status.vulnerableSeconds > 0) damage *= OPTICAL_REACTIONS.vulnerableDamageMultiplier
-  if (enemy.kind === 'armored' && next.status.armorBrokenSeconds <= 0) damage *= 0.45
-  if (next.status.shield > 0) damage *= 0.35
+  if (next.status.shield > 0) damage *= OPTICAL_REACTIONS.shieldDamageMultiplier
+  else if (enemy.kind === 'armored' && next.status.armorBrokenSeconds <= 0) damage *= OPTICAL_REACTIONS.armoredDamageMultiplier
   next.health = Math.max(0, next.health - damage * deltaSeconds)
   next.status.poisonSeconds = Math.max(0, next.status.poisonSeconds - deltaSeconds)
   if (next.status.poisonSeconds <= 0) next.status.poisonPotency = 0

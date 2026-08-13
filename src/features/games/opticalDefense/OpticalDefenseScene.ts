@@ -488,7 +488,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     if (enemy.status.shield > 0) {
       g.lineStyle(2, 0x79b9ff, 0.9)
       g.strokeCircle(0, 0, size + 9)
-      const shieldFraction = Math.min(1, enemy.status.shield / Math.max(1, enemy.kind === 'boss' ? enemy.maxHealth * 0.18 : enemy.maxHealth * 0.12))
+      const shieldFraction = Math.min(1, enemy.status.shield / Math.max(1, enemy.kind === 'boss' ? enemy.maxHealth * 0.15 : enemy.maxHealth * 0.12))
       g.lineStyle(3, 0xd7f1ff, 0.9)
       g.beginPath()
       g.arc(0, 0, size + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * shieldFraction)

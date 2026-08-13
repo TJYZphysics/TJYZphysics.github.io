@@ -108,9 +108,9 @@ if (definitions.length !== layouts.length || definitions.length !== LEVEL_CAPACI
 export const OPTICAL_DEFENSE_LEVELS: LevelConfig[] = definitions.map((definition, index) => {
   const layout = createLayout(layouts[index])
   const levelId = index + 1
-  const segmentMultiplier = levelId <= 3 ? 0.65 : levelId <= 10 ? 0.85 : 1
+  const segmentMultiplier = levelId <= 3 ? 0.65 : levelId <= 10 ? 0.85 : 0.9
   const waveMultipliers = [0.82, 0.94, 1.06, 1.18, 1.3, 1.42]
-  const typeMultipliers: Record<WaveEnemy['kind'], number> = { normal: 1, fast: 0.78, armored: 2.8, resistant: 1.65, boss: 7.5 }
+  const typeMultipliers: Record<WaveEnemy['kind'], number> = { normal: 1, fast: 0.78, armored: 2.4, resistant: 1.65, boss: 4.5 }
   const baseHealth = 26 + 7 * levelId
   const waves = definition.waves.map((item, waveIndex) => ({
     ...item,

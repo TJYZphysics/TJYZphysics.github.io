@@ -713,7 +713,7 @@ function ManualPage({ tab }: { tab: ManualTab }) {
     <article><h4>高级终端</h4><p>加速器至少需要 90W，充满后沿方向贯穿 360px、总宽 20px，伤害为 20 + 0.16×消耗焦耳。电容最大 450J，引爆伤害 15 + 0.18J，半径 90 + 330√充能比例，引爆后销毁。</p></article>
   </div>
   if (tab === '敌人') return <div className="optical-defense__manual-page" role="tabpanel">
-    <article><h4>重甲与护盾</h4><p>重甲未破甲时生命伤害 ×0.45。重甲护盾至少 30，Boss 护盾至少 160；有盾时非白光生命伤害仅保留 35%，且几乎不能削盾。</p></article>
+    <article><h4>重甲与护盾</h4><p>重甲未破甲时生命伤害 ×0.55。重甲护盾至少 30，Boss 护盾至少 120；有盾时非白光生命伤害保留 70%，且几乎不能削盾。护盾减伤与护甲减伤不叠加。</p></article>
     <article><h4>白光破盾</h4><p>白光以原始伤害 ×2.5 消耗护盾。破盾后敌人获得 4 秒易伤，所有伤害 ×1.25。冻结目标受到攻击还会获得 2 秒破甲。</p></article>
     <article><h4>抗性与速度</h4><p>抗性敌人对应 RGB 通道只承受 30% 伤害；高速敌人生命较少但移动快。Boss 拥有更高生命、护盾和核心伤害，后期必须组合颜色与状态。</p></article>
   </div>
