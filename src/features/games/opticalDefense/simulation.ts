@@ -10,6 +10,7 @@ import {
   tickStatuses,
   totalPower,
   mirrorAngleForTarget,
+  normalizeSplitRatios,
 } from './rules'
 import { traceOpticalNetwork } from './optics'
 import type { OpticalNetwork } from './optics'
@@ -61,6 +62,8 @@ export type BattleState = {
   spawnPlan: SpawnEntry[]
   events: BattleEvent[]
   lastExplosionRadius: number
+  fixedStepRemainderS: number
+  peakUsedPowerW: number
   network?: OpticalNetwork
 }
 
@@ -71,43 +74,45 @@ export const DEVICE_COSTS: Record<DeviceKind, number> = {
   'source-green': 0,
   'source-blue': 0,
   mirror: 18,
-  splitter: 36,
+  splitter: 32,
+  'prism-splitter': 46,
   combiner: 34,
   filter: 22,
-  collector: 40,
-  bulb: 26,
-  'laser-emitter': 42,
-  'radiation-source': 48,
-  'frost-tower': 46,
-  brazier: 44,
-  accelerator: 68,
+  collector: 44,
+  bulb: 30,
+  'laser-emitter': 46,
+  'radiation-source': 50,
+  'frost-tower': 52,
+  brazier: 52,
+  accelerator: 82,
   shutter: 20,
-  'photo-sensor': 30,
-  capacitor: 58,
+  'photo-sensor': 28,
+  capacitor: 68,
 }
 
 export const ATTACK_DEVICES: DeviceKind[] = [
   'bulb', 'laser-emitter', 'radiation-source', 'frost-tower', 'brazier', 'accelerator',
 ]
 
-export const TERMINAL_ATTACK_PROFILES: Partial<Record<DeviceKind, { range: number; area: boolean; multiplier: number }>> = {
-  bulb: { range: 125, area: true, multiplier: 1.1 },
-  'laser-emitter': { range: 300, area: false, multiplier: 0.86 },
-  'radiation-source': { range: 150, area: true, multiplier: 0.48 },
-  'frost-tower': { range: 145, area: true, multiplier: 0.5 },
-  brazier: { range: 135, area: true, multiplier: 0.5 },
-  accelerator: { range: 360, area: false, multiplier: 0.78 },
+export const TERMINAL_ATTACK_PROFILES: Partial<Record<DeviceKind, { range: number; area: boolean; multiplier: number; periodS?: number }>> = {
+  bulb: { range: 125, area: true, multiplier: 0.85 },
+  'laser-emitter': { range: 300, area: false, multiplier: 1.65 },
+  'radiation-source': { range: 150, area: true, multiplier: 0.55 },
+  'frost-tower': { range: 145, area: true, multiplier: 1, periodS: 1.25 },
+  brazier: { range: 135, area: true, multiplier: 1, periodS: 1.1 },
+  accelerator: { range: 360, area: false, multiplier: 1 },
 }
 
 export const ACCELERATOR_MIN_INPUT_W = 90
 export const ACCELERATOR_MAX_CHARGE_J = 360
+export const CAPACITOR_MAX_CHARGE_J = 450
 export const DEVICE_MAX_LEVEL = 3
 
 export const deviceLevel = (placement: DevicePlacement) => placement.upgradeLevel ?? 1
 
 const SOURCE_KINDS: SourceKind[] = ['source-red', 'source-green', 'source-blue']
 const TARGETABLE_OUTPUT_KINDS = new Set<DeviceKind>([
-  ...SOURCE_KINDS, 'mirror', 'splitter', 'combiner', 'filter', 'collector', 'shutter',
+  ...SOURCE_KINDS, 'mirror', 'splitter', 'prism-splitter', 'combiner', 'filter', 'collector', 'shutter',
 ])
 
 export function buildSpawnPlan(level: LevelConfig): SpawnEntry[] {
@@ -153,6 +158,8 @@ export function createBattleState(level: LevelConfig): BattleState {
     spawnPlan: buildSpawnPlan(level),
     events: [],
     lastExplosionRadius: 0,
+    fixedStepRemainderS: 0,
+    peakUsedPowerW: 0,
   }
 }
 
@@ -182,8 +189,9 @@ export function placeDevice(
     kind,
     holeId,
     rotationDeg: kind === 'mirror' ? 45 : 0,
-    splitRatios: kind === 'splitter' ? [0.5, 0.5] : undefined,
+    splitRatios: kind === 'splitter' || kind === 'prism-splitter' ? [0.5, 0.5] : undefined,
     filterColor: kind === 'filter' ? 'r' : undefined,
+    collectorColor: kind === 'collector' ? 'r' : undefined,
     targetStrategy: kind === 'mirror' ? 'first' : undefined,
     mirrorMode: kind === 'mirror' ? 'fixed' : undefined,
     enabled: true,
@@ -193,6 +201,7 @@ export function placeDevice(
     acceleratorChargeJ: kind === 'accelerator' ? 0 : undefined,
     acceleratorCooldownS: kind === 'accelerator' ? 0 : undefined,
     acceleratorPhase: kind === 'accelerator' ? 'idle' : undefined,
+    areaCooldownS: kind === 'frost-tower' || kind === 'brazier' ? 0 : undefined,
   }
   return {
     ok: true,
@@ -201,6 +210,7 @@ export function placeDevice(
       nextEntityId: state.nextEntityId + 1,
       coins: state.coins - cost,
       usedPowerW: state.usedPowerW + (sourceKind(kind) ? SOURCE_POWER_W[kind] : 0),
+      peakUsedPowerW: Math.max(state.peakUsedPowerW, state.usedPowerW + (sourceKind(kind) ? SOURCE_POWER_W[kind] : 0)),
       placements: [...state.placements, placement],
       network: undefined,
     },
@@ -335,7 +345,7 @@ export function snapDeviceOutputToTarget(
   if (!placement || !target || placement.id === target.id || outputIndex < 0 || outputIndex > 2) return state
   if (!TARGETABLE_OUTPUT_KINDS.has(placement.kind)) return state
   if (placement.kind === 'mirror') return snapMirrorToTarget(state, level, placementId, targetId)
-  const outputCount = placement.kind === 'splitter' ? (placement.splitRatios?.length ?? 2) : 1
+  const outputCount = placement.kind === 'splitter' || placement.kind === 'prism-splitter' ? 3 : 1
   if (outputIndex >= outputCount) return state
   const outputTargetIds = Array.from({ length: outputCount }, (_, index) => placement.outputTargetIds?.[index])
   outputTargetIds[outputIndex] = targetId
@@ -352,12 +362,16 @@ export function updateDevice(
   state: BattleState,
   placementId: string,
   patch: Pick<Partial<DevicePlacement>,
-    'splitRatios' | 'filterColor' | 'targetStrategy' | 'enabled' | 'mirrorMode' | 'rotationSnap'
+    'splitRatios' | 'filterColor' | 'collectorColor' | 'targetStrategy' | 'enabled' | 'mirrorMode' | 'rotationSnap'
     | 'sensorTargetId' | 'sensorThresholdW' | 'sensorChannel' | 'sensorAction' | 'outputTargetIds'>,
 ): BattleState {
   return {
     ...state,
-    placements: state.placements.map((placement) => placement.id === placementId ? { ...placement, ...patch } : placement),
+    placements: state.placements.map((placement) => placement.id === placementId ? {
+      ...placement,
+      ...patch,
+      splitRatios: patch.splitRatios ? normalizeSplitRatios(patch.splitRatios) : placement.splitRatios,
+    } : placement),
     network: undefined,
   }
 }
@@ -469,18 +483,14 @@ export function trackAutomaticMirrors(
 
 function terminalPower(power: RgbPower, kind: DeviceKind): RgbPower {
   const watts = totalPower(power)
-  if (kind === 'frost-tower') return { r: 0, g: watts * 0.35, b: watts * 0.65 }
-  if (kind === 'brazier') return { r: watts * 0.72, g: watts * 0.28, b: 0 }
-  if (kind === 'radiation-source') return { r: watts * 0.45, g: 0, b: watts * 0.55 }
+  if (kind === 'radiation-source') return { r: 0, g: 0, b: watts }
   return power
 }
 
-export function terminalAttackRange(placement: DevicePlacement, focusedStrength: boolean | number = false) {
+export function terminalAttackRange(placement: DevicePlacement) {
   const profile = TERMINAL_ATTACK_PROFILES[placement.kind]
   if (!profile) return 0
-  const upgradeMultiplier = 1 + (deviceLevel(placement) - 1) * 0.08
-  const strength = typeof focusedStrength === 'boolean' ? (focusedStrength ? 1 : 0) : Math.max(0, Math.min(1, focusedStrength))
-  return profile.range * upgradeMultiplier * (1 - strength * 0.32)
+  return profile.range * (1 + (deviceLevel(placement) - 1) * 0.08)
 }
 
 function placementPoint(level: LevelConfig, placement: DevicePlacement) {
@@ -496,18 +506,15 @@ function applyTerminalAttacks(state: BattleState, level: LevelConfig, deltaSecon
   terminals.forEach((terminal) => {
     const inputPower = network.deviceInputs.get(terminal.id)
     if (!inputPower || totalPower(inputPower) <= 0) return
-    const focusedPower = network.focusedInputs.get(terminal.id)
-    const focusStrength = Math.min(1, totalPower(focusedPower ?? { r: 0, g: 0, b: 0 }) / Math.max(0.01, totalPower(inputPower)))
-    const focused = focusStrength > 0
-    const range = terminalAttackRange(terminal, focusStrength)
+    const range = terminalAttackRange(terminal)
     const point = placementPoint(level, terminal)
     const candidates = enemies.filter((enemy) => !enemy.dead && !enemy.escaped
       && Math.hypot(pointOnPath(enemyPath(level, enemy), enemy.progress).x - point.x, pointOnPath(enemyPath(level, enemy), enemy.progress).y - point.y) <= range)
     const target = targetEnemy(candidates, terminal.targetStrategy ?? 'first')
     const terminalRgb = terminalPower(inputPower, terminal.kind)
     if (terminal.kind === 'accelerator') {
-      const level = deviceLevel(terminal)
-      const maximumCharge = ACCELERATOR_MAX_CHARGE_J * (1 + (level - 1) * 0.2)
+      const upgradeLevel = deviceLevel(terminal)
+      const maximumCharge = ACCELERATOR_MAX_CHARGE_J * (1 + (upgradeLevel - 1) * 0.2)
       let charge = terminal.acceleratorChargeJ ?? 0
       let cooldown = Math.max(0, (terminal.acceleratorCooldownS ?? 0) - deltaSeconds)
       let phase: DevicePlacement['acceleratorPhase'] = cooldown > 0 ? 'cooldown' : 'idle'
@@ -515,37 +522,66 @@ function applyTerminalAttacks(state: BattleState, level: LevelConfig, deltaSecon
         charge = Math.min(maximumCharge, charge + totalPower(inputPower) * deltaSeconds)
         phase = charge >= maximumCharge ? 'ready' : 'charging'
       }
-      if (phase === 'ready' && target) {
-        const pulseMultiplier = (5.4 + (level - 1) * 1.2) * (1 + focusStrength * 0.18)
-        const scaled = { r: terminalRgb.r * pulseMultiplier, g: terminalRgb.g * pulseMultiplier, b: terminalRgb.b * pulseMultiplier }
-        enemies = enemies.map((enemy) => enemy.id === target.id ? applyOpticalHit(enemy, scaled, 0.9, { focused, focusedStrength: focusStrength }) : enemy)
-        charge = 0
-        cooldown = Math.max(1.4, 2.4 - (level - 1) * 0.35)
-        phase = 'cooldown'
+      if (phase === 'ready') {
+        const angle = terminal.rotationDeg * Math.PI / 180
+        const direction = { x: Math.cos(angle), y: Math.sin(angle) }
+        const directDamage = 20 + 0.16 * charge
+        const lineTargetIds = new Set(enemies.filter((enemy) => {
+          if (enemy.dead || enemy.escaped) return false
+          const enemyPoint = pointOnPath(enemyPath(level, enemy), enemy.progress)
+          const dx = enemyPoint.x - point.x
+          const dy = enemyPoint.y - point.y
+          const projection = dx * direction.x + dy * direction.y
+          const perpendicular = Math.abs(dx * direction.y - dy * direction.x)
+          return projection > 0 && projection <= range && perpendicular <= 10
+        }).map((enemy) => enemy.id))
+        if (lineTargetIds.size) {
+          enemies = enemies.map((enemy) => lineTargetIds.has(enemy.id)
+            ? applyOpticalHit(enemy, terminalRgb, 0, { directDamage, statusMultiplier: 0.6 })
+            : enemy)
+          charge = 0
+          cooldown = Math.max(1.4, 2.4 - (upgradeLevel - 1) * 0.35)
+          phase = 'cooldown'
+        }
       }
       placements = placements.map((placement) => placement.id === terminal.id
         ? { ...placement, acceleratorChargeJ: charge, acceleratorCooldownS: cooldown, acceleratorPhase: phase }
         : placement)
       return
     }
-    if (!target) return
     const profile = TERMINAL_ATTACK_PROFILES[terminal.kind]!
-    const damageMultiplier = profile.multiplier * (1 + (deviceLevel(terminal) - 1) * 0.18) * (1 + focusStrength * 0.18)
+    const upgradeMultiplier = 1 + (deviceLevel(terminal) - 1) * 0.2
+    if (terminal.kind === 'frost-tower' || terminal.kind === 'brazier') {
+      const intervalMultiplier = terminal.kind === 'frost-tower'
+        ? [1, 0.86, 0.74][deviceLevel(terminal) - 1]
+        : [1, 0.86, 0.74][deviceLevel(terminal) - 1]
+      let cooldown = Math.max(0, (terminal.areaCooldownS ?? 0) - deltaSeconds)
+      if (cooldown <= 0 && candidates.length) {
+        const watts = totalPower(inputPower)
+        const directDamage = (terminal.kind === 'frost-tower' ? 1.5 + 0.04 * watts : 2 + 0.05 * watts) * upgradeMultiplier
+        enemies = enemies.map((enemy) => candidates.some((candidate) => candidate.id === enemy.id)
+          ? applyOpticalHit(enemy, { r: 0, g: 0, b: 0 }, 0, {
+            directDamage,
+            forceStatus: terminal.kind === 'frost-tower' ? 'freeze' : 'burn',
+          })
+          : enemy)
+        cooldown = (profile.periodS ?? 1) * intervalMultiplier
+      }
+      placements = placements.map((placement) => placement.id === terminal.id ? { ...placement, areaCooldownS: cooldown } : placement)
+      return
+    }
+    if (!target) return
+    const damageMultiplier = profile.multiplier * upgradeMultiplier
     const affectedIds = new Set(profile.area ? candidates.map((enemy) => enemy.id) : [target.id])
     enemies = enemies.map((enemy) => {
       if (!affectedIds.has(enemy.id)) return enemy
-      const scaled: RgbPower = {
-        r: terminalRgb.r * damageMultiplier,
-        g: terminalRgb.g * damageMultiplier,
-        b: terminalRgb.b * damageMultiplier,
-      }
-      return applyOpticalHit(enemy, scaled, deltaSeconds, { focused: focused && enemy.id === target.id, focusedStrength: focusStrength })
+      return applyOpticalHit(enemy, terminalRgb, deltaSeconds, { damageMultiplier })
     })
   })
   return { enemies, placements }
 }
 
-function spawnEnemy(entry: SpawnEntry, id: number): EnemyState {
+function spawnEnemy(entry: SpawnEntry, id: number, levelId: number): EnemyState {
   return {
     id: `enemy-${id}`,
     kind: entry.kind,
@@ -559,20 +595,22 @@ function spawnEnemy(entry: SpawnEntry, id: number): EnemyState {
     routeIndex: entry.routeIndex,
     status: {
       ...EMPTY_STATUS,
-      shield: entry.kind === 'boss' ? 130 : entry.kind === 'armored' ? 20 : 0,
+      shield: entry.kind === 'boss'
+        ? Math.max(160, entry.health * 0.18)
+        : entry.kind === 'armored' && levelId >= 5
+          ? Math.max(30, entry.health * 0.12)
+          : 0,
     },
   }
 }
 
-export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds: number): BattleState {
-  if (state.phase !== 'running') return state
-  const delta = Math.min(0.1, Math.max(0, deltaSeconds))
+function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): BattleState {
   let next: BattleState = { ...state, elapsedSeconds: state.elapsedSeconds + delta, events: [] }
   const spawned: EnemyState[] = []
   let spawnIndex = next.nextSpawnIndex
   let entityId = next.nextEntityId
   while (spawnIndex < next.spawnPlan.length && next.spawnPlan[spawnIndex].atSeconds <= next.elapsedSeconds) {
-    spawned.push(spawnEnemy(next.spawnPlan[spawnIndex], entityId))
+    spawned.push(spawnEnemy(next.spawnPlan[spawnIndex], entityId, level.id))
     spawnIndex += 1
     entityId += 1
   }
@@ -584,7 +622,9 @@ export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds:
     if (enemy.dead || enemy.escaped) return enemy
     const statusTicked = tickStatuses(enemy, delta)
     if (statusTicked.dead) return statusTicked
-    const slowdown = statusTicked.status.freezeSeconds > 0 ? 0.48 : 1
+    const slowdown = statusTicked.status.freezeSeconds > 0
+      ? 1 - 0.45 * Math.max(0, Math.min(1, statusTicked.status.freezeStrength))
+      : 1
     const progress = statusTicked.progress + (statusTicked.speed * slowdown * delta) / pathLength(enemyPath(level, statusTicked))
     return progress >= 1 ? { ...statusTicked, progress: 1, escaped: true } : { ...statusTicked, progress }
   })
@@ -597,7 +637,9 @@ export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds:
   next.network = network
   next.enemies = next.enemies.map((enemy) => {
     const blockedPower = network.blockedHits.get(enemy.id)
-    return blockedPower && !enemy.dead && !enemy.escaped ? applyOpticalHit(enemy, blockedPower, delta) : enemy
+    return blockedPower && !enemy.dead && !enemy.escaped
+      ? applyOpticalHit(enemy, blockedPower, delta, { damageMultiplier: 0.22, statusMultiplier: 0.25 })
+      : enemy
   })
   const terminalResult = applyTerminalAttacks(next, level, delta, network)
   next.enemies = terminalResult.enemies
@@ -605,14 +647,14 @@ export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds:
   next.placements = next.placements.map((placement) => {
     if (placement.kind !== 'capacitor' || placement.destroyed) return placement
     const inputPowerW = network.capacitorInputsW.get(placement.id) ?? 0
-    const maximumCharge = 450 * (1 + (deviceLevel(placement) - 1) * 0.25)
-    return { ...placement, chargeJ: chargeCapacitor({ chargeJ: placement.chargeJ ?? 0, maxChargeJ: maximumCharge, destroyed: false }, inputPowerW, delta).chargeJ }
+    return {
+      ...placement,
+      chargeJ: chargeCapacitor({ chargeJ: placement.chargeJ ?? 0, maxChargeJ: CAPACITOR_MAX_CHARGE_J, destroyed: false }, inputPowerW, delta).chargeJ,
+    }
   })
 
-  const mapDiagonal = Math.hypot(level.board.width, level.board.height)
   for (const capacitor of next.placements.filter((placement) => placement.kind === 'capacitor' && placement.detonateQueued && !placement.destroyed)) {
-    const maximumCharge = 450 * (1 + (deviceLevel(capacitor) - 1) * 0.25)
-    const explosion = detonateCapacitor({ chargeJ: capacitor.chargeJ ?? 0, maxChargeJ: maximumCharge, destroyed: false }, mapDiagonal)
+    const explosion = detonateCapacitor({ chargeJ: capacitor.chargeJ ?? 0, maxChargeJ: CAPACITOR_MAX_CHARGE_J, destroyed: false })
     if (!explosion) continue
     const point = level.holes[Number(capacitor.holeId.replace('h-', ''))] ?? { x: 450, y: 260 }
     next.lastExplosionRadius = explosion.radius
@@ -621,8 +663,7 @@ export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds:
       if (enemy.dead || enemy.escaped) return enemy
       const enemyPoint = pointOnPath(enemyPath(level, enemy), enemy.progress)
       if (Math.hypot(enemyPoint.x - point.x, enemyPoint.y - point.y) > explosion.radius) return enemy
-      const health = Math.max(0, enemy.health - explosion.damage)
-      return { ...enemy, health, dead: health <= 0 }
+      return applyOpticalHit(enemy, { r: 0, g: 0, b: 0 }, 0, { directDamage: explosion.damage })
     })
     next.placements = next.placements.filter((placement) => placement.id !== capacitor.id)
     network = traceOpticalNetwork(level, next.placements, next.enemies.map((enemy) => ({ ...enemy, position: pointOnPath(enemyPath(level, enemy), enemy.progress) })))
@@ -641,10 +682,30 @@ export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds:
       next.events.push({ id: next.nextEntityId++, type: 'escape', point: enemyPath(level, current).at(-1) ?? { x: 900, y: 260 } })
     }
   })
+  next.coreHealth = Math.max(0, next.coreHealth)
 
   if (next.coreHealth <= 0) next.phase = 'defeat'
   else if (next.nextSpawnIndex >= next.spawnPlan.length && next.enemies.every((enemy) => enemy.dead || enemy.escaped)) next.phase = 'victory'
   return next
+}
+
+export const FIXED_BATTLE_STEP_S = 1 / 30
+
+export function advanceBattle(state: BattleState, level: LevelConfig, seconds: number): BattleState {
+  if (state.phase !== 'running') return state
+  let remainder = Math.max(0, state.fixedStepRemainderS + seconds)
+  let next = state
+  const events: BattleEvent[] = []
+  while (remainder + 1e-9 >= FIXED_BATTLE_STEP_S && next.phase === 'running') {
+    next = tickBattleStep(next, level, FIXED_BATTLE_STEP_S)
+    events.push(...next.events)
+    remainder -= FIXED_BATTLE_STEP_S
+  }
+  return { ...next, events, fixedStepRemainderS: next.phase === 'running' ? remainder : 0 }
+}
+
+export function tickBattle(state: BattleState, level: LevelConfig, deltaSeconds: number): BattleState {
+  return advanceBattle(state, level, Math.max(0, deltaSeconds))
 }
 
 export function scoreBattle(state: BattleState, level: LevelConfig) {
@@ -652,7 +713,7 @@ export function scoreBattle(state: BattleState, level: LevelConfig) {
   const authoredSpawnDuration = state.spawnPlan.at(-1)?.atSeconds ?? 0
   const timeTarget = Math.max(45 + level.id * 8, authoredSpawnDuration + 20)
   const timeScore = Math.max(0, Math.min(1, timeTarget / Math.max(1, state.elapsedSeconds)))
-  const efficiencyScore = Math.max(0, 1 - state.usedPowerW / Math.max(1, state.capacityW))
+  const efficiencyScore = Math.max(0, 1 - state.peakUsedPowerW / Math.max(1, level.capacityW))
   const composite = healthScore * 0.5 + timeScore * 0.25 + efficiencyScore * 0.25
   return composite >= 0.82 ? 3 : composite >= 0.58 ? 2 : 1
 }

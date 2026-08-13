@@ -13,6 +13,7 @@ export type SceneSnapshot = {
   selectedId: string | null
   beamGlow: boolean
   reduceMotion: boolean
+  recommendedHoleIds?: string[]
 }
 
 export type OpticalSceneCallbacks = {
@@ -26,13 +27,14 @@ const LAB_HEIGHT = 700
 
 const DEVICE_LABELS: Record<DeviceKind, string> = {
   'source-red': 'R', 'source-green': 'G', 'source-blue': 'B', mirror: 'M', splitter: 'S', combiner: 'C',
+  'prism-splitter': 'PR',
   filter: 'F', collector: 'COL', bulb: 'L', 'laser-emitter': 'LX', 'radiation-source': 'RX', 'frost-tower': 'ICE',
   brazier: 'FIR', accelerator: 'ACC', shutter: 'SH', 'photo-sensor': 'PS', capacitor: 'CAP',
 }
 
 const DEVICE_COLORS: Record<DeviceKind, number> = {
   'source-red': 0xff4f58, 'source-green': 0x3ee68d, 'source-blue': 0x4ea7ff, mirror: 0xdaf7ff,
-  splitter: 0x69d3ff, combiner: 0xffd166, filter: 0x66f2ce, collector: 0xffc857, bulb: 0xffe7a3,
+  splitter: 0x69d3ff, 'prism-splitter': 0xf4f8ff, combiner: 0xffd166, filter: 0x66f2ce, collector: 0xffc857, bulb: 0xffe7a3,
   'laser-emitter': 0xff696d, 'radiation-source': 0xd477ff, 'frost-tower': 0x62e3ff, brazier: 0xff9b4a,
   accelerator: 0xffee85, shutter: 0xa8b4c8,
   'photo-sensor': 0x6df6b8, capacitor: 0xffca62,
@@ -206,8 +208,9 @@ export class OpticalDefenseScene extends Phaser.Scene {
     path.strokeCircle(core.x, core.y, 16)
   }
 
-  private drawHoles(level: LevelConfig, placements: DevicePlacement[]) {
+  private drawHoles(level: LevelConfig, placements: DevicePlacement[], recommendedHoleIds: readonly string[] = []) {
     const occupied = new Set(placements.map((placement) => placement.holeId))
+    const recommended = new Set(recommendedHoleIds)
     const g = this.holeGraphics
     g.clear()
     const cellSize = level.grid.cellSize
@@ -215,6 +218,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     level.holes.forEach((point, index) => {
       const id = `h-${index}`
       const isOccupied = occupied.has(id)
+      const isRecommended = recommended.has(id) && !isOccupied
       g.fillStyle(isOccupied ? 0x1b302e : 0x142321, 0.92)
       g.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize)
       g.lineStyle(1, isOccupied ? 0x71a49b : 0x42534e, isOccupied ? 0.5 : 0.28)
@@ -227,6 +231,12 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillCircle(point.x, point.y, occupied.has(id) ? 13 : 9)
       g.lineStyle(1.5, isOccupied ? 0xa4c9c2 : 0x5b817c, isOccupied ? 0.76 : 0.72)
       g.strokeCircle(point.x, point.y, occupied.has(id) ? 15 : 11)
+      if (isRecommended) {
+        g.lineStyle(3, 0x74f4e0, 0.92)
+        g.strokeRoundedRect(point.x - 35, point.y - 35, 70, 70, 8)
+        g.lineStyle(1, 0xf7e897, 0.82)
+        g.strokeCircle(point.x, point.y, 20)
+      }
     })
   }
 
@@ -235,7 +245,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     g.clear()
     network.segments.forEach((segment) => {
       const color = powerColor(segment.power)
-      const width = Math.max(1.2, Math.min(8, totalPower(segment.power) / 22) * (1 - segment.focusStrength * 0.32))
+      const width = Math.max(1.2, Math.min(8, totalPower(segment.power) / 22))
       if (snapshot.beamGlow) {
         g.lineStyle(width + 12, color, 0.08)
         g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
@@ -256,12 +266,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     attacks.clear()
     const alive = snapshot.battle.enemies.filter((enemy) => !enemy.dead && !enemy.escaped).sort((left, right) => right.progress - left.progress)
     snapshot.battle.placements.forEach((placement) => {
-      const inputPower = network.deviceInputs.get(placement.id)
-      const focusedPower = network.focusedInputs.get(placement.id)
-      const focusStrength = inputPower
-        ? Math.min(1, totalPower(focusedPower ?? { r: 0, g: 0, b: 0 }) / Math.max(0.01, totalPower(inputPower)))
-        : 0
-      const radius = terminalAttackRange(placement, focusStrength)
+      const radius = terminalAttackRange(placement)
       if (!radius) return
       const point = pointFor(snapshot.level, placement)
       const color = DEVICE_COLORS[placement.kind]
@@ -273,7 +278,14 @@ export class OpticalDefenseScene extends Phaser.Scene {
       ranges.lineStyle(1, color, 0.18)
       ranges.strokeCircle(point.x, point.y, radius * 0.5)
 
-      if ((placement.kind === 'laser-emitter' || placement.kind === 'accelerator') && !network.poweredDeviceIds.has(placement.id)) {
+      if (placement.kind === 'accelerator') {
+        const angle = placement.rotationDeg * Math.PI / 180
+        const chargeFraction = Math.min(1, (placement.acceleratorChargeJ ?? 0) / 360)
+        ranges.lineStyle(2 + chargeFraction * 4, color, network.poweredDeviceIds.has(placement.id) ? 0.42 : 0.22)
+        ranges.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
+        ranges.lineStyle(1, 0xffffff, 0.26 + chargeFraction * 0.32)
+        ranges.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
+      } else if (placement.kind === 'laser-emitter' && !network.poweredDeviceIds.has(placement.id)) {
         const angle = placement.rotationDeg * Math.PI / 180
         ranges.lineStyle(2, color, 0.32)
         ranges.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
@@ -284,19 +296,40 @@ export class OpticalDefenseScene extends Phaser.Scene {
         return Math.hypot(enemyPoint.x - point.x, enemyPoint.y - point.y) <= radius
       })
       if (!network.poweredDeviceIds.has(placement.id) || !candidates.length) return
+      if (placement.kind === 'accelerator') {
+        if ((placement.acceleratorPhase ?? 'idle') !== 'cooldown') return
+        const angle = placement.rotationDeg * Math.PI / 180
+        const end = { x: point.x + Math.cos(angle) * radius, y: point.y + Math.sin(angle) * radius }
+        attacks.lineStyle(11, color, 0.24)
+        attacks.lineBetween(point.x, point.y, end.x, end.y)
+        attacks.lineStyle(2, 0xffffff, 0.95)
+        attacks.lineBetween(point.x, point.y, end.x, end.y)
+        return
+      }
+      if (placement.kind === 'frost-tower' || placement.kind === 'brazier') {
+        const basePeriod = placement.kind === 'frost-tower' ? 1.25 : 1.1
+        const period = basePeriod * [1, 0.86, 0.74][(placement.upgradeLevel ?? 1) - 1]
+        const pulseProgress = 1 - Math.min(1, (placement.areaCooldownS ?? 0) / period)
+        const pulseRadius = Math.max(20, radius * pulseProgress)
+        attacks.lineStyle(4 - pulseProgress * 2, color, 0.72 * (1 - pulseProgress * 0.75))
+        attacks.strokeCircle(point.x, point.y, pulseRadius)
+        attacks.lineStyle(1, 0xffffff, 0.36 * (1 - pulseProgress))
+        attacks.strokeCircle(point.x, point.y, Math.max(14, pulseRadius - 8))
+        return
+      }
       const target = visualTarget(candidates, placement.targetStrategy)
       if (!target) return
       const targetPath = snapshot.level.paths?.[target.routeIndex ?? 0] ?? snapshot.level.path
       const targetPoint = pointOnPath(targetPath, target.progress)
-      if (placement.kind === 'laser-emitter' || placement.kind === 'accelerator') {
-        attacks.lineStyle(placement.kind === 'accelerator' ? 7 : 4, color, 0.28)
+      if (placement.kind === 'laser-emitter') {
+        attacks.lineStyle(4, color, 0.28)
         attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
         attacks.lineStyle(1.5, 0xffffff, 0.9)
         attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
         attacks.fillStyle(0xffffff, 0.95)
-        attacks.fillCircle(targetPoint.x, targetPoint.y, placement.kind === 'accelerator' ? 9 : 5)
+        attacks.fillCircle(targetPoint.x, targetPoint.y, 5)
       } else {
-        const burstRadius = placement.kind === 'radiation-source' ? 52 : placement.kind === 'frost-tower' ? 44 : 36
+        const burstRadius = placement.kind === 'radiation-source' ? 52 : 36
         attacks.lineStyle(3, color, 0.72)
         attacks.strokeCircle(point.x, point.y, Math.min(radius, burstRadius))
         attacks.lineStyle(1, color, 0.36)
@@ -335,6 +368,18 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.lineBetween(-Math.cos(angle) * 20, -Math.sin(angle) * 20, Math.cos(angle) * 20, Math.sin(angle) * 20)
       g.lineStyle(5, color, 0.18)
       g.lineBetween(-Math.cos(angle) * 20, -Math.sin(angle) * 20, Math.cos(angle) * 20, Math.sin(angle) * 20)
+    } else if (placement.kind === 'prism-splitter') {
+      const angle = placement.rotationDeg * Math.PI / 180
+      const forward = { x: Math.cos(angle), y: Math.sin(angle) }
+      const side = { x: -forward.y, y: forward.x }
+      g.fillStyle(0xdaf7ff, 0.1)
+      g.fillTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
+      g.strokeTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
+      ;[0xff4f58, 0x3ee68d, 0x4ea7ff].forEach((beamColor, index) => {
+        const beamAngle = angle + (index - 1) * 0.36
+        g.lineStyle(2, beamColor, 0.9)
+        g.lineBetween(Math.cos(beamAngle) * 5, Math.sin(beamAngle) * 5, Math.cos(beamAngle) * 22, Math.sin(beamAngle) * 22)
+      })
     } else if (placement.kind === 'combiner') {
       const angle = placement.rotationDeg * Math.PI / 180
       const directionX = Math.cos(angle)
@@ -443,6 +488,11 @@ export class OpticalDefenseScene extends Phaser.Scene {
     if (enemy.status.shield > 0) {
       g.lineStyle(2, 0x79b9ff, 0.9)
       g.strokeCircle(0, 0, size + 9)
+      const shieldFraction = Math.min(1, enemy.status.shield / Math.max(1, enemy.kind === 'boss' ? enemy.maxHealth * 0.18 : enemy.maxHealth * 0.12))
+      g.lineStyle(3, 0xd7f1ff, 0.9)
+      g.beginPath()
+      g.arc(0, 0, size + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * shieldFraction)
+      g.strokePath()
     }
     if (enemy.status.radiationStacks > 0) {
       g.fillStyle(0xe875ff, 0.92)
@@ -452,6 +502,12 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.lineStyle(2, 0xffd56a, 0.9)
       g.lineBetween(-size - 4, -size - 4, size + 4, size + 4)
       g.lineBetween(size + 4, -size - 4, -size - 4, size + 4)
+    }
+    if (enemy.status.vulnerableSeconds > 0) {
+      g.lineStyle(2, 0xffffff, 0.92)
+      g.lineBetween(-size - 7, 0, -size - 2, -5)
+      g.lineBetween(-size - 2, -5, 2, 4)
+      g.lineBetween(2, 4, size + 7, -4)
     }
     if (!cached) {
       container.add(g)
@@ -488,10 +544,12 @@ export class OpticalDefenseScene extends Phaser.Scene {
       this.deviceObjects.clear()
       this.enemyObjects.clear()
     }
-    const holeSignature = snapshot.battle.placements.filter((placement) => !placement.destroyed)
-      .map((placement) => placement.holeId).sort().join('|')
+    const holeSignature = [
+      ...snapshot.battle.placements.filter((placement) => !placement.destroyed).map((placement) => placement.holeId),
+      ...(snapshot.recommendedHoleIds ?? []).map((holeId) => `recommended:${holeId}`),
+    ].sort().join('|')
     if (holeSignature !== this.lastHoleSignature) {
-      this.drawHoles(snapshot.level, snapshot.battle.placements)
+      this.drawHoles(snapshot.level, snapshot.battle.placements, snapshot.recommendedHoleIds)
       this.lastHoleSignature = holeSignature
     }
     const network = snapshot.network

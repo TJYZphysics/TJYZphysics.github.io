@@ -2,15 +2,17 @@ import { ALL_DEVICE_KINDS } from './types'
 import type { DeviceKind, SaveData } from './types'
 import { OPTICAL_DEFENSE_LEVELS } from './levels'
 
-export const OPTICAL_SAVE_KEY = 'tjyz-optical-defense-save-v2'
+export const OPTICAL_SAVE_KEY = 'tjyz-optical-defense-save-v3'
+export const V2_OPTICAL_SAVE_KEY = 'tjyz-optical-defense-save-v2'
 export const LEGACY_OPTICAL_SAVE_KEY = 'tjyz-optical-defense-save-v1'
 
 export const DEFAULT_SAVE: SaveData = {
-  version: 2,
+  version: 3,
   unlockedLevel: OPTICAL_DEFENSE_LEVELS.length,
   stars: {},
   unlockedDevices: ['source-red', 'mirror', 'bulb'],
   settings: { sound: true, reduceMotion: false, beamGlow: true, gameSpeed: 1 },
+  tutorial: { dismissed: false, completedLevels: [] },
 }
 
 export type OpticalSaveReadResult = {
@@ -23,6 +25,7 @@ const cloneDefault = (): SaveData => ({
   stars: {},
   unlockedDevices: [...DEFAULT_SAVE.unlockedDevices],
   settings: { ...DEFAULT_SAVE.settings },
+  tutorial: { ...DEFAULT_SAVE.tutorial, completedLevels: [] },
 })
 
 const clampInteger = (value: unknown, minimum: number, maximum: number, fallback: number) => {
@@ -35,8 +38,9 @@ export function readOpticalSaveResult(
 ): OpticalSaveReadResult {
   if (!storage) return { save: cloneDefault(), recovered: false }
   const currentRaw = storage.getItem(OPTICAL_SAVE_KEY)
-  const legacyRaw = currentRaw ? null : storage.getItem(LEGACY_OPTICAL_SAVE_KEY)
-  const raw = currentRaw ?? legacyRaw
+  const v2Raw = currentRaw ? null : storage.getItem(V2_OPTICAL_SAVE_KEY)
+  const legacyRaw = currentRaw || v2Raw ? null : storage.getItem(LEGACY_OPTICAL_SAVE_KEY)
+  const raw = currentRaw ?? v2Raw ?? legacyRaw
   if (!raw) return { save: cloneDefault(), recovered: false }
 
   try {
@@ -69,8 +73,14 @@ export function readOpticalSaveResult(
     const gameSpeed = ([1, 2, 3] as const).includes(settings.gameSpeed as 1 | 2 | 3)
       ? settings.gameSpeed as 1 | 2 | 3
       : 1
+    const tutorialData = typeof parsed.tutorial === 'object' && parsed.tutorial !== null
+      ? parsed.tutorial as Record<string, unknown>
+      : {}
+    const completedLevels = Array.isArray(tutorialData.completedLevels)
+      ? [...new Set(tutorialData.completedLevels.filter((level): level is number => typeof level === 'number' && Number.isInteger(level) && level >= 1 && level <= OPTICAL_DEFENSE_LEVELS.length))]
+      : []
     const save: SaveData = {
-      version: 2,
+      version: 3,
       unlockedLevel,
       stars,
       unlockedDevices,
@@ -79,6 +89,10 @@ export function readOpticalSaveResult(
         reduceMotion: typeof settings.reduceMotion === 'boolean' ? settings.reduceMotion : DEFAULT_SAVE.settings.reduceMotion,
         beamGlow: typeof settings.beamGlow === 'boolean' ? settings.beamGlow : DEFAULT_SAVE.settings.beamGlow,
         gameSpeed,
+      },
+      tutorial: {
+        dismissed: typeof tutorialData.dismissed === 'boolean' ? tutorialData.dismissed : false,
+        completedLevels,
       },
     }
     const storedStars = typeof parsed.stars === 'object' && parsed.stars !== null && !Array.isArray(parsed.stars)
@@ -89,7 +103,7 @@ export function readOpticalSaveResult(
       return !Number.isInteger(level) || level < 1 || level > OPTICAL_DEFENSE_LEVELS.length || typeof rawStars !== 'number'
         || !Number.isFinite(rawStars) || clampInteger(rawStars, 0, 3, 0) !== rawStars
     })
-    const recovered = legacyRaw !== null || parsed.version !== 2
+    const recovered = legacyRaw !== null || v2Raw !== null || parsed.version !== 3
       || unlockedLevel !== parsed.unlockedLevel
       || gameSpeed !== settings.gameSpeed
       || unlockedDevices.length !== (Array.isArray(parsed.unlockedDevices) ? parsed.unlockedDevices.length : unlockedDevices.length)
@@ -97,6 +111,8 @@ export function readOpticalSaveResult(
       || typeof settings.sound !== 'boolean'
       || typeof settings.reduceMotion !== 'boolean'
       || typeof settings.beamGlow !== 'boolean'
+      || typeof tutorialData.dismissed !== 'boolean'
+      || !Array.isArray(tutorialData.completedLevels)
     return { save, recovered }
   } catch {
     return { save: cloneDefault(), recovered: true }

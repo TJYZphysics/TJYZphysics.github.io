@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  LEGACY_OPTICAL_SAVE_KEY, OPTICAL_SAVE_KEY, readOpticalSave, readOpticalSaveResult, writeOpticalSave,
+  LEGACY_OPTICAL_SAVE_KEY, OPTICAL_SAVE_KEY, readOpticalSave, readOpticalSaveResult, V2_OPTICAL_SAVE_KEY, writeOpticalSave,
 } from './storage'
 
 describe('optical defense save data', () => {
@@ -16,7 +16,12 @@ describe('optical defense save data', () => {
     expect(save.unlockedDevices).toEqual(['source-red', 'mirror', 'bulb'])
     expect(writeOpticalSave({ ...save, unlockedLevel: 4, settings: { ...save.settings, sound: false, gameSpeed: 3 } }, storage)).toBe(true)
     expect(values.has(OPTICAL_SAVE_KEY)).toBe(true)
-    expect(readOpticalSave(storage)).toMatchObject({ version: 2, unlockedLevel: 19, settings: { sound: false, gameSpeed: 3 } })
+    expect(readOpticalSave(storage)).toMatchObject({
+      version: 3,
+      unlockedLevel: 19,
+      settings: { sound: false, gameSpeed: 3 },
+      tutorial: { dismissed: false, completedLevels: [] },
+    })
   })
 
   it('migrates legacy progress and restores devices introduced by unlocked levels', () => {
@@ -27,6 +32,40 @@ describe('optical defense save data', () => {
     expect(result.save.unlockedLevel).toBe(19)
     expect(result.save.unlockedDevices).toContain('splitter')
     expect(result.save.stars[1]).toBe(2)
+  })
+
+  it('migrates v2 stars and settings without losing progress and initializes tutorial state', () => {
+    const result = readOpticalSaveResult({
+      getItem: (key: string) => key === V2_OPTICAL_SAVE_KEY ? JSON.stringify({
+        version: 2,
+        unlockedLevel: 7,
+        stars: { 1: 3, 6: 2 },
+        unlockedDevices: ['source-red', 'mirror', 'bulb', 'splitter', 'prism-splitter'],
+        settings: { sound: false, reduceMotion: true, beamGlow: false, gameSpeed: 3 },
+      }) : null,
+    })
+    expect(result.recovered).toBe(true)
+    expect(result.save).toMatchObject({
+      version: 3,
+      unlockedLevel: 19,
+      stars: { 1: 3, 6: 2 },
+      settings: { sound: false, reduceMotion: true, beamGlow: false, gameSpeed: 3 },
+      tutorial: { dismissed: false, completedLevels: [] },
+    })
+    expect(result.save.unlockedDevices).toContain('prism-splitter')
+  })
+
+  it('preserves valid v3 tutorial completion and dismissal state', () => {
+    const result = readOpticalSaveResult({ getItem: (key: string) => key === OPTICAL_SAVE_KEY ? JSON.stringify({
+      version: 3,
+      unlockedLevel: 19,
+      stars: { 1: 2 },
+      unlockedDevices: ['source-red', 'mirror', 'bulb'],
+      settings: { sound: true, reduceMotion: false, beamGlow: true, gameSpeed: 2 },
+      tutorial: { dismissed: true, completedLevels: [1, 3, 6, 6, 99] },
+    }) : null })
+    expect(result.recovered).toBe(false)
+    expect(result.save.tutorial).toEqual({ dismissed: true, completedLevels: [1, 3, 6] })
   })
 
   it('clamps malformed fields and filters unknown device identifiers', () => {
@@ -41,6 +80,7 @@ describe('optical defense save data', () => {
     expect(result.save.stars).toEqual({ 1: 3, 2: 0 })
     expect(result.save.unlockedDevices).toEqual(['source-red', 'mirror', 'bulb'])
     expect(result.save.settings).toEqual({ sound: true, reduceMotion: true, beamGlow: true, gameSpeed: 1 })
+    expect(result.save.tutorial).toEqual({ dismissed: false, completedLevels: [] })
   })
 
   it('recovers invalid JSON and reports failed writes', () => {

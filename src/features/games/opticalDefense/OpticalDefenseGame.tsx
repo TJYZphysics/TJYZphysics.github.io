@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  BatteryCharging, ChevronRight, CircleDot, Coins, Combine, Crosshair, DoorOpen, Filter,
+  BatteryCharging, BookOpen, Check, ChevronRight, CircleDot, Coins, Combine, Crosshair, DoorOpen, Filter,
   Flame, Gauge, HeartPulse, HelpCircle, Layers3, Lightbulb, Link2, ListFilter, Pause, Play, RadioTower,
   Minus, Plus, RefreshCw, RotateCw, ScanLine, Settings, Shield, Snowflake, Sparkles,
-  SplitSquareHorizontal, SquareStack, Trash2, Waves, X, Zap,
+  SplitSquareHorizontal, SquareStack, Trash2, Triangle, Waves, X, Zap,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -11,14 +11,14 @@ import './opticalDefense.css'
 import { OPTICAL_DEFENSE_LEVELS } from './levels'
 import type { OpticalDefenseScene, SceneSnapshot } from './OpticalDefenseScene'
 import {
-  ACCELERATOR_MAX_CHARGE_J, ACCELERATOR_MIN_INPUT_W, attachSensor, createBattleState, DEVICE_COSTS, deviceLevel,
+  ACCELERATOR_MAX_CHARGE_J, ACCELERATOR_MIN_INPUT_W, advanceBattle, attachSensor, createBattleState, DEVICE_COSTS, deviceLevel,
   deviceUpgradeCost, placeDevice, pointOnPath, queueCapacitorDetonation, rotateDevice, scoreBattle,
-  sellDevice, setDeviceRotation, snapDeviceOutputToTarget, startWave, tickBattle, togglePause, updateDevice,
-  upgradeDevice,
+  sellDevice, setDeviceRotation, snapDeviceOutputToTarget, startWave, TERMINAL_ATTACK_PROFILES, togglePause,
+  updateDevice, upgradeDevice,
 } from './simulation'
 import type { BattleState } from './simulation'
-import { SOURCE_POWER_W, totalPower } from './rules'
-import { traceOpticalNetwork } from './optics'
+import { prismSplitPower, scaleRgb, SOURCE_POWER_W, sourceRgb, splitPower, totalPower } from './rules'
+import { OPTICAL_TRANSMISSION, splitterOutputCount, traceOpticalNetwork } from './optics'
 import { DEFAULT_SAVE, readOpticalSaveResult, writeOpticalSave } from './storage'
 import type { DeviceKind, DevicePlacement, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
 
@@ -37,6 +37,7 @@ const TOOLS: ToolDefinition[] = [
   { kind: 'source-blue', name: '蓝光源', shortName: '蓝光', role: '100W', icon: CircleDot, color: '#55a8ff' },
   { kind: 'mirror', name: '平面镜', shortName: '镜面', role: '反射', icon: SquareStack },
   { kind: 'splitter', name: '分束器', shortName: '分束', role: '1-3 路', icon: SplitSquareHorizontal },
+  { kind: 'prism-splitter', name: '棱镜分束器', shortName: '棱镜', role: 'RGB 色散', icon: Triangle },
   { kind: 'combiner', name: '合束器', shortName: '合束', role: 'RGB', icon: Combine },
   { kind: 'filter', name: '滤光片', shortName: '滤色', role: '通道', icon: Filter },
   { kind: 'collector', name: '能量收集器', shortName: '收集器', role: '回收', icon: Combine },
@@ -59,6 +60,13 @@ const TARGET_OPTIONS: Array<{ value: TargetStrategy; label: string }> = [
 const isEditable = (phase: BattleState['phase']) => phase !== 'victory' && phase !== 'defeat'
 const LAB_WIDTH = 1200
 const LAB_HEIGHT = 700
+
+type TutorialStep = { id: string; label: string; complete: boolean }
+
+const TUTORIAL_LEVELS = new Set([1, 3, 4, 5, 6, 7, 8, 9])
+
+const MANUAL_TABS = ['快速上手', '颜色与反应', '光路仪器', '攻击终端', '敌人', '数值'] as const
+type ManualTab = typeof MANUAL_TABS[number]
 
 function initialLevelId() {
   const stored = Number(window.sessionStorage.getItem('tjyz-optical-current-level'))
@@ -97,6 +105,8 @@ export function OpticalDefenseGame() {
   const [showLevels, setShowLevels] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+  const [manualTab, setManualTab] = useState<ManualTab>('快速上手')
+  const [tutorialOpen, setTutorialOpen] = useState(() => !initialSave.save.tutorial.dismissed)
   const [sceneReady, setSceneReady] = useState(false)
   const [completedStars, setCompletedStars] = useState(0)
   const [keyboardHoleIndex, setKeyboardHoleIndex] = useState(0)
@@ -107,6 +117,10 @@ export function OpticalDefenseGame() {
   const battleRef = useRef(battle)
   const callbacksRef = useRef({ onHole: (_holeId: string) => {}, onDevice: (_id: string) => {} })
   const previousEventRef = useRef(0)
+  const tutorialPlacementKindsRef = useRef<Set<DeviceKind>>(new Set())
+  const tutorialSnappedRef = useRef(false)
+  const tutorialWaveStartedRef = useRef(false)
+  const tutorialFirstKillRef = useRef(false)
   const beep = useOpticalSound(save.settings.sound)
   const availableDevices = level.availableDevices
   const selectedPlacement = battle.placements.find((placement) => placement.id === selectedId) ?? null
@@ -125,9 +139,62 @@ export function OpticalDefenseGame() {
     battle.enemies.map((enemy) => ({ ...enemy, position: pointOnPath(level.paths?.[enemy.routeIndex ?? 0] ?? level.path, enemy.progress) })),
   ), [battle, level])
 
+  const tutorialSteps = useMemo<TutorialStep[]>(() => {
+    const placed = new Set([...tutorialPlacementKindsRef.current, ...battle.placements.map((placement) => placement.kind)])
+    if (level.id === 1) return [
+      { id: 'select-red', label: '选择红光源', complete: selectedTool === 'source-red' || placed.has('source-red') },
+      { id: 'place-source', label: '放置红光源', complete: placed.has('source-red') },
+      { id: 'place-mirror', label: '放置平面镜', complete: placed.has('mirror') },
+      { id: 'place-bulb', label: '放置灯泡', complete: placed.has('bulb') },
+      { id: 'snap', label: '将镜面输出吸附到灯泡', complete: tutorialSnappedRef.current },
+      { id: 'start', label: '启动波次', complete: tutorialWaveStartedRef.current || battle.phase !== 'build' },
+      { id: 'kill', label: '观察首次击杀', complete: tutorialFirstKillRef.current || battle.enemies.some((enemy) => enemy.dead) },
+    ]
+    const contextual: Record<number, TutorialStep[]> = {
+      3: [{ id: 'shutter', label: '让光束通过光闸，再关闭并比较输出', complete: placed.has('shutter') }],
+      4: [{ id: 'split', label: '用分束器为两个终端分别供光', complete: placed.has('splitter') && battle.placements.some((placement) => placement.kind === 'splitter' && (placement.outputTargetIds?.filter(Boolean).length ?? 0) >= 2) }],
+      5: [{ id: 'mix', label: '合成双色光并触发点燃或冷热冲击', complete: placed.has('combiner') && battle.enemies.some((enemy) => enemy.status.burnSeconds > 0 || enemy.status.armorBrokenSeconds > 0) }],
+      6: [{ id: 'prism', label: '将复色光送入棱镜，独立吸附 RGB 三路', complete: battle.placements.some((placement) => placement.kind === 'prism-splitter' && (placement.outputTargetIds?.filter(Boolean).length ?? 0) >= 3) }],
+      7: [{ id: 'resistance', label: '用不同颜色应对抗性，并让收集器回收能量', complete: placed.has('collector') && network.collectorInputs.size > 0 }],
+      8: [{ id: 'sensor', label: '把传感器附着到设备并控制光闸', complete: battle.placements.some((placement) => placement.hasSensor && placement.sensorTargetId) }],
+      9: [{ id: 'white', label: '合成白光破盾，再尝试加速器或电容', complete: battle.enemies.some((enemy) => enemy.status.vulnerableSeconds > 0) || placed.has('accelerator') || placed.has('capacitor') }],
+    }
+    return contextual[level.id] ?? []
+  }, [battle, level.id, network.collectorInputs.size, selectedTool])
+  const tutorialComplete = tutorialSteps.length > 0 && tutorialSteps.every((step) => step.complete)
+  const recommendedHoleIds = useMemo(() => level.id === 1 && tutorialOpen && !tutorialComplete
+    ? [
+        !battle.placements.some((placement) => placement.kind === 'source-red') ? 'h-0' : undefined,
+        !battle.placements.some((placement) => placement.kind === 'mirror') ? 'h-2' : undefined,
+        !battle.placements.some((placement) => placement.kind === 'bulb') ? 'h-16' : undefined,
+        battle.placements.filter((placement) => placement.kind === 'source-red').length < 2 ? 'h-39' : undefined,
+        battle.placements.filter((placement) => placement.kind === 'bulb').length < 2 ? 'h-40' : undefined,
+      ].filter((holeId): holeId is string => Boolean(holeId))
+    : [], [battle.placements, level.id, tutorialComplete, tutorialOpen])
+
   useEffect(() => {
     if (!writeOpticalSave(save)) setStorageWarning(true)
   }, [save])
+
+  useEffect(() => {
+    if (save.tutorial.dismissed || save.tutorial.completedLevels.includes(level.id) || !TUTORIAL_LEVELS.has(level.id)) return
+    setTutorialOpen(true)
+  }, [level.id, save.tutorial.completedLevels, save.tutorial.dismissed])
+
+  useEffect(() => {
+    if (!tutorialComplete || save.tutorial.completedLevels.includes(level.id)) return
+    setSave((current) => ({
+      ...current,
+      tutorial: { ...current.tutorial, completedLevels: [...current.tutorial.completedLevels, level.id].sort((a, b) => a - b) },
+    }))
+  }, [level.id, save.tutorial.completedLevels, tutorialComplete])
+
+  useEffect(() => {
+    if (initialSave.save.tutorial.dismissed || initialSave.save.tutorial.completedLevels.includes(level.id)) return
+    requestAnimationFrame(() => workspaceRef.current?.scrollIntoView({ behavior: save.settings.reduceMotion ? 'auto' : 'smooth', block: 'center' }))
+  // This should run only for the first mounted level, not after every setting change.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     battleRef.current = battle
@@ -188,6 +255,7 @@ export function OpticalDefenseGame() {
       return
     }
     commitBattle(result.state)
+    tutorialPlacementKindsRef.current.add(selectedTool)
     setSelectedId(result.state.placements.at(-1)?.id ?? null)
     setMessage(`${TOOLS.find((tool) => tool.kind === selectedTool)?.name} 已接入光路。`)
     beep(selectedTool.startsWith('source-') ? 720 : 470)
@@ -218,6 +286,7 @@ export function OpticalDefenseGame() {
       }
       const target = battle.placements.find((item) => item.id === id)
       commitBattle((current) => snapDeviceOutputToTarget(current, level, snapOutput.placementId, snapOutput.outputIndex, id))
+      if (source?.kind === 'mirror' && target?.kind === 'bulb') tutorialSnappedRef.current = true
       setSelectedId(snapOutput.placementId)
       setSnapOutput(null)
       setMessage(`输出 ${snapOutput.outputIndex + 1} 已吸附至${TOOLS.find((tool) => tool.kind === target?.kind)?.name ?? '目标设备'}。`)
@@ -230,10 +299,10 @@ export function OpticalDefenseGame() {
   }
 
   useEffect(() => {
-      const snapshot = { level, battle, network, selectedId, beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion }
+      const snapshot = { level, battle, network, selectedId, beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion, recommendedHoleIds }
     sceneSnapshotRef.current = snapshot
     sceneRef.current?.setSnapshot(snapshot)
-  }, [battle, level, network, save.settings.beamGlow, save.settings.reduceMotion, selectedId])
+  }, [battle, level, network, recommendedHoleIds, save.settings.beamGlow, save.settings.reduceMotion, selectedId])
 
   useEffect(() => {
     if (battle.phase !== 'running') return undefined
@@ -248,7 +317,7 @@ export function OpticalDefenseGame() {
       const delta = Math.min(0.1, (now - last) / 1000)
       last = now
       const previousPhase = battleRef.current.phase
-      const next = tickBattle(battleRef.current, level, delta * save.settings.gameSpeed)
+      const next = advanceBattle(battleRef.current, level, delta * save.settings.gameSpeed)
       battleRef.current = next
       const nextNetwork = next.network ?? traceOpticalNetwork(
         level,
@@ -257,7 +326,7 @@ export function OpticalDefenseGame() {
       )
       sceneRef.current?.setSnapshot({
         level, battle: next, network: nextNetwork, selectedId,
-        beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion,
+        beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion, recommendedHoleIds,
       })
       if (now - lastReactCommit >= 100 || next.phase !== previousPhase) {
         lastReactCommit = now
@@ -267,16 +336,12 @@ export function OpticalDefenseGame() {
     }
     frame = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(frame)
-  }, [battle.phase, level, save.settings.beamGlow, save.settings.gameSpeed, save.settings.reduceMotion, selectedId])
+  }, [battle.phase, level, recommendedHoleIds, save.settings.beamGlow, save.settings.gameSpeed, save.settings.reduceMotion, selectedId])
 
   useEffect(() => {
     const advance = (event: Event) => {
       const seconds = Math.max(0, Math.min(120, Number((event as CustomEvent<number>).detail) || 0))
-      let advanced = battleRef.current
-      const steps = Math.ceil(seconds / 0.1)
-      for (let index = 0; index < steps && advanced.phase === 'running'; index += 1) {
-        advanced = tickBattle(advanced, level, Math.min(0.1, seconds - index * 0.1))
-      }
+      const advanced = advanceBattle(battleRef.current, level, seconds)
       battleRef.current = advanced
       setBattle(advanced)
     }
@@ -291,6 +356,7 @@ export function OpticalDefenseGame() {
     latest.forEach((event) => {
       previousEventRef.current = Math.max(previousEventRef.current, event.id)
       if (event.type === 'kill') {
+        tutorialFirstKillRef.current = true
         if (!sawExplosion) nextMessage = `光束命中：容量 +${event.value}W。`
         beep(880, 0.07)
       } else if (event.type === 'explosion') {
@@ -328,6 +394,10 @@ export function OpticalDefenseGame() {
     setSelectedId(null)
     setSnapOutput(null)
     setCompletedStars(0)
+    tutorialPlacementKindsRef.current.clear()
+    tutorialSnappedRef.current = false
+    tutorialWaveStartedRef.current = false
+    tutorialFirstKillRef.current = false
     setShowLevels(false)
     setMessage(`LEVEL ${String(nextLevelId).padStart(2, '0')} 光场已校准。`)
     window.sessionStorage.setItem('tjyz-optical-current-level', String(nextLevelId))
@@ -355,6 +425,7 @@ export function OpticalDefenseGame() {
   const runControl = () => {
     const current = battleRef.current
     const next = current.phase === 'build' ? startWave(current) : togglePause(current)
+    if (current.phase === 'build') tutorialWaveStartedRef.current = true
     battleRef.current = next
     commitBattle(next)
     setMessage(current.phase === 'running' ? '光场已暂停，可调整设备。' : current.phase === 'paused' ? '光场恢复。' : '敌人波次已进入路径。')
@@ -366,6 +437,10 @@ export function OpticalDefenseGame() {
     setSelectedId(null)
     setSnapOutput(null)
     setCompletedStars(0)
+    tutorialPlacementKindsRef.current.clear()
+    tutorialSnappedRef.current = false
+    tutorialWaveStartedRef.current = false
+    tutorialFirstKillRef.current = false
     setMessage('本关实验台已重置。')
   }
 
@@ -398,7 +473,7 @@ export function OpticalDefenseGame() {
 
   const toolGroups = useMemo(() => [
     { label: '光源', tools: TOOLS.filter((tool) => tool.kind.startsWith('source-')) },
-    { label: '光路', tools: TOOLS.filter((tool) => ['mirror', 'splitter', 'combiner', 'filter', 'collector', 'shutter', 'photo-sensor'].includes(tool.kind)) },
+    { label: '光路', tools: TOOLS.filter((tool) => ['mirror', 'splitter', 'prism-splitter', 'combiner', 'filter', 'collector', 'shutter', 'photo-sensor'].includes(tool.kind)) },
     { label: '终端', tools: TOOLS.filter((tool) => ['bulb', 'laser-emitter', 'radiation-source', 'frost-tower', 'brazier', 'accelerator', 'capacitor'].includes(tool.kind)) },
   ], [])
 
@@ -468,6 +543,12 @@ export function OpticalDefenseGame() {
         <i style={{ width: `${Math.min(100, waveProgress * 100)}%` }} />
       </div>
 
+      {tutorialOpen && tutorialSteps.length > 0 && <aside className={`optical-defense__tutorial${tutorialComplete ? ' is-complete' : ''}`} aria-label="本关实战教学" data-testid="tutorial-bar">
+        <div><BookOpen aria-hidden="true" /><span><strong>{tutorialComplete ? '本关教学完成' : `LEVEL ${String(level.id).padStart(2, '0')} 实战任务`}</strong><small>自由操作，任务不会锁定仪器或安装孔</small></span></div>
+        <ol>{tutorialSteps.map((step) => <li key={step.id} className={step.complete ? 'is-complete' : ''}><Check aria-hidden="true" /><span>{step.label}</span></li>)}</ol>
+        <div className="optical-defense__tutorial-actions"><button type="button" onClick={() => { setShowHelp(true); setManualTab('快速上手') }}>打开手册</button><button type="button" aria-label="关闭教学" title="关闭全部自动教学，可从手册重播" onClick={() => { setTutorialOpen(false); setSave((current) => ({ ...current, tutorial: { ...current.tutorial, dismissed: true } })) }}><X /></button></div>
+      </aside>}
+
       <div className="optical-defense__workspace">
         <aside className="optical-defense__palette" aria-label="仪器仓">
           {toolGroups.map((group) => {
@@ -534,7 +615,7 @@ export function OpticalDefenseGame() {
             phase={battle.phase}
             placements={battle.placements}
             inputPower={network.deviceInputs.get(selectedPlacement.id)}
-            focusedPower={network.focusedInputs.get(selectedPlacement.id)}
+            recoveredPower={network.collectorInputs.get(selectedPlacement.id)}
             sensorTriggered={network.sensorTriggeredIds.has(selectedPlacement.id)}
             shutterOpen={network.shutterStates.get(selectedPlacement.id)}
             onRotate={(amount) => commitBattle((current) => rotateDevice(current, selectedPlacement.id, amount))}
@@ -589,12 +670,9 @@ export function OpticalDefenseGame() {
       {showHelp && <div className="optical-defense__overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setShowHelp(false)}>
         <section className="optical-defense__modal optical-defense__help" role="dialog" aria-modal="true" aria-labelledby="optical-help-title" data-testid="help-dialog">
           <header><div><span>FIELD MANUAL</span><h3 id="optical-help-title">游戏说明</h3></div><button onClick={() => setShowHelp(false)} aria-label="关闭游戏说明"><X /></button></header>
-          <div className="optical-defense__help-grid">
-            <article><h4>玩法</h4><p>在非路线安装孔布置光源、光路仪器与攻击终端。启动后敌人沿路线前进；游戏运行时仍可放置、升级、出售和编辑仪器。阻止敌人抵达核心即可获胜。</p></article>
-            <article><h4>光路与吸附</h4><p>光束会被沿途第一个敌人或仪器截获。光源、镜面、分束器、合束器、滤光片、收集器与光闸均可指定输出目标；分束器每一路可独立吸附，角度不受限制且总输出不超过输入。</p></article>
-            <article><h4>仪器</h4><p>灯泡、辐射源、寒冰与火焰负责范围效果，激光与加速器负责单体。收集器回收其范围内多个范围仪器的逸散能量，效率随等级提高。传感器需附着到已有仪器，其控制项会显示在宿主菜单中。</p></article>
-            <article><h4>敌人与抗性</h4><p>高速敌人移动更快，重甲敌人减免未破甲伤害，抗性敌人显著削弱对应颜色，首领拥有护盾与更高核心伤害。混合不同颜色和状态反应可处理后期编成。</p></article>
-          </div>
+          <nav className="optical-defense__manual-tabs" aria-label="说明章节" role="tablist">{MANUAL_TABS.map((tab) => <button key={tab} type="button" role="tab" aria-selected={manualTab === tab} className={manualTab === tab ? 'is-active' : ''} onClick={() => setManualTab(tab)}>{tab}</button>)}</nav>
+          <ManualPage tab={manualTab} />
+          <footer className="optical-defense__manual-footer"><span>当前关卡：LEVEL {String(level.id).padStart(2, '0')} · {level.lesson}</span><button type="button" onClick={() => { setTutorialOpen(true); setShowHelp(false); setSave((current) => ({ ...current, tutorial: { ...current.tutorial, dismissed: false, completedLevels: current.tutorial.completedLevels.filter((id) => id !== level.id) } })) }}>重播本关教学</button></footer>
         </section>
       </div>}
 
@@ -613,15 +691,48 @@ export function OpticalDefenseGame() {
   )
 }
 
+function ManualPage({ tab }: { tab: ManualTab }) {
+  if (tab === '快速上手') return <div className="optical-defense__manual-page" role="tabpanel">
+    <article><h4>三步形成火力</h4><ol><li>先选光源并放入安装孔。光源不花金币，但占用关卡功率容量。</li><li>放置镜面或光路仪器，选中设备后点“吸附输出”，再点目标仪器。</li><li>把光送入灯泡、激光等攻击终端，确认面板显示实际输入后启动波次。</li></ol></article>
+    <article><h4>运行中也能调整</h4><p>战斗不会锁定建造。可随时暂停、旋转、升级、出售或改换吸附目标。裸光束只造成终端伤害的 22%，状态强度也只有 25%，所以必须让终端承担主要输出。</p></article>
+    <article><h4>输入方式</h4><p>鼠标或触控点击安装孔；键盘可用方向键切换孔位，Enter 放置或选择，Space 启动/暂停，R 旋转，Delete 出售。</p></article>
+  </div>
+  if (tab === '颜色与反应') return <div className="optical-defense__manual-page" role="tabpanel">
+    <article><h4>单色状态</h4><dl><div><dt>红</dt><dd>中毒 4 秒，基础 2.2 DPS</dd></div><div><dt>绿</dt><dd>燃烧 4 秒，基础 3 DPS；可触发状态反应</dd></div><div><dt>蓝</dt><dd>辐射积累；4 层爆发 18 伤害</dd></div></dl></article>
+    <article><h4>复色反应</h4><dl><div><dt>黄（红+绿）</dt><dd>附加燃烧但不附毒；点燃已有中毒，最多 14 伤害，冷却 1 秒</dd></div><div><dt>橙</dt><dd>基础伤害 ×1.25，强化燃烧</dd></div><div><dt>紫</dt><dd>伤害与辐射积累均 ×1.25</dd></div><div><dt>青（绿+蓝）</dt><dd>冻结 1.8 秒，速度最低 ×0.55；冷/热冲击 12 伤害，冷却 1.2 秒</dd></div><div><dt>白（RGB）</dt><dd>专门破盾，不同时叠加单色状态；破盾后制造 4 秒易伤</dd></div></dl></article>
+    <article><h4>判色阈值</h4><p>通道功率至少占总功率 10% 才参与光谱判定，微量杂色不会误触发白光。辐射在 1.5 秒未受蓝光后，以每秒 0.6 层衰减。</p></article>
+  </div>
+  if (tab === '光路仪器') return <div className="optical-defense__manual-page" role="tabpanel">
+    <article><h4>传输与守恒</h4><p>镜面传输 92%，普通分束器与棱镜分束器传输 96%；合束、滤光、光闸和收集器为 100%。所有分束比例会自动归一化，总输出不会超过输入。</p></article>
+    <article><h4>棱镜分束器</h4><p>输入含至少两个有效 RGB 通道时，自动输出红、绿、蓝三路，各路保留原输入对应通道并乘 96%；三路可独立吸附。单色输入时按普通 2/3 路分束器工作。</p></article>
+    <article><h4>收集与控制</h4><p>收集器 L1/L2/L3 回收附近范围终端输入的 10%/15%/20%，多台合计封顶 30%，且回收量会从原终端可用输入扣除。可指定输出红、绿或蓝。传感器附着在已有设备上，可按通道和阈值控制光闸。</p></article>
+  </div>
+  if (tab === '攻击终端') return <div className="optical-defense__manual-page" role="tabpanel">
+    <article><h4>连续终端</h4><dl><div><dt>灯泡</dt><dd>125 范围，全体连续攻击，光谱伤害 ×0.85</dd></div><div><dt>激光</dt><dd>300 范围，单体连续攻击，光谱伤害 ×1.65</dd></div><div><dt>辐射源</dt><dd>150 范围，全体攻击，输入转为蓝光，伤害 ×0.55</dd></div></dl></article>
+    <article><h4>周期终端</h4><dl><div><dt>寒冰</dt><dd>360° 全体脉冲，每 1.25 秒；1.5 + 0.04W 伤害并固定冻结</dd></div><div><dt>火焰</dt><dd>360° 全体脉冲，每 1.10 秒；2 + 0.05W 伤害并固定燃烧</dd></div></dl><p>升级后伤害每级 +20%，间隔依次乘 0.86/0.74，范围每级 +8%。</p></article>
+    <article><h4>高级终端</h4><p>加速器至少需要 90W，充满后沿方向贯穿 360px、总宽 20px，伤害为 20 + 0.16×消耗焦耳。电容最大 450J，引爆伤害 15 + 0.18J，半径 90 + 330√充能比例，引爆后销毁。</p></article>
+  </div>
+  if (tab === '敌人') return <div className="optical-defense__manual-page" role="tabpanel">
+    <article><h4>重甲与护盾</h4><p>重甲未破甲时生命伤害 ×0.45。重甲护盾至少 30，Boss 护盾至少 160；有盾时非白光生命伤害仅保留 35%，且几乎不能削盾。</p></article>
+    <article><h4>白光破盾</h4><p>白光以原始伤害 ×2.5 消耗护盾。破盾后敌人获得 4 秒易伤，所有伤害 ×1.25。冻结目标受到攻击还会获得 2 秒破甲。</p></article>
+    <article><h4>抗性与速度</h4><p>抗性敌人对应 RGB 通道只承受 30% 伤害；高速敌人生命较少但移动快。Boss 拥有更高生命、护盾和核心伤害，后期必须组合颜色与状态。</p></article>
+  </div>
+  return <div className="optical-defense__manual-page" role="tabpanel">
+    <article><h4>基础伤害</h4><p>每秒光谱伤害 = 0.060R + 0.018G + 0.025B。橙光与紫光的基础伤害再 ×1.25；白光对护盾造成原始伤害 ×2.5 的破盾量。数值按 1/30 秒固定步长结算，1×/2×/3× 不丢失模拟时间。</p></article>
+    <article><h4>设备价格</h4><p>镜面 18、分束 32、棱镜 46、合束 34、滤光 22、收集 44、灯泡 30、激光 46、辐射 50、寒冰/火焰 52、加速器 82、光闸 20、传感器 28、电容 68。</p></article>
+    <article><h4>容量奖励</h4><p>普通与高速敌人返还 1W；重甲与抗性返还 2W，Boss 返还 20W。奖励会提高本关可用功率容量，不会直接增强现有光束。</p></article>
+  </div>
+}
+
 function DeviceInspector({
-  placement, placements, phase, inputPower, focusedPower, sensorTriggered, shutterOpen,
+  placement, placements, phase, inputPower, recoveredPower, sensorTriggered, shutterOpen,
   onRotate, onSetRotation, onUpgrade, onSell, onPatch, onDetonate, snappingOutput, onSnap,
 }: {
   placement: DevicePlacement
   placements: DevicePlacement[]
   phase: BattleState['phase']
   inputPower?: RgbPower
-  focusedPower?: RgbPower
+  recoveredPower?: RgbPower
   sensorTriggered: boolean
   shutterOpen?: boolean
   onRotate: (amount: number) => void
@@ -637,11 +748,21 @@ function DeviceInspector({
   const Icon = tool.icon
   const editable = isEditable(phase)
   const ratios = placement.splitRatios ?? [0.5, 0.5]
-  const input = inputPower ?? { r: 0, g: 0, b: 0 }
-  const focusedWatts = totalPower(focusedPower ?? { r: 0, g: 0, b: 0 })
+  const sourceInput = placement.kind.startsWith('source-') ? sourceRgb(placement.kind as 'source-red' | 'source-green' | 'source-blue') : undefined
+  const input = sourceInput ?? (placement.kind === 'collector' ? recoveredPower : inputPower) ?? { r: 0, g: 0, b: 0 }
+  const transmission = OPTICAL_TRANSMISSION[placement.kind] ?? 1
+  const transmitted = scaleRgb(input, transmission)
+  const outputs = placement.kind === 'splitter'
+    ? splitPower(transmitted, ratios)
+    : placement.kind === 'prism-splitter'
+      ? prismSplitPower(transmitted, ratios)
+      : [transmitted]
+  const outputWatts = outputs.reduce((sum, output) => sum + totalPower(output), 0)
+  const transmissionLoss = Math.max(0, totalPower(input) - outputWatts)
+  const attackProfile = TERMINAL_ATTACK_PROFILES[placement.kind]
   const upgradeCost = deviceUpgradeCost(placement)
   const acceleratorMaximum = ACCELERATOR_MAX_CHARGE_J * (1 + (deviceLevel(placement) - 1) * 0.2)
-  const capacitorMaximum = 450 * (1 + (deviceLevel(placement) - 1) * 0.25)
+  const capacitorMaximum = 450
   const shutters = placements.filter((item) => item.kind === 'shutter' && !item.destroyed)
   const setRatio = (index: number, value: number) => {
     const next = [...ratios]
@@ -654,7 +775,9 @@ function DeviceInspector({
     <dl>
       <div><dt>实际输入</dt><dd>{Math.round(totalPower(input))}W</dd></div>
       <div><dt>光谱 RGB</dt><dd>{Math.round(input.r)} / {Math.round(input.g)} / {Math.round(input.b)}</dd></div>
-      <div><dt>聚焦分量</dt><dd>{focusedWatts > 0 ? `${Math.round(focusedWatts)}W` : '无'}</dd></div>
+      <div><dt>传输损耗</dt><dd>{transmissionLoss > 0.05 ? `${Math.round(transmissionLoss * 10) / 10}W · ${Math.round((1 - transmission) * 100)}%` : '0W'}</dd></div>
+      <div><dt>输出功率</dt><dd>{attackProfile || placement.kind === 'capacitor' ? '由终端消耗' : `${Math.round(outputWatts * 10) / 10}W`}</dd></div>
+      {attackProfile && <div><dt>攻击周期</dt><dd>{placement.kind === 'accelerator' ? '充满后贯穿' : attackProfile.periodS ? `${(attackProfile.periodS * [1, 0.86, 0.74][deviceLevel(placement) - 1]).toFixed(2)}s` : '连续'}</dd></div>}
       <div><dt>角度</dt><dd>{placement.rotationDeg.toFixed(1)}°</dd></div>
     </dl>
     {placement.kind === 'mirror' && <fieldset><legend>镜面控制</legend>
@@ -664,8 +787,8 @@ function DeviceInspector({
       <div className="optical-defense__angle-control"><button type="button" aria-label="角度减一度" onClick={() => onRotate(-1)} disabled={!editable}><Minus /></button><input type="number" min="0" max="359.9" step={placement.rotationSnap === false ? 1 : 15} value={Number(placement.rotationDeg.toFixed(1))} disabled={!editable} onChange={(event) => onSetRotation(Number(event.target.value))} aria-label="镜面角度" /><button type="button" aria-label="角度加一度" onClick={() => onRotate(1)} disabled={!editable}><Plus /></button></div>
       <input type="range" min="0" max="359" step={placement.rotationSnap === false ? 1 : 15} value={placement.rotationDeg} disabled={!editable} onChange={(event) => onSetRotation(Number(event.target.value))} aria-label="镜面角度滑杆" />
     </fieldset>}
-    {placement.kind === 'splitter' && <fieldset><legend>分光比例</legend><div className="optical-defense__segments"><button className={ratios.length === 2 ? 'is-active' : ''} onClick={() => onPatch({ splitRatios: [0.5, 0.5] })} disabled={!editable}>2 路</button><button className={ratios.length === 3 ? 'is-active' : ''} onClick={() => onPatch({ splitRatios: [0.34, 0.33, 0.33] })} disabled={!editable}>3 路</button></div>{ratios.map((ratio, index) => <label key={index}><span>输出 {index + 1}<output>{Math.round(ratio * 100)}%</output></span><input type="range" min="0" max="1" step="0.05" value={ratio} disabled={!editable} onChange={(event) => setRatio(index, Number(event.target.value))} /></label>)}</fieldset>}
-    {placement.kind === 'collector' && <div className="optical-defense__collector"><strong>收集效率 {10 + (deviceLevel(placement) - 1) * 5}%</strong><small>回收范围内灯泡、辐射源、寒冰与火焰的逸散能量；多台收集器共享有限能量池。</small></div>}
+    {(placement.kind === 'splitter' || placement.kind === 'prism-splitter') && <fieldset><legend>{placement.kind === 'prism-splitter' ? '单色分束配置' : '分光比例'}</legend><div className="optical-defense__segments"><button className={ratios.length === 2 ? 'is-active' : ''} onClick={() => onPatch({ splitRatios: [0.5, 0.5] })} disabled={!editable}>2 路</button><button className={ratios.length === 3 ? 'is-active' : ''} onClick={() => onPatch({ splitRatios: [0.34, 0.33, 0.33] })} disabled={!editable}>3 路</button></div>{ratios.map((ratio, index) => <label key={index}><span>输出 {index + 1}<output>{Math.round(ratio * 100)}%</output></span><input type="range" min="0" max="1" step="0.05" value={ratio} disabled={!editable} onChange={(event) => setRatio(index, Number(event.target.value))} /></label>)}{placement.kind === 'prism-splitter' && <small>复色输入自动切换为 RGB 三路色散，比例滑杆仅用于单色输入。</small>}</fieldset>}
+    {placement.kind === 'collector' && <fieldset className="optical-defense__collector"><legend>能量回收</legend><strong>收集效率 {10 + (deviceLevel(placement) - 1) * 5}% · 当前 {Math.round(totalPower(recoveredPower ?? { r: 0, g: 0, b: 0 }) * 10) / 10}W</strong><small>回收量从附近范围终端输入中扣除，多台总计封顶 30%。</small><label><span>输出颜色</span><select value={placement.collectorColor ?? 'r'} disabled={!editable} onChange={(event) => onPatch({ collectorColor: event.target.value as 'r' | 'g' | 'b' })}><option value="r">红</option><option value="g">绿</option><option value="b">蓝</option></select></label></fieldset>}
     {placement.kind === 'filter' && <label><span>通过颜色</span><select value={placement.filterColor ?? 'r'} disabled={!editable} onChange={(event) => onPatch({ filterColor: event.target.value as 'r' | 'g' | 'b' })}><option value="r">红</option><option value="g">绿</option><option value="b">蓝</option></select></label>}
     {placement.hasSensor && <fieldset><legend>附着传感器</legend>
       <label><span>控制光闸</span><select value={placement.sensorTargetId ?? ''} disabled={!editable} onChange={(event) => onPatch({ sensorTargetId: event.target.value || undefined })}><option value="">未连接</option>{shutters.map((shutter) => <option key={shutter.id} value={shutter.id}>{shutter.holeId.toUpperCase()}</option>)}</select></label>
@@ -677,7 +800,7 @@ function DeviceInspector({
     {placement.kind === 'shutter' && <label className="optical-defense__switch-row"><span>手动状态 · {shutterOpen === false ? '关闭' : '开启'}</span><input type="checkbox" checked={placement.enabled !== false} disabled={!editable} onChange={(event) => onPatch({ enabled: event.target.checked })} /></label>}
     {placement.kind === 'accelerator' && <div className="optical-defense__capacitor"><span><Gauge />{({ idle: '待机', charging: '充能', ready: '待发', cooldown: '冷却' } as const)[placement.acceleratorPhase ?? 'idle']} <output>{Math.round(placement.acceleratorChargeJ ?? 0)}/{Math.round(acceleratorMaximum)}J</output></span><i><b style={{ width: `${Math.min(100, (placement.acceleratorChargeJ ?? 0) / acceleratorMaximum * 100)}%` }} /></i><small>最低输入 {ACCELERATOR_MIN_INPUT_W}W{(placement.acceleratorCooldownS ?? 0) > 0 ? ` · ${(placement.acceleratorCooldownS ?? 0).toFixed(1)}s` : ''}</small></div>}
     {placement.kind === 'capacitor' && <div className="optical-defense__capacitor"><span><BatteryCharging />储能 <output>{Math.round(placement.chargeJ ?? 0)}/{Math.round(capacitorMaximum)}J</output></span><i><b style={{ width: `${Math.min(100, (placement.chargeJ ?? 0) / capacitorMaximum * 100)}%` }} /></i><button onClick={onDetonate} disabled={(placement.chargeJ ?? 0) <= 0 || placement.detonateQueued} data-testid="detonate-capacitor"><Zap />{placement.detonateQueued ? '已下达' : '引爆'}</button></div>}
-    {(['source-red', 'source-green', 'source-blue', 'mirror', 'splitter', 'combiner', 'filter', 'collector', 'shutter'] as DeviceKind[]).includes(placement.kind) && Array.from({ length: placement.kind === 'splitter' ? ratios.length : 1 }, (_, outputIndex) => <button key={outputIndex} className={`optical-defense__snap-action${snappingOutput === outputIndex ? ' is-active' : ''}`} onClick={() => onSnap(outputIndex)} disabled={!editable} data-testid={placement.kind === 'mirror' ? 'snap-mirror' : `snap-output-${outputIndex}`}><Link2 />{snappingOutput === outputIndex ? '取消吸附' : placement.outputTargetIds?.[outputIndex] || (outputIndex === 0 && placement.snapTargetId) ? `重设输出 ${outputIndex + 1}` : `吸附输出 ${outputIndex + 1}`}</button>)}
+    {(['source-red', 'source-green', 'source-blue', 'mirror', 'splitter', 'prism-splitter', 'combiner', 'filter', 'collector', 'shutter'] as DeviceKind[]).includes(placement.kind) && Array.from({ length: splitterOutputCount(placement, input) }, (_, outputIndex) => <button key={outputIndex} className={`optical-defense__snap-action${snappingOutput === outputIndex ? ' is-active' : ''}`} onClick={() => onSnap(outputIndex)} disabled={!editable} data-testid={placement.kind === 'mirror' ? 'snap-mirror' : `snap-output-${outputIndex}`}><Link2 />{snappingOutput === outputIndex ? '取消吸附' : placement.outputTargetIds?.[outputIndex] || (outputIndex === 0 && placement.snapTargetId) ? `重设输出 ${outputIndex + 1}` : `吸附输出 ${outputIndex + 1}`}</button>)}
     <div className="optical-defense__device-actions"><button onClick={onUpgrade} disabled={!editable || upgradeCost === null}><Sparkles />{upgradeCost === null ? '已满级' : `升级 ¤${upgradeCost}`}</button><button onClick={onSell} disabled={!editable}><Trash2 />出售</button></div>
     {placement.kind !== 'mirror' && <button className="optical-defense__snap-action" onClick={() => onRotate(15)} disabled={!editable}><RotateCw />旋转 15°</button>}
   </div>

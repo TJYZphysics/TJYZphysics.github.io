@@ -3,15 +3,15 @@ import type { DeviceKind, LevelConfig, LevelWave, Point, WaveEnemy } from './typ
 
 const BASE_DEVICES: DeviceKind[] = ['source-red', 'mirror', 'bulb']
 const ALL_LEVEL_DEVICES: DeviceKind[] = [
-  'source-red', 'source-green', 'source-blue', 'mirror', 'splitter', 'combiner', 'filter', 'collector',
+  'source-red', 'source-green', 'source-blue', 'mirror', 'splitter', 'prism-splitter', 'combiner', 'filter', 'collector',
   'bulb', 'laser-emitter', 'radiation-source', 'frost-tower', 'brazier', 'accelerator', 'shutter',
   'photo-sensor', 'capacitor',
 ]
 
 const normal = (count: number, health = 34, routeIndex = 0): WaveEnemy => ({ kind: 'normal', count, intervalSeconds: 0.82, health, speed: 48, rewardCoins: 7, rewardPowerW: 1, routeIndex })
 const fast = (count: number, health = 28, routeIndex = 0): WaveEnemy => ({ kind: 'fast', count, intervalSeconds: 0.58, health, speed: 72, rewardCoins: 9, rewardPowerW: 1, routeIndex })
-const armored = (count: number, health = 110, routeIndex = 0): WaveEnemy => ({ kind: 'armored', count, intervalSeconds: 1.05, health, speed: 36, rewardCoins: 14, rewardPowerW: 1, routeIndex })
-const resistant = (count: number, resistance: 'r' | 'g' | 'b', health = 84, routeIndex = 0): WaveEnemy => ({ kind: 'resistant', count, intervalSeconds: 0.9, health, speed: 44, rewardCoins: 14, rewardPowerW: 1, resistance, routeIndex })
+const armored = (count: number, health = 110, routeIndex = 0): WaveEnemy => ({ kind: 'armored', count, intervalSeconds: 1.05, health, speed: 36, rewardCoins: 14, rewardPowerW: 2, routeIndex })
+const resistant = (count: number, resistance: 'r' | 'g' | 'b', health = 84, routeIndex = 0): WaveEnemy => ({ kind: 'resistant', count, intervalSeconds: 0.9, health, speed: 44, rewardCoins: 14, rewardPowerW: 2, resistance, routeIndex })
 const boss = (health = 620, routeIndex = 0): WaveEnemy => ({ kind: 'boss', count: 1, intervalSeconds: 1, health, speed: 26, rewardCoins: 110, rewardPowerW: 20, routeIndex })
 const wave = (delaySeconds: number, ...enemies: WaveEnemy[]): LevelWave => ({ delaySeconds, enemies })
 
@@ -84,10 +84,10 @@ const definitions: Definition[] = [
   { title: '镜廊', lesson: '连续反射光束，并用激光持续追踪单个敌人。', startingCoins: 205, coreHealth: 12, waves: [wave(0, normal(12, 30)), wave(1.8, fast(8, 26), normal(8, 36)), wave(2, armored(3, 96), normal(10, 40))], availableDevices: [...BASE_DEVICES, 'laser-emitter'], recommended: ['source-red', 'mirror', 'laser-emitter'] },
   { title: '遮挡之后', lesson: '敌人会截断光束，用光闸建立可切换的备用路径。', startingCoins: 230, coreHealth: 11, waves: [wave(0, normal(14, 36)), wave(1.5, fast(8, 30), normal(10, 42)), wave(1.8, armored(4, 108), fast(8, 32)), wave(2, armored(4, 116), normal(12, 48))], availableDevices: [...BASE_DEVICES, 'laser-emitter', 'shutter'], recommended: ['source-red', 'mirror', 'shutter'] },
   { title: '三束之光', lesson: '分束器每一路都可自由吸附目标，合理分配输入功率。', startingCoins: 270, coreHealth: 11, waves: [wave(0, fast(10, 30), normal(8, 42)), wave(1.4, normal(12, 48), fast(10, 34)), wave(1.6, armored(5, 116), fast(10, 36)), wave(2, normal(10, 56), armored(5, 126))], availableDevices: [...BASE_DEVICES, 'splitter', 'laser-emitter', 'radiation-source'], recommended: ['source-red', 'splitter', 'laser-emitter'] },
-  { title: '色彩反应', lesson: '合并 RGB 通道，用复色状态反应处理不同敌人。', startingCoins: 320, coreHealth: 10, waves: [wave(0, resistant(8, 'r', 86), resistant(8, 'g', 86)), wave(1.5, normal(10, 56), resistant(8, 'b', 90)), wave(1.7, resistant(6, 'r', 96), resistant(6, 'g', 96), resistant(6, 'b', 96)), wave(2, armored(5, 132), fast(10, 38))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'combiner', 'filter', 'brazier'], recommended: ['source-red', 'source-green', 'combiner'] },
-  { title: '广域调度', lesson: '缩短后的范围需要更精确的终端位置与光能调度。', startingCoins: 350, coreHealth: 10, waves: [wave(0, normal(12, 58), fast(10, 40)), wave(1.4, armored(5, 138), normal(12, 64)), wave(1.5, fast(14, 42), normal(10, 68)), wave(1.7, armored(6, 148), resistant(8, 'r', 100)), wave(2, armored(6, 156), fast(12, 44))], availableDevices: [...BASE_DEVICES, 'source-green', 'splitter', 'laser-emitter', 'radiation-source', 'collector'], recommended: ['source-green', 'splitter', 'collector'] },
-  { title: '抗性色谱', lesson: '滤出有效颜色，绕过强化后的单色抗性。', startingCoins: 390, coreHealth: 9, waves: [wave(0, resistant(10, 'r', 104), resistant(10, 'g', 104)), wave(1.4, resistant(10, 'b', 108), fast(12, 44)), wave(1.5, resistant(8, 'r', 112), resistant(8, 'g', 112), resistant(8, 'b', 112)), wave(1.7, armored(6, 164), resistant(10, 'b', 116)), wave(2, armored(6, 172), fast(14, 46))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'filter', 'combiner', 'frost-tower', 'brazier', 'collector'], recommended: ['source-blue', 'filter', 'frost-tower'] },
-  { title: '自动光控', lesson: '把传感器附着到已有仪器，并用它控制光闸。', startingCoins: 430, coreHealth: 9, waves: [wave(0, fast(14, 46), normal(12, 70)), wave(1.3, armored(6, 176), resistant(10, 'r', 120)), wave(1.4, fast(16, 48), resistant(10, 'b', 124)), wave(1.6, armored(7, 188), normal(14, 80)), wave(2, armored(7, 198), fast(16, 50))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'laser-emitter', 'shutter', 'photo-sensor', 'filter', 'collector'], recommended: ['source-blue', 'photo-sensor', 'shutter'] },
+  { title: '色彩反应', lesson: '合并 RGB 通道，用复色状态反应处理不同敌人。', startingCoins: 320, coreHealth: 10, waves: [wave(0, resistant(8, 'r', 86), resistant(8, 'g', 86)), wave(1.5, normal(10, 56), resistant(8, 'b', 90)), wave(1.7, resistant(6, 'r', 96), resistant(6, 'g', 96), resistant(6, 'b', 96)), wave(2, armored(5, 132), fast(10, 38))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'laser-emitter', 'shutter', 'splitter', 'radiation-source', 'combiner', 'brazier'], recommended: ['source-red', 'source-green', 'combiner', 'brazier'] },
+  { title: '光谱分离', lesson: '用棱镜分束器把复合光自动拆成红、绿、蓝三路。', startingCoins: 350, coreHealth: 10, waves: [wave(0, normal(12, 58), fast(10, 40)), wave(1.4, armored(5, 138), normal(12, 64)), wave(1.5, fast(14, 42), normal(10, 68)), wave(1.7, armored(6, 148), resistant(8, 'r', 100)), wave(2, armored(6, 156), fast(12, 44))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'laser-emitter', 'shutter', 'splitter', 'radiation-source', 'combiner', 'brazier', 'prism-splitter', 'filter'], recommended: ['source-red', 'source-green', 'combiner', 'prism-splitter'] },
+  { title: '广域回收', lesson: '寒冰周期冻结敌群，收集器回收范围终端的逸散功率。', startingCoins: 390, coreHealth: 9, waves: [wave(0, resistant(10, 'r', 104), resistant(10, 'g', 104)), wave(1.4, resistant(10, 'b', 108), fast(12, 44)), wave(1.5, resistant(8, 'r', 112), resistant(8, 'g', 112), resistant(8, 'b', 112)), wave(1.7, armored(6, 164), resistant(10, 'b', 116)), wave(2, armored(6, 172), fast(14, 46))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'laser-emitter', 'shutter', 'splitter', 'radiation-source', 'combiner', 'brazier', 'prism-splitter', 'filter', 'frost-tower', 'collector'], recommended: ['source-blue', 'frost-tower', 'collector'] },
+  { title: '自动光控', lesson: '把传感器附着到已有仪器，并用它控制光闸。', startingCoins: 430, coreHealth: 9, waves: [wave(0, fast(14, 46), normal(12, 70)), wave(1.3, armored(6, 176), resistant(10, 'r', 120)), wave(1.4, fast(16, 48), resistant(10, 'b', 124)), wave(1.6, armored(7, 188), normal(14, 80)), wave(2, armored(7, 198), fast(16, 50))], availableDevices: [...BASE_DEVICES, 'source-green', 'source-blue', 'laser-emitter', 'shutter', 'splitter', 'radiation-source', 'combiner', 'brazier', 'prism-splitter', 'filter', 'frost-tower', 'collector', 'photo-sensor'], recommended: ['source-blue', 'photo-sensor', 'shutter'] },
   { title: '全仪器校准', lesson: '所有仪器从本关起开放，建立完整的光学防御系统。', startingCoins: 500, coreHealth: 9, waves: [wave(0, normal(14, 80), fast(12, 52)), wave(1.2, armored(7, 202), resistant(10, 'b', 132)), wave(1.4, armored(7, 214), fast(16, 54)), wave(1.6, resistant(8, 'r', 138), resistant(8, 'g', 138), resistant(8, 'b', 138)), wave(2, armored(8, 226), boss(680))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['source-blue', 'capacitor', 'collector'] },
   { title: '白光终局', lesson: '综合分光、合光、状态控制与全图爆破击败首领。', startingCoins: 560, coreHealth: 8, waves: [wave(0, normal(16, 86), fast(14, 56)), wave(1.1, armored(8, 232), resistant(10, 'r', 144)), wave(1.2, fast(18, 58), armored(8, 244)), wave(1.4, resistant(9, 'r', 150), resistant(9, 'g', 150), resistant(9, 'b', 150)), wave(1.7, armored(9, 258), fast(16, 60)), wave(2.2, armored(6, 270), boss(760))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['source-red', 'source-green', 'source-blue', 'combiner', 'capacitor'] },
   { title: '长廊回收', lesson: '扩展实验台需要用收集器回收多个范围终端的逸散能量。', startingCoins: 590, coreHealth: 9, waves: [wave(0, normal(18, 92), fast(14, 62)), wave(1.2, armored(8, 268), normal(14, 98)), wave(1.4, resistant(12, 'r', 156), resistant(12, 'b', 156)), wave(1.7, armored(9, 282), fast(18, 64)), wave(2, boss(800))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['collector', 'radiation-source', 'splitter'] },
@@ -107,7 +107,20 @@ if (definitions.length !== layouts.length || definitions.length !== LEVEL_CAPACI
 
 export const OPTICAL_DEFENSE_LEVELS: LevelConfig[] = definitions.map((definition, index) => {
   const layout = createLayout(layouts[index])
-  return { ...definition, ...layout, id: index + 1, capacityW: LEVEL_CAPACITIES_W[index] }
+  const levelId = index + 1
+  const segmentMultiplier = levelId <= 3 ? 0.65 : levelId <= 10 ? 0.85 : 1
+  const waveMultipliers = [0.82, 0.94, 1.06, 1.18, 1.3, 1.42]
+  const typeMultipliers: Record<WaveEnemy['kind'], number> = { normal: 1, fast: 0.78, armored: 2.8, resistant: 1.65, boss: 7.5 }
+  const baseHealth = 26 + 7 * levelId
+  const waves = definition.waves.map((item, waveIndex) => ({
+    ...item,
+    enemies: item.enemies.map((enemy) => ({
+      ...enemy,
+      health: Math.round(baseHealth * typeMultipliers[enemy.kind] * (waveMultipliers[waveIndex] ?? waveMultipliers.at(-1)!) * segmentMultiplier),
+      rewardPowerW: enemy.kind === 'boss' ? 20 : enemy.kind === 'armored' || enemy.kind === 'resistant' ? 2 : 1,
+    })),
+  }))
+  return { ...definition, waves, ...layout, id: levelId, capacityW: LEVEL_CAPACITIES_W[index] }
 })
 
 export function getOpticalDefenseLevel(levelId: number) {

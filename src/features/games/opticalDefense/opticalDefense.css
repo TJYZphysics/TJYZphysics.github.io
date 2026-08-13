@@ -208,6 +208,117 @@
   background: #10201c;
 }
 
+.optical-defense__tutorial {
+  display: grid;
+  grid-template-columns: minmax(190px, auto) minmax(0, 1fr) auto;
+  gap: 14px;
+  min-height: 62px;
+  align-items: center;
+  padding: 8px 12px 8px 16px;
+  border-bottom: 1px solid rgba(102, 221, 234, 0.3);
+  background: #102822;
+  box-shadow: inset 3px 0 var(--optical-mint);
+}
+
+.optical-defense__tutorial > div:first-child,
+.optical-defense__tutorial > div:first-child > span {
+  display: flex;
+  min-width: 0;
+}
+
+.optical-defense__tutorial > div:first-child {
+  gap: 10px;
+  align-items: center;
+}
+
+.optical-defense__tutorial > div:first-child > svg {
+  width: 19px;
+  flex: 0 0 auto;
+  color: var(--optical-mint);
+}
+
+.optical-defense__tutorial > div:first-child > span {
+  flex-direction: column;
+}
+
+.optical-defense__tutorial strong {
+  font-size: 11px;
+}
+
+.optical-defense__tutorial small {
+  margin-top: 2px;
+  color: var(--optical-muted);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.optical-defense__tutorial ol {
+  display: flex;
+  min-width: 0;
+  gap: 5px;
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.optical-defense__tutorial li {
+  display: inline-flex;
+  min-height: 32px;
+  min-width: max-content;
+  gap: 5px;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid var(--optical-line);
+  border-radius: 3px;
+  color: #d9e5ea;
+  background: #0a1815;
+  font-size: 9px;
+}
+
+.optical-defense__tutorial li svg {
+  width: 12px;
+  color: #61746d;
+}
+
+.optical-defense__tutorial li.is-complete {
+  border-color: rgba(102, 221, 234, 0.3);
+  color: #a7c4bb;
+}
+
+.optical-defense__tutorial li.is-complete svg {
+  color: var(--optical-mint);
+}
+
+.optical-defense__tutorial-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.optical-defense__tutorial-actions button,
+.optical-defense__manual-footer button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--optical-line);
+  border-radius: 3px;
+  color: var(--optical-text);
+  background: #17372f;
+  font-size: 9px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.optical-defense__tutorial-actions button:last-child {
+  width: 34px;
+  padding: 0;
+}
+
+.optical-defense__tutorial-actions svg {
+  width: 14px;
+}
+
 .optical-defense__mission > div:first-child {
   display: flex;
   gap: 10px;
@@ -912,37 +1023,107 @@
 }
 
 .optical-defense__help {
-  width: min(820px, 94vw);
+  width: min(900px, 94vw);
 }
 
-.optical-defense__help-grid {
+.optical-defense__manual-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.optical-defense__help-grid article {
-  min-width: 0;
-  padding: 18px;
-  border-right: 1px solid var(--optical-line);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   border-bottom: 1px solid var(--optical-line);
 }
 
-.optical-defense__help-grid article:nth-child(2n) {
+.optical-defense__manual-tabs button {
+  min-height: 44px;
+  padding: 6px 5px;
+  border: 0;
+  border-right: 1px solid var(--optical-line);
+  color: var(--optical-muted);
+  background: #0b1714;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.optical-defense__manual-tabs button:last-child {
   border-right: 0;
 }
 
-.optical-defense__help-grid h4 {
+.optical-defense__manual-tabs button.is-active {
+  color: #07120f;
+  background: var(--optical-yellow);
+}
+
+.optical-defense__manual-page {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: 300px;
+}
+
+.optical-defense__manual-page article {
+  min-width: 0;
+  padding: 18px;
+  border-right: 1px solid var(--optical-line);
+}
+
+.optical-defense__manual-page article:last-child {
+  border-right: 0;
+}
+
+.optical-defense__manual-page h4 {
   margin: 0 0 8px;
   color: var(--optical-yellow);
   font-size: 13px;
   letter-spacing: 0;
 }
 
-.optical-defense__help-grid p {
+.optical-defense__manual-page p,
+.optical-defense__manual-page li,
+.optical-defense__manual-page dt,
+.optical-defense__manual-page dd {
   margin: 0;
   color: var(--optical-muted);
   font-size: 11px;
   line-height: 1.75;
+}
+
+.optical-defense__manual-page ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.optical-defense__manual-page li + li {
+  margin-top: 8px;
+}
+
+.optical-defense__manual-page dl {
+  margin: 0;
+}
+
+.optical-defense__manual-page dl > div {
+  padding: 8px 0;
+  border-top: 1px solid var(--optical-line);
+}
+
+.optical-defense__manual-page dt {
+  color: var(--optical-text);
+  font-weight: 750;
+}
+
+.optical-defense__manual-page dd {
+  margin-top: 2px;
+}
+
+.optical-defense__manual-footer {
+  display: flex;
+  gap: 12px;
+  min-height: 50px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 8px 18px;
+  border-top: 1px solid var(--optical-line);
+  color: var(--optical-muted);
+  background: #0b1714;
+  font-size: 9px;
 }
 
 .optical-defense__settings > label {
@@ -1010,6 +1191,20 @@
 }
 
 @media (max-width: 1180px) {
+  .optical-defense__tutorial {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .optical-defense__tutorial ol {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .optical-defense__tutorial-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
   .optical-defense__topbar {
     grid-template-columns: auto auto 1fr;
   }
@@ -1125,12 +1320,28 @@
     grid-template-columns: 1fr;
   }
 
-  .optical-defense__help-grid {
-    grid-template-columns: 1fr;
+  .optical-defense__manual-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .optical-defense__help-grid article {
+  .optical-defense__manual-tabs button:nth-child(3) {
     border-right: 0;
+  }
+
+  .optical-defense__manual-page {
+    grid-template-columns: 1fr;
+    max-height: 58vh;
+    overflow-y: auto;
+  }
+
+  .optical-defense__manual-page article {
+    border-right: 0;
+    border-bottom: 1px solid var(--optical-line);
+  }
+
+  .optical-defense__manual-footer {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { getOpticalDefenseLevel } from './levels'
-import { traceOpticalNetwork } from './optics'
-import { visibleColor } from './rules'
+import { OPTICAL_TRANSMISSION, traceOpticalNetwork } from './optics'
+import { totalPower, visibleColor } from './rules'
 import type { DevicePlacement, EnemyState, LevelConfig } from './types'
 import { EMPTY_STATUS } from './types'
 
@@ -49,12 +49,13 @@ describe('optical network tracing', () => {
     expect(restored.poweredDeviceIds.has('bulb')).toBe(true)
   })
 
-  it('creates at most three conserved splitter branches', () => {
-    const splitter = { ...placement('split', 'splitter', holeIdAt(level, 2, 0)), splitRatios: [0.34, 0.33, 0.33] }
+  it('normalizes malformed splitter ratios and applies its transmission loss once', () => {
+    const splitter = { ...placement('split', 'splitter', holeIdAt(level, 2, 0)), splitRatios: [8, 4, -5] }
     const network = traceOpticalNetwork(level, [placement('source', 'source-red', holeIdAt(level, 0, 0)), splitter])
-    expect(network.segments).toHaveLength(4)
+    expect(network.segments).toHaveLength(3)
     const output = network.segments.slice(1).reduce((sum, segment) => sum + segment.power.r, 0)
-    expect(output).toBeCloseTo(50)
+    expect(output).toBeCloseTo(50 * OPTICAL_TRANSMISSION.splitter!)
+    expect(network.segments.slice(1).map((segment) => segment.power.r)).toEqual([32, 16])
   })
 
   it('aims three splitter branches at independent targets without fixed angles', () => {
@@ -68,7 +69,48 @@ describe('optical network tracing', () => {
     const network = traceOpticalNetwork(level, devices)
     expect(['a', 'b', 'c'].every((id) => network.deviceInputs.has(id))).toBe(true)
     const total = ['a', 'b', 'c'].reduce((watts, id) => watts + (network.deviceInputs.get(id)?.r ?? 0), 0)
-    expect(total).toBeCloseTo(50)
+    expect(total).toBeCloseTo(50 * OPTICAL_TRANSMISSION.splitter!)
+  })
+
+  it('uses a monochrome prism as a configurable three-way splitter with independent targets', () => {
+    const devices = [
+      placement('source', 'source-red', holeIdAt(level, 0, 0)),
+      { ...placement('prism', 'prism-splitter', holeIdAt(level, 1, 0)), splitRatios: [2, 1, 1], outputTargetIds: ['a', 'b', 'c'] },
+      placement('a', 'bulb', holeIdAt(level, 3, 0)),
+      placement('b', 'bulb', holeIdAt(level, 2, 1)),
+      placement('c', 'bulb', holeIdAt(level, 4, 1)),
+    ]
+    const network = traceOpticalNetwork(level, devices)
+    expect(network.deviceInputs.get('a')).toEqual({ r: 24, g: 0, b: 0 })
+    expect(network.deviceInputs.get('b')).toEqual({ r: 12, g: 0, b: 0 })
+    expect(network.deviceInputs.get('c')).toEqual({ r: 12, g: 0, b: 0 })
+  })
+
+  it('separates an RGB prism input into color-specific independently snapped outputs', () => {
+    const prismLevel: LevelConfig = {
+      ...level,
+      board: { width: 700, height: 400 },
+      holes: [
+        { x: 50, y: 200 }, { x: 150, y: 200 }, { x: 300, y: 200 },
+        { x: 450, y: 80 }, { x: 450, y: 200 }, { x: 450, y: 320 },
+      ],
+      path: [{ x: 0, y: 380 }, { x: 700, y: 380 }],
+      paths: [[{ x: 0, y: 380 }, { x: 700, y: 380 }]],
+    }
+    const devices: DevicePlacement[] = [
+      placement('source-r', 'source-red', 'h-0'),
+      placement('source-g', 'source-green', 'h-0'),
+      placement('source-b', 'source-blue', 'h-0'),
+      { ...placement('prism', 'prism-splitter', 'h-1'), outputTargetIds: ['red', 'green', 'blue'] },
+      placement('red', 'bulb', 'h-3'),
+      placement('green', 'bulb', 'h-4'),
+      placement('blue', 'bulb', 'h-5'),
+    ]
+    const network = traceOpticalNetwork(prismLevel, devices)
+    expect(network.deviceInputs.get('red')).toEqual({ r: 48, g: 0, b: 0 })
+    expect(network.deviceInputs.get('green')).toEqual({ r: 0, g: 72, b: 0 })
+    expect(network.deviceInputs.get('blue')).toEqual({ r: 0, g: 0, b: 96 })
+    expect(['red', 'green', 'blue'].reduce((sum, id) => sum + totalPower(network.deviceInputs.get(id)!), 0)).toBeCloseTo(225 * 0.96)
   })
 
   it('collects only powered area terminals within range and conserves recovery efficiency', () => {
@@ -81,14 +123,43 @@ describe('optical network tracing', () => {
     const devices: DevicePlacement[] = [
       placement('source-a', 'source-red', 'h-0'),
       placement('bulb', 'bulb', 'h-1'),
-      { ...placement('collector', 'collector', 'h-3'), outputTargetIds: ['receiver'], upgradeLevel: 1 },
+      { ...placement('collector', 'collector', 'h-3'), outputTargetIds: ['receiver'], upgradeLevel: 1, collectorColor: 'g' },
       placement('receiver', 'laser-emitter', 'h-2'),
       placement('far-radiation', 'radiation-source', 'h-4'),
     ]
     const network = traceOpticalNetwork(collectorLevel, devices)
     expect(network.deviceInputs.get('collector')?.r).toBeCloseTo(5)
-    expect(network.deviceInputs.get('receiver')?.r).toBeCloseTo(5)
+    expect(network.deviceInputs.get('bulb')?.r).toBeCloseTo(45)
+    expect(network.terminalRecoveryFractions.get('bulb')).toBeCloseTo(0.1)
+    expect(network.deviceInputs.get('receiver')?.r).toBe(0)
+    expect(network.deviceInputs.get('receiver')?.g).toBeCloseTo(5)
+    expect(network.deviceInputs.get('receiver')?.b).toBe(0)
     expect(network.deviceInputs.has('far-radiation')).toBe(false)
+  })
+
+  it('caps aggregate collector recovery at thirty percent and never creates watts', () => {
+    const collectorLevel: LevelConfig = {
+      ...level,
+      board: { width: 700, height: 400 },
+      holes: [
+        { x: 50, y: 50 }, { x: 120, y: 50 },
+        { x: 80, y: 120 }, { x: 120, y: 120 }, { x: 160, y: 120 },
+      ],
+      path: [{ x: 0, y: 380 }, { x: 700, y: 380 }],
+      paths: [[{ x: 0, y: 380 }, { x: 700, y: 380 }]],
+    }
+    const network = traceOpticalNetwork(collectorLevel, [
+      placement('source', 'source-red', 'h-0'),
+      placement('bulb', 'bulb', 'h-1'),
+      { ...placement('c1', 'collector', 'h-2'), upgradeLevel: 3 },
+      { ...placement('c2', 'collector', 'h-3'), upgradeLevel: 3 },
+      { ...placement('c3', 'collector', 'h-4'), upgradeLevel: 3 },
+    ])
+    const recovered = ['c1', 'c2', 'c3'].reduce((sum, id) => sum + totalPower(network.collectorInputs.get(id)!), 0)
+    expect(network.terminalRecoveryFractions.get('bulb')).toBeCloseTo(0.3)
+    expect(totalPower(network.deviceInputs.get('bulb')!)).toBeCloseTo(35)
+    expect(recovered).toBeCloseTo(15)
+    expect(totalPower(network.deviceInputs.get('bulb')!) + recovered).toBeCloseTo(50)
   })
 
   it('combines only beams that actually reach the combiner', () => {

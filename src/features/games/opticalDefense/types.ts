@@ -8,6 +8,7 @@ export type DeviceKind =
   | SourceKind
   | 'mirror'
   | 'splitter'
+  | 'prism-splitter'
   | 'combiner'
   | 'filter'
   | 'collector'
@@ -22,7 +23,7 @@ export type DeviceKind =
   | 'capacitor'
 
 export const ALL_DEVICE_KINDS: readonly DeviceKind[] = [
-  'source-red', 'source-green', 'source-blue', 'mirror', 'splitter', 'combiner', 'filter', 'collector',
+  'source-red', 'source-green', 'source-blue', 'mirror', 'splitter', 'prism-splitter', 'combiner', 'filter', 'collector',
   'bulb', 'laser-emitter', 'radiation-source', 'frost-tower', 'brazier', 'accelerator',
   'shutter', 'photo-sensor', 'capacitor',
 ]
@@ -42,6 +43,7 @@ export type DevicePlacement = {
   rotationDeg: number
   splitRatios?: number[]
   filterColor?: keyof RgbPower
+  collectorColor?: keyof RgbPower
   targetStrategy?: TargetStrategy
   mirrorMode?: 'fixed' | 'auto'
   enabled?: boolean
@@ -60,17 +62,25 @@ export type DevicePlacement = {
   acceleratorChargeJ?: number
   acceleratorCooldownS?: number
   acceleratorPhase?: AcceleratorPhase
+  areaCooldownS?: number
 }
 
 export type EnemyKind = 'normal' | 'fast' | 'armored' | 'resistant' | 'boss'
 
 export type EnemyStatus = {
   poisonSeconds: number
+  poisonPotency: number
   burnSeconds: number
+  burnPotency: number
   freezeSeconds: number
+  freezeStrength: number
   radiationStacks: number
   armorBrokenSeconds: number
   shield: number
+  vulnerableSeconds: number
+  toxinIgnitionCooldownS: number
+  thermalShockCooldownS: number
+  radiationIdleSeconds: number
 }
 
 export type EnemyState = {
@@ -125,7 +135,7 @@ export type LevelConfig = {
 }
 
 export type SaveData = {
-  version: 2
+  version: 3
   unlockedLevel: number
   stars: Record<number, number>
   unlockedDevices: DeviceKind[]
@@ -134,6 +144,10 @@ export type SaveData = {
     reduceMotion: boolean
     beamGlow: boolean
     gameSpeed: 1 | 2 | 3
+  }
+  tutorial: {
+    dismissed: boolean
+    completedLevels: number[]
   }
 }
 
@@ -154,9 +168,16 @@ export const EMPTY_RGB: RgbPower = { r: 0, g: 0, b: 0 }
 
 export const EMPTY_STATUS: EnemyStatus = {
   poisonSeconds: 0,
+  poisonPotency: 0,
   burnSeconds: 0,
+  burnPotency: 0,
   freezeSeconds: 0,
+  freezeStrength: 0,
   radiationStacks: 0,
   armorBrokenSeconds: 0,
   shield: 0,
+  vulnerableSeconds: 0,
+  toxinIgnitionCooldownS: 0,
+  thermalShockCooldownS: 0,
+  radiationIdleSeconds: 0,
 }
