@@ -233,7 +233,7 @@ function MotionChart({
         aria-label={`${title}，扫描线位于 ${formatNumber(currentTime, 2)} 秒`}
       >
         <defs>
-          <linearGradient id={`pursuit-scan-${kind}`} x1="0" x2="0" y1="0" y2="1">
+          <linearGradient className="pursuit-chart__scan-gradient" id={`pursuit-scan-${kind}`} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0" stopColor="#ffffff" stopOpacity="0" />
             <stop offset="0.18" stopColor="#ffffff" stopOpacity="0.9" />
             <stop offset="0.82" stopColor="#ffffff" stopOpacity="0.9" />

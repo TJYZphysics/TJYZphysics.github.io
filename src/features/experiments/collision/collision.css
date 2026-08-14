@@ -856,3 +856,50 @@ html[data-theme='claude-dark'] .collision-explanation p {
 html[data-theme='claude-dark'] .collision-transport button {
   color: #2a1912;
 }
+
+/* Full light viewport: the collision lane is part of the light instrument. */
+html[data-color-mode='light'] .collision-lab {
+  --collision-a: #177f97;
+  --collision-b: #bd6738;
+  background: #f3f6f7;
+  box-shadow: 0 14px 34px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .collision-lab::before { opacity: 0; }
+html[data-color-mode='light'] .collision-lab__law { background: #eaf2f1; }
+html[data-color-mode='light'] .collision-stage,
+html[data-color-mode='light'] .collision-panel,
+html[data-color-mode='light'] .collision-velocity-table,
+html[data-color-mode='light'] .collision-metric {
+  background: #fafcfc;
+  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+}
+html[data-color-mode='light'] .collision-track {
+  border-color: rgba(47, 75, 86, .22);
+  background: #e7edee;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .collision-track__grid {
+  opacity: .68;
+  background-image: linear-gradient(rgba(54, 91, 104, .1) 1px, transparent 1px), linear-gradient(90deg, rgba(54, 91, 104, .1) 1px, transparent 1px);
+  mask-image: none;
+}
+html[data-color-mode='light'] .collision-track::after {
+  background: #91a7ad;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .collision-track__axis { color: #647b84; }
+html[data-color-mode='light'] .collision-track .collision-body__velocity { color: #233e49; }
+html[data-color-mode='light'] .collision-track .collision-body__mass { color: #607680; }
+html[data-color-mode='light'] .collision-body {
+  box-shadow: 0 5px 10px rgba(32, 50, 57, .2);
+}
+html[data-color-mode='light'] .collision-body::after { display: none; }
+html[data-color-mode='light'] .collision-body--a { background: var(--collision-a); }
+html[data-color-mode='light'] .collision-body--b { background: var(--collision-b); }
+html[data-color-mode='light'] .collision-impact {
+  border-width: 2px;
+  border-color: rgba(21, 126, 112, .58);
+  background: transparent;
+}
+html[data-color-mode='light'] .collision-transport button { box-shadow: none; }
+html[data-color-mode='light'] .collision-transport button:hover:not(:disabled) { background: #49a694; }

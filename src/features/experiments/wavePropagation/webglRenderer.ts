@@ -24,6 +24,7 @@ interface MeshResources {
     cameraView: WebGLUniformLocation
     theme: WebGLUniformLocation
     linePass: WebGLUniformLocation
+    lightMode: WebGLUniformLocation
   }
 }
 
@@ -68,6 +69,7 @@ precision mediump float;
 
 uniform int u_theme;
 uniform float u_line_pass;
+uniform float u_light_mode;
 varying float v_value;
 
 vec3 neon(float t) {
@@ -81,19 +83,40 @@ vec3 thermal(float t) {
   return mix(vec3(249.0, 203.0, 72.0), vec3(244.0, 71.0, 65.0), (t - 0.68) / 0.32) / 255.0;
 }
 
+vec3 neon_light(float t) {
+  if (t < 0.5) return mix(vec3(56.0, 66.0, 135.0), vec3(28.0, 100.0, 111.0), t * 2.0) / 255.0;
+  return mix(vec3(28.0, 100.0, 111.0), vec3(109.0, 62.0, 126.0), (t - 0.5) * 2.0) / 255.0;
+}
+
+vec3 thermal_light(float t) {
+  if (t < 0.34) return mix(vec3(48.0, 67.0, 110.0), vec3(43.0, 108.0, 122.0), t / 0.34) / 255.0;
+  if (t < 0.68) return mix(vec3(43.0, 108.0, 122.0), vec3(159.0, 118.0, 49.0), (t - 0.34) / 0.34) / 255.0;
+  return mix(vec3(159.0, 118.0, 49.0), vec3(155.0, 64.0, 64.0), (t - 0.68) / 0.32) / 255.0;
+}
+
 void main() {
   if (u_line_pass > 0.5) {
-    gl_FragColor = vec4(0.61, 0.93, 1.0, 0.20);
+    if (u_light_mode > 0.5) gl_FragColor = vec4(0.05, 0.35, 0.43, 0.30);
+    else gl_FragColor = vec4(0.61, 0.93, 1.0, 0.20);
     return;
   }
   float t = clamp((v_value + 1.0) * 0.5, 0.0, 1.0);
   vec3 color;
-  if (u_theme == 1) color = thermal(t);
-  else if (u_theme == 2) {
-    float gray = (42.0 + t * 190.0) / 255.0;
-    color = vec3(gray, min(1.0, gray + 7.0 / 255.0), min(1.0, gray + 16.0 / 255.0));
-  } else color = neon(t);
-  gl_FragColor = vec4(color, 0.78);
+  if (u_light_mode > 0.5) {
+    if (u_theme == 1) color = thermal_light(t);
+    else if (u_theme == 2) {
+      float gray = (56.0 + t * 112.0) / 255.0;
+      color = vec3(gray, min(1.0, gray + 6.0 / 255.0), min(1.0, gray + 12.0 / 255.0));
+    } else color = neon_light(t);
+    gl_FragColor = vec4(color, 0.72);
+  } else {
+    if (u_theme == 1) color = thermal(t);
+    else if (u_theme == 2) {
+      float gray = (42.0 + t * 190.0) / 255.0;
+      color = vec3(gray, min(1.0, gray + 7.0 / 255.0), min(1.0, gray + 16.0 / 255.0));
+    } else color = neon(t);
+    gl_FragColor = vec4(color, 0.78);
+  }
 }
 `
 
@@ -171,6 +194,7 @@ function createResources(canvas: HTMLCanvasElement): MeshResources | null {
       cameraView: uniform(gl, program, 'u_camera_view'),
       theme: uniform(gl, program, 'u_theme'),
       linePass: uniform(gl, program, 'u_line_pass'),
+      lightMode: uniform(gl, program, 'u_light_mode'),
     },
   }
 }
@@ -276,6 +300,7 @@ export function renderWaveMeshWebGL(
   gl.uniform2f(uniforms.cameraAngles, camera.yaw, camera.pitch)
   gl.uniform4f(uniforms.cameraView, camera.zoom, camera.panX, camera.panY, 0)
   gl.uniform1i(uniforms.theme, theme === 'thermal' ? 1 : theme === 'mono' ? 2 : 0)
+  gl.uniform1f(uniforms.lightMode, document.documentElement.dataset.colorMode === 'light' ? 1 : 0)
 
   gl.uniform1f(uniforms.linePass, 0)
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, resources.triangleBuffer)

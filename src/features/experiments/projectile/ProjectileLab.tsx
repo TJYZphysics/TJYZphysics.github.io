@@ -208,7 +208,7 @@ export function ProjectileLab() {
               aria-label={`小球在 ${format(current.time)} 秒时位于水平 ${format(current.x)} 米、竖直 ${format(current.y)} 米处`}
             >
               <defs>
-                <linearGradient id="projectile-sky" x1="0" y1="0" x2="1" y2="1">
+                <linearGradient className="projectile-sky-gradient" id="projectile-sky" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0" stopColor="#06101f" />
                   <stop offset="0.58" stopColor="#09162c" />
                   <stop offset="1" stopColor="#08111e" />
@@ -220,12 +220,12 @@ export function ProjectileLab() {
                   <stop offset="1" stopColor="#a83f42" />
                 </radialGradient>
                 <pattern id="projectile-grid" width="73" height="61.33" patternUnits="userSpaceOnUse">
-                  <path d="M 73 0 L 0 0 0 61.33" fill="none" stroke="rgba(113,151,211,.12)" strokeWidth="1" />
+                  <path className="projectile-grid-path" d="M 73 0 L 0 0 0 61.33" fill="none" stroke="rgba(113,151,211,.12)" strokeWidth="1" />
                 </pattern>
               </defs>
 
-              <rect x="0" y="0" width="1000" height="500" rx="18" fill="url(#projectile-sky)" />
-              <rect x={PLOT.left} y={PLOT.top} width={PLOT.right - PLOT.left} height={PLOT.ground - PLOT.top} fill="url(#projectile-grid)" />
+              <rect className="projectile-sky" x="0" y="0" width="1000" height="500" rx="18" fill="url(#projectile-sky)" />
+              <rect className="projectile-grid" x={PLOT.left} y={PLOT.top} width={PLOT.right - PLOT.left} height={PLOT.ground - PLOT.top} fill="url(#projectile-grid)" />
 
               {[0, .25, .5, .75, 1].map((fraction) => {
                 const height = initialHeight * fraction

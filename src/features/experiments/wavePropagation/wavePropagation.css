@@ -150,7 +150,12 @@ html[data-color-mode='light'] .wave-lab__receiver { color:#142936; border-color:
 html[data-color-mode='light'] .wave-lab__receiver-heading { border-color:#c8d5dd; }
 html[data-color-mode='light'] .wave-lab__receiver-heading strong { color:#102633; }
 html[data-color-mode='light'] .wave-lab__receiver-heading p { font-size:10px; }
-html[data-color-mode='light'] .wave-lab__receiver-chart { border-color:#aebfc9; background:#071329; box-shadow:inset 0 1px rgba(255,255,255,.05); }
+html[data-color-mode='light'] .wave-lab__canvas-frame { background:radial-gradient(circle at 48% 35%,#f8fbfc 0,#e8f1f4 48%,#d9e6ea 100%); box-shadow:inset 0 1px #fff,0 14px 30px rgba(38,52,63,.1); }
+html[data-color-mode='light'] .wave-lab__canvas-frame::after { border-color:rgba(35,82,99,.15); }
+html[data-color-mode='light'] .wave-lab__canvas-tag { color:#345869; border-color:rgba(35,82,99,.18); background:rgba(247,251,252,.88); }
+html[data-color-mode='light'] .wave-lab__camera-hint,
+html[data-color-mode='light'] .wave-lab__legend { color:rgba(42,72,87,.76); }
+html[data-color-mode='light'] .wave-lab__receiver-chart { border-color:#aebfc9; background:#eef5f6; box-shadow:inset 0 1px rgba(255,255,255,.72); }
 html[data-color-mode='light'] .wave-lab__receiver-readouts > div { border-color:#d2dde3; }
 html[data-color-mode='light'] .wave-lab__receiver-readouts span { color:#334b5c; font-size:10px; font-weight:600; }
 html[data-color-mode='light'] .wave-lab__receiver-readouts strong { color:#092b38; font-size:10px; font-weight:750; }
@@ -213,3 +218,43 @@ html[data-color-mode='light'] .wave-lab__readouts strong { color:#203744; }
   .wave-lab__actions button { min-height: 44px; touch-action: manipulation; }
   .wave-lab__range input { height: 44px; }
 }
+
+/* Flat light instrument surfaces keep the waveform, not the chrome, in focus. */
+html[data-color-mode='light'] .wave-lab__console,
+html[data-color-mode='light'] .wave-lab__toolbar,
+html[data-color-mode='light'] .wave-lab__receiver,
+html[data-color-mode='light'] .wave-lab__transport,
+html[data-color-mode='light'] .wave-lab__readouts {
+  background: #fafcfc;
+  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+}
+html[data-color-mode='light'] .wave-lab__canvas-frame {
+  background: #e9eff0;
+  box-shadow: 0 10px 24px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .wave-lab__canvas-frame::after { border-color: rgba(35, 76, 89, .18); }
+html[data-color-mode='light'] .wave-lab__canvas-tag {
+  background: #f7fafa;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+html[data-color-mode='light'] .wave-lab__mode,
+html[data-color-mode='light'] .wave-lab__speed { background: #eef3f4; }
+html[data-color-mode='light'] .wave-lab__mode button.is-active,
+html[data-color-mode='light'] .wave-lab__toolbar button.is-active,
+html[data-color-mode='light'] .wave-lab__speed button.is-active,
+html[data-color-mode='light'] .wave-lab__actions .wave-lab__primary {
+  background: #197b90;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .wave-lab__range input::-webkit-slider-runnable-track,
+html[data-color-mode='light'] .wave-lab__range input::-moz-range-track { background: #bfd5da; }
+html[data-color-mode='light'] .wave-lab__range input::-webkit-slider-thumb,
+html[data-color-mode='light'] .wave-lab__range input::-moz-range-thumb {
+  border-color: #fff;
+  background: #25899c;
+  box-shadow: 0 0 0 1px rgba(25, 93, 107, .2);
+}
+html[data-color-mode='light'] .wave-lab__derived { background: #edf4f5; }
+html[data-color-mode='light'] .wave-lab__receiver-chart { background: #eef3f4; }
+html[data-color-mode='light'] .wave-lab__readouts > div { background: #f5f8f8; }

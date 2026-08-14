@@ -26,6 +26,7 @@ import {
 import type { CustomLevelConfig } from './customLevel'
 import { CustomLevelBuilder } from './CustomLevelBuilder'
 import { CustomLevelConsole } from './CustomLevelConsole'
+import { useOpticalColorMode } from './colorMode'
 import type { DeviceKind, DevicePlacement, Point, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
 
 type ToolDefinition = {
@@ -108,6 +109,7 @@ function useOpticalSound(enabled: boolean) {
 }
 
 export function OpticalDefenseGame() {
+  const colorMode = useOpticalColorMode()
   const [initialSave] = useState(() => readOpticalSaveResult())
   const [save, setSave] = useState<SaveData>(initialSave.save)
   const [levelId, setLevelId] = useState(initialLevelId)
@@ -329,10 +331,10 @@ export function OpticalDefenseGame() {
   }
 
   useEffect(() => {
-      const snapshot = { level, battle, network, selectedId, beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion, recommendedHoleIds }
+    const snapshot = { level, battle, network, selectedId, beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion, recommendedHoleIds, colorMode }
     sceneSnapshotRef.current = snapshot
     sceneRef.current?.setSnapshot(snapshot)
-  }, [battle, level, network, recommendedHoleIds, save.settings.beamGlow, save.settings.reduceMotion, selectedId])
+  }, [battle, colorMode, level, network, recommendedHoleIds, save.settings.beamGlow, save.settings.reduceMotion, selectedId])
 
   useEffect(() => {
     if (battle.phase !== 'running') return undefined
@@ -356,7 +358,7 @@ export function OpticalDefenseGame() {
       )
       sceneRef.current?.setSnapshot({
         level, battle: next, network: nextNetwork, selectedId,
-        beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion, recommendedHoleIds,
+        beamGlow: save.settings.beamGlow, reduceMotion: save.settings.reduceMotion, recommendedHoleIds, colorMode,
       })
       if (now - lastReactCommit >= 100 || next.phase !== previousPhase) {
         lastReactCommit = now
@@ -366,7 +368,7 @@ export function OpticalDefenseGame() {
     }
     frame = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(frame)
-  }, [battle.phase, level, recommendedHoleIds, save.settings.beamGlow, save.settings.gameSpeed, save.settings.reduceMotion, selectedId])
+  }, [battle.phase, colorMode, level, recommendedHoleIds, save.settings.beamGlow, save.settings.gameSpeed, save.settings.reduceMotion, selectedId])
 
   useEffect(() => {
     const advance = (event: Event) => {
@@ -685,7 +687,7 @@ export function OpticalDefenseGame() {
       </aside>}
 
       {builderOpen && levelId === CUSTOM_LEVEL_ID
-        ? <CustomLevelBuilder config={customConfig} onChange={setCustomConfig} onStart={startCustomLevel} />
+        ? <CustomLevelBuilder config={customConfig} colorMode={colorMode} onChange={setCustomConfig} onStart={startCustomLevel} />
         : <div className="optical-defense__workspace">
         <aside className="optical-defense__palette" aria-label="仪器仓">
           {toolGroups.map((group) => {
@@ -795,7 +797,7 @@ export function OpticalDefenseGame() {
         </section>
       </div>}
 
-      {showConsole && levelId === CUSTOM_LEVEL_ID && <CustomLevelConsole config={customConfig} onChange={applyCustomConfig} onClose={() => setShowConsole(false)} onResetTuning={() => setConfirmState('reset-tuning')} />}
+      {showConsole && levelId === CUSTOM_LEVEL_ID && <CustomLevelConsole config={customConfig} colorMode={colorMode} onChange={applyCustomConfig} onClose={() => setShowConsole(false)} onResetTuning={() => setConfirmState('reset-tuning')} />}
 
       {showHelp && <div className="optical-defense__overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setShowHelp(false)}>
         <section className="optical-defense__modal optical-defense__help" role="dialog" aria-modal="true" aria-labelledby="optical-help-title" data-testid="help-dialog">

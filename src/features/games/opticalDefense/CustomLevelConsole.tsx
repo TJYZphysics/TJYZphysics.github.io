@@ -3,6 +3,7 @@ import { Plus, RotateCcw, Settings2, SlidersHorizontal, Trash2, X, Zap } from 'l
 
 import type { Tuning } from './tuning'
 import type { CustomLevelConfig, CustomWaveSpec } from './customLevel'
+import type { OpticalColorMode } from './colorMode'
 import type { EnemyKind } from './types'
 
 type ConsoleTab = 'basic' | 'advanced'
@@ -77,10 +78,11 @@ function SliderField({ label, value, onChange, min, max, step = 0.01, suffix = '
 const CURVE_MIN = 0.05
 const CURVE_MAX = 5
 
-function StrengthCurve({ values, onChange, label }: {
+function StrengthCurve({ values, onChange, label, colorMode }: {
   values: number[]
   onChange: (values: number[]) => void
   label: string
+  colorMode: OpticalColorMode
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const dragIndexRef = useRef<number | null>(null)
@@ -92,9 +94,10 @@ function StrengthCurve({ values, onChange, label }: {
     const width = canvas.width
     const height = canvas.height
     ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = '#0d1516'
+    const isLight = colorMode === 'light'
+    ctx.fillStyle = isLight ? '#f4f8f6' : '#0d1516'
     ctx.fillRect(0, 0, width, height)
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+    ctx.strokeStyle = isLight ? 'rgba(35,67,59,0.13)' : 'rgba(255,255,255,0.06)'
     ctx.lineWidth = 1
     for (let i = 0; i < 4; i += 1) {
       const y = height * (i + 1) / 5
@@ -105,7 +108,7 @@ function StrengthCurve({ values, onChange, label }: {
     }
     const xOf = (index: number) => values.length <= 1 ? width / 2 : index / (values.length - 1) * (width - 12) + 6
     const yOf = (value: number) => height - (Math.max(CURVE_MIN, Math.min(CURVE_MAX, value)) - CURVE_MIN) / (CURVE_MAX - CURVE_MIN) * (height - 16) - 8
-    ctx.strokeStyle = '#6fe0ff'
+    ctx.strokeStyle = isLight ? '#08758b' : '#6fe0ff'
     ctx.lineWidth = 2
     ctx.beginPath()
     values.forEach((value, index) => {
@@ -115,22 +118,22 @@ function StrengthCurve({ values, onChange, label }: {
       else ctx.lineTo(x, y)
     })
     ctx.stroke()
-    ctx.fillStyle = '#6fe0ff'
+    ctx.fillStyle = isLight ? '#08758b' : '#6fe0ff'
     values.forEach((value, index) => {
       ctx.beginPath()
       ctx.arc(xOf(index), yOf(value), 5, 0, Math.PI * 2)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(255,255,255,0.75)'
+      ctx.strokeStyle = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.75)'
       ctx.lineWidth = 1.5
       ctx.stroke()
     })
-    ctx.fillStyle = 'rgba(111,224,255,0.85)'
+    ctx.fillStyle = isLight ? '#315d66' : 'rgba(111,224,255,0.85)'
     ctx.font = '10px sans-serif'
     ctx.textAlign = 'center'
     values.forEach((value, index) => {
       ctx.fillText(`${Math.round(value * 100)}%`, xOf(index), yOf(value) - 10)
     })
-  }, [values])
+  }, [colorMode, values])
 
   const pointFor = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
@@ -183,8 +186,9 @@ function StrengthCurve({ values, onChange, label }: {
   )
 }
 
-export function CustomLevelConsole({ config, onChange, onClose, onResetTuning }: {
+export function CustomLevelConsole({ config, colorMode, onChange, onClose, onResetTuning }: {
   config: CustomLevelConfig
+  colorMode: OpticalColorMode
   onChange: (next: CustomLevelConfig) => void
   onClose: () => void
   onResetTuning: () => void
@@ -274,7 +278,7 @@ export function CustomLevelConsole({ config, onChange, onClose, onResetTuning }:
 
             <section className="optical-defense__console-section">
               <h3>波次编成</h3>
-              <StrengthCurve label="波次强度曲线" values={config.waveStrengthCurve} onChange={(values) => patch({ waveStrengthCurve: values })} />
+              <StrengthCurve label="波次强度曲线" values={config.waveStrengthCurve} colorMode={colorMode} onChange={(values) => patch({ waveStrengthCurve: values })} />
               <div className="optical-defense__waves-list">
                 {config.waves.map((wave, waveIndex) => (
                   <div key={waveIndex} className="optical-defense__wave-card">

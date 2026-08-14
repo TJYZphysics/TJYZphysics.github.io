@@ -48,6 +48,7 @@ function drawReceiverProfile(
   profile: WaveReceiverProfile,
   displayScale: number,
 ) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   const padding = { left: 34, right: 14, top: 14, bottom: 20 }
   const plotWidth = width - padding.left - padding.right
   const plotHeight = height - padding.top - padding.bottom
@@ -69,9 +70,9 @@ function drawReceiverProfile(
     context.stroke()
   }
 
-  context.fillStyle = '#071329'
+  context.fillStyle = light ? '#eef5f6' : '#071329'
   context.fillRect(0, 0, width, height)
-  context.strokeStyle = 'rgba(151,183,229,.16)'
+  context.strokeStyle = light ? 'rgba(39,85,102,.2)' : 'rgba(151,183,229,.16)'
   context.lineWidth = 1
   context.setLineDash([])
   context.beginPath()
@@ -80,14 +81,14 @@ function drawReceiverProfile(
   context.moveTo(padding.left + plotWidth / 2, padding.top)
   context.lineTo(padding.left + plotWidth / 2, height - padding.bottom)
   context.stroke()
-  strokeValues(profile.rmsEnvelope, 'rgba(130,160,203,.58)', true)
-  strokeValues(profile.rmsEnvelope, 'rgba(130,160,203,.58)', true, -1)
-  context.shadowColor = 'rgba(73,228,207,.42)'
+  strokeValues(profile.rmsEnvelope, light ? 'rgba(66,96,111,.56)' : 'rgba(130,160,203,.58)', true)
+  strokeValues(profile.rmsEnvelope, light ? 'rgba(66,96,111,.56)' : 'rgba(130,160,203,.58)', true, -1)
+  context.shadowColor = light ? 'rgba(8,125,121,.24)' : 'rgba(73,228,207,.42)'
   context.shadowBlur = 8
-  strokeValues(profile.instantaneous, '#49e4cf', false)
+  strokeValues(profile.instantaneous, light ? '#087d79' : '#49e4cf', false)
   context.shadowBlur = 0
   context.setLineDash([])
-  context.fillStyle = 'rgba(183,205,235,.68)'
+  context.fillStyle = light ? 'rgba(47,76,89,.76)' : 'rgba(183,205,235,.68)'
   context.font = '600 9px "SFMono-Regular", Consolas, monospace'
   context.fillText('+A', 7, padding.top + 8)
   context.fillText('−A', 7, height - padding.bottom)
@@ -147,6 +148,8 @@ function WaveReceiver({
     }
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
+    const themeObserver = new MutationObserver(() => paint(performance.now(), true))
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-color-mode'] })
     resize()
     if (running && !document.hidden) {
       const animate = (now: number) => {
@@ -159,6 +162,7 @@ function WaveReceiver({
     return () => {
       cancelAnimationFrame(frameId)
       observer.disconnect()
+      themeObserver.disconnect()
     }
   }, [displayScale, distance, field, frequency, running, timeRef])
 
@@ -273,6 +277,12 @@ export function WavePropagationLab() {
     }
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
+    const themeObserver = new MutationObserver(() => {
+      overlayReady = false
+      needsRenderRef.current = true
+      paint()
+    })
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-color-mode'] })
     const onWheel = (event: globalThis.WheelEvent) => {
       event.preventDefault()
       event.stopPropagation()
@@ -302,6 +312,7 @@ export function WavePropagationLab() {
     return () => {
       cancelAnimationFrame(frame)
       observer.disconnect()
+      themeObserver.disconnect()
       canvas.removeEventListener('wheel', onWheel)
     }
   }, [colorTheme, displayMode, effectiveReceiverDistance, field, frequency, isDocumentHidden])

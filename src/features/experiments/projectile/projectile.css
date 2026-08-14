@@ -428,6 +428,60 @@ html[data-color-mode='light'] .projectile-metrics > div { background: rgba(255, 
 html[data-color-mode='light'] .projectile-metrics span { color: #667786; }
 html[data-color-mode='light'] .projectile-metrics strong { color: #263945; }
 
+html[data-color-mode='light'] .projectile-stage__viewport {
+  border-color: rgba(32, 78, 99, .28);
+  background: #e6f2f3;
+  box-shadow: inset 0 18px 48px rgba(38, 80, 92, .1), 0 10px 25px rgba(41, 53, 61, .12);
+}
+
+html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(1) { stop-color: #e0f1f4; }
+html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(2) { stop-color: #f3f8f5; }
+html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(3) { stop-color: #d6e6e6; }
+html[data-color-mode='light'] .projectile-grid-path { stroke: rgba(54, 103, 119, .18); }
+
+html[data-color-mode='light'] .projectile-axis-label line { stroke: rgba(56, 89, 103, .46); }
+html[data-color-mode='light'] .projectile-axis-label text,
+html[data-color-mode='light'] .projectile-axis-title { fill: #526b77; }
+html[data-color-mode='light'] .projectile-axis-title { fill: #355966; }
+html[data-color-mode='light'] .projectile-ground {
+  stroke: #5c747c;
+  filter: drop-shadow(0 3px 6px rgba(47, 87, 98, .2));
+}
+
+html[data-color-mode='light'] .projectile-trajectory {
+  stroke: var(--projectile-orange);
+  opacity: .72;
+}
+
+html[data-color-mode='light'] .projectile-ghost {
+  fill: #d97842;
+  stroke: rgba(123, 69, 39, .64);
+  filter: drop-shadow(0 0 5px rgba(173, 82, 42, .28));
+}
+
+html[data-color-mode='light'] .projectile-ghost-group:hover .projectile-ghost,
+html[data-color-mode='light'] .projectile-ghost-group:focus-visible .projectile-ghost,
+html[data-color-mode='light'] .projectile-ghost-group.is-selected .projectile-ghost {
+  stroke: #88451f;
+  filter: drop-shadow(0 0 8px rgba(173, 82, 42, .42));
+}
+
+html[data-color-mode='light'] .projectile-ghost-readout line { stroke: rgba(173, 82, 42, .52); }
+html[data-color-mode='light'] .projectile-ghost-readout rect {
+  fill: rgba(255, 255, 255, .95);
+  stroke: rgba(173, 82, 42, .55);
+  filter: drop-shadow(0 8px 16px rgba(44, 66, 74, .16));
+}
+html[data-color-mode='light'] .projectile-ghost-readout text { fill: #38515d; }
+
+html[data-color-mode='light'] .projectile-projection circle { fill: #fff; }
+html[data-color-mode='light'] .projectile-projection--vertical text { fill: var(--projectile-violet); }
+html[data-color-mode='light'] .projectile-main-ball__halo { fill: rgba(185, 92, 54, .16); }
+html[data-color-mode='light'] .projectile-main-ball__body { stroke: rgba(111, 56, 38, .72); }
+html[data-color-mode='light'] .projectile-launch-mark line { stroke: rgba(49, 82, 95, .22); }
+html[data-color-mode='light'] .projectile-launch-mark text { fill: #5c727c; }
+html[data-color-mode='light'] .projectile-range--gravity output { color: var(--projectile-violet); }
+
 html[data-theme='claude-light'] .projectile-lab {
   --projectile-cyan: #a65336;
   --projectile-violet: #79645a;
@@ -439,3 +493,38 @@ html[data-theme='claude-dark'] .projectile-lab {
   --projectile-violet: #b9a194;
   --projectile-orange: #efaa7d;
 }
+
+/* Flat light scene: uniform surfaces and solid motion colors. */
+html[data-color-mode='light'] .projectile-lab {
+  background: #f3f6f7;
+  box-shadow: 0 14px 34px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .projectile-lab::before { opacity: 0; }
+html[data-color-mode='light'] .projectile-stage,
+html[data-color-mode='light'] .projectile-controls,
+html[data-color-mode='light'] .projectile-metrics {
+  background: #fafcfc;
+  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+}
+html[data-color-mode='light'] .projectile-stage__viewport {
+  background: #edf2f3;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .projectile-sky { fill: #edf2f3; }
+html[data-color-mode='light'] .projectile-ground { filter: none; }
+html[data-color-mode='light'] .projectile-trajectory { opacity: .9; }
+html[data-color-mode='light'] .projectile-ghost,
+html[data-color-mode='light'] .projectile-ghost-group:hover .projectile-ghost,
+html[data-color-mode='light'] .projectile-ghost-group:focus-visible .projectile-ghost,
+html[data-color-mode='light'] .projectile-ghost-group.is-selected .projectile-ghost,
+html[data-color-mode='light'] .projectile-ghost-readout rect { filter: none; }
+html[data-color-mode='light'] .projectile-main-ball__halo { opacity: 0; }
+html[data-color-mode='light'] .projectile-main-ball__body {
+  fill: #c8643a;
+  stroke: #8e4428;
+}
+html[data-color-mode='light'] .projectile-main-ball__highlight { opacity: .42; }
+html[data-color-mode='light'] .projectile-transport > button,
+html[data-color-mode='light'] .projectile-speed button,
+html[data-color-mode='light'] .projectile-projection-toggles button { background: #fff; }
+html[data-color-mode='light'] .projectile-metrics > div { background: #f5f8f8; }

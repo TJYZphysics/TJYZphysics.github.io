@@ -5,6 +5,7 @@ import { pointOnPath, terminalAttackRange } from './simulation'
 import type { BattleState } from './simulation'
 import type { DeviceKind, DevicePlacement, LevelConfig, Point, RgbPower } from './types'
 import { totalPower, visibleColor } from './rules'
+import type { OpticalColorMode } from './colorMode'
 
 export type SceneSnapshot = {
   level: LevelConfig
@@ -14,6 +15,7 @@ export type SceneSnapshot = {
   beamGlow: boolean
   reduceMotion: boolean
   recommendedHoleIds?: string[]
+  colorMode: OpticalColorMode
 }
 
 export type OpticalSceneCallbacks = {
@@ -40,9 +42,49 @@ const DEVICE_COLORS: Record<DeviceKind, number> = {
   'photo-sensor': 0x6df6b8, capacitor: 0xffca62,
 }
 
-function powerColor(power: RgbPower) {
+const LIGHT_DEVICE_COLORS: Record<DeviceKind, number> = {
+  'source-red': 0xc33d46, 'source-green': 0x197d52, 'source-blue': 0x2c70b2, mirror: 0x526f79,
+  splitter: 0x167b96, 'prism-splitter': 0x536b78, combiner: 0x9f680d, filter: 0x147b67, collector: 0x9b690f, bulb: 0xa66b08,
+  'laser-emitter': 0xb93e48, 'radiation-source': 0x8a46a7, 'frost-tower': 0x0e7894, brazier: 0xb85a1b,
+  accelerator: 0x98700d, shutter: 0x617184,
+  'photo-sensor': 0x197659, capacitor: 0xa36b0d,
+}
+
+const SCENE_PALETTES = {
+  dark: {
+    background: '#0b100f', board: 0x111918, grid: 0x51615c, gridAlpha: 0.18, frame: 0x64736c, frameAlpha: 0.72,
+    route: 0x292620, routeBorder: 0xa68d61, routeBorderAlpha: 0.24, routeLine: 0xe4c27a, routeLineAlpha: 0.3,
+    routeArrow: 0xf0d28d, routeArrowAlpha: 0.46, entranceFill: 0x5ee1a4, entranceLine: 0x63e9ad,
+    coreFill: 0xd7a05f, coreLine: 0xe0ae6d, emptyCell: 0x142321, usedCell: 0x1b302e,
+    emptyCellBorder: 0x42534e, usedCellBorder: 0x71a49b, emptyPlate: 0x182a28, usedPlate: 0x203b39,
+    emptyPlateBorder: 0x3f6662, usedPlateBorder: 0x7bc0b4, emptySocket: 0x050908, usedSocket: 0x050908,
+    emptySocketBorder: 0x5b817c, usedSocketBorder: 0xa4c9c2, recommended: 0x74f4e0, recommendedInner: 0xf7e897,
+    beamCore: 0xffffff, deviceBody: 0x071013, selected: 0xffffff, deviceLabel: '#f6ffff', prismFill: 0xdaf7ff,
+    enemyBacking: 0x050708, healthTrack: 0x172226,
+  },
+  light: {
+    background: '#e8efed', board: 0xeaf1ef, grid: 0x526e66, gridAlpha: 0.2, frame: 0x607c75, frameAlpha: 0.62,
+    route: 0xded4bd, routeBorder: 0x8b682d, routeBorderAlpha: 0.36, routeLine: 0xa67827, routeLineAlpha: 0.5,
+    routeArrow: 0x8f681f, routeArrowAlpha: 0.68, entranceFill: 0x1d8a62, entranceLine: 0x14764f,
+    coreFill: 0xb1741d, coreLine: 0x95600f, emptyCell: 0xdce9e5, usedCell: 0xc9ddd7,
+    emptyCellBorder: 0x688a80, usedCellBorder: 0x4d7f73, emptyPlate: 0xe3ece9, usedPlate: 0xd1e3de,
+    emptyPlateBorder: 0x638a80, usedPlateBorder: 0x3e7a6c, emptySocket: 0xf8fbfa, usedSocket: 0xe9f2ef,
+    emptySocketBorder: 0x63877e, usedSocketBorder: 0x3d756a, recommended: 0x08758b, recommendedInner: 0x95600f,
+    beamCore: 0xfaffff, deviceBody: 0xf8fbfa, selected: 0x164d59, deviceLabel: '#193633', prismFill: 0x496873,
+    enemyBacking: 0xffffff, healthTrack: 0xb8c6c4,
+  },
+} as const
+
+function powerColor(power: RgbPower, colorMode: OpticalColorMode) {
   const color = visibleColor(power)
-  return ({ red: 0xff454f, green: 0x48ef8b, blue: 0x469dff, yellow: 0xffe36b, orange: 0xff9a3d, magenta: 0xff61e6, cyan: 0x54f2ff, white: 0xf5ffff, dark: 0x7d8a96 } as const)[color]
+  const colors = colorMode === 'light'
+    ? { red: 0xc72f3b, green: 0x168456, blue: 0x236fb9, yellow: 0xa66a05, orange: 0xbe5514, magenta: 0xaa359f, cyan: 0x007f96, white: 0x465a64, dark: 0x657580 }
+    : { red: 0xff454f, green: 0x48ef8b, blue: 0x469dff, yellow: 0xffe36b, orange: 0xff9a3d, magenta: 0xff61e6, cyan: 0x54f2ff, white: 0xf5ffff, dark: 0x7d8a96 }
+  return colors[color]
+}
+
+function deviceColor(kind: DeviceKind, colorMode: OpticalColorMode) {
+  return colorMode === 'light' ? LIGHT_DEVICE_COLORS[kind] : DEVICE_COLORS[kind]
 }
 
 function pointFor(level: LevelConfig, placement: DevicePlacement) {
@@ -74,6 +116,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private lastLevelId = -1
   private lastHoleSignature = '\u0000'
   private handledEventId = 0
+  private colorMode: OpticalColorMode = 'dark'
+  private palette: (typeof SCENE_PALETTES)[OpticalColorMode] = SCENE_PALETTES.dark
 
   constructor(callbacks: OpticalSceneCallbacks) {
     super({ key: 'optical-defense' })
@@ -81,7 +125,9 @@ export class OpticalDefenseScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#0b100f')
+    this.colorMode = this.snapshot?.colorMode ?? 'dark'
+    this.palette = SCENE_PALETTES[this.colorMode]
+    this.cameras.main.setBackgroundColor(this.palette.background)
     this.board = new Phaser.GameObjects.Graphics(this)
     this.pathGraphics = new Phaser.GameObjects.Graphics(this)
     this.holeGraphics = new Phaser.GameObjects.Graphics(this)
@@ -156,12 +202,12 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const isLeft = edgePoint.x <= 1
     const isRight = edgePoint.x >= LAB_WIDTH - 1
     const isTop = edgePoint.y <= 1
-    path.fillStyle(0x5ee1a4, 0.24)
+    path.fillStyle(this.palette.entranceFill, this.colorMode === 'light' ? 0.18 : 0.24)
     if (isLeft) path.fillRect(0, edgePoint.y - 18, 18, 36)
     else if (isRight) path.fillRect(LAB_WIDTH - 18, edgePoint.y - 18, 18, 36)
     else if (isTop) path.fillRect(edgePoint.x - 18, 0, 36, 18)
     else path.fillRect(edgePoint.x - 18, LAB_HEIGHT - 18, 36, 18)
-    path.lineStyle(3, 0x63e9ad, 0.82)
+    path.lineStyle(3, this.palette.entranceLine, 0.82)
     if (isLeft) path.lineBetween(17, edgePoint.y - 18, 17, edgePoint.y + 18)
     else if (isRight) path.lineBetween(LAB_WIDTH - 17, edgePoint.y - 18, LAB_WIDTH - 17, edgePoint.y + 18)
     else if (isTop) path.lineBetween(edgePoint.x - 18, 17, edgePoint.x + 18, 17)
@@ -171,27 +217,27 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private drawBoard(level: LevelConfig) {
     const g = this.board
     g.clear()
-    g.fillStyle(0x111918, 1)
+    g.fillStyle(this.palette.board, 1)
     g.fillRect(0, 0, LAB_WIDTH, LAB_HEIGHT)
 
     const { cellSize, columns, rows, originX, originY } = level.grid
     for (let column = 0; column <= columns; column += 1) {
       const x = originX + column * cellSize
-      g.lineStyle(1, 0x51615c, 0.18)
+      g.lineStyle(1, this.palette.grid, this.palette.gridAlpha)
       g.lineBetween(x, originY, x, originY + rows * cellSize)
     }
     for (let row = 0; row <= rows; row += 1) {
       const y = originY + row * cellSize
-      g.lineStyle(1, 0x51615c, 0.18)
+      g.lineStyle(1, this.palette.grid, this.palette.gridAlpha)
       g.lineBetween(originX, y, originX + columns * cellSize, y)
     }
-    g.lineStyle(2, 0x64736c, 0.72)
+    g.lineStyle(2, this.palette.frame, this.palette.frameAlpha)
     g.strokeRoundedRect(5, 5, LAB_WIDTH - 10, LAB_HEIGHT - 10, 10)
 
     const path = this.pathGraphics
     path.clear()
     const halfCell = cellSize / 2
-    path.fillStyle(0x292620, 1)
+    path.fillStyle(this.palette.route, 1)
     level.routeCells.forEach((point) => {
       path.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize)
     })
@@ -200,18 +246,18 @@ export class OpticalDefenseScene extends Phaser.Scene {
       this.fillEdgeExtension(path, level.grid, route.at(-1)!)
     })
 
-    path.lineStyle(1, 0xa68d61, 0.24)
+    path.lineStyle(1, this.palette.routeBorder, this.palette.routeBorderAlpha)
     level.routeCells.forEach((point) => {
       path.strokeRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize)
     })
     const paths = level.paths ?? [level.path]
     paths.forEach((route) => {
-      path.lineStyle(3, 0xe4c27a, 0.3)
+      path.lineStyle(3, this.palette.routeLine, this.palette.routeLineAlpha)
       path.beginPath()
       path.moveTo(route[0].x, route[0].y)
       route.slice(1).forEach((point) => path.lineTo(point.x, point.y))
       path.strokePath()
-      path.lineStyle(2, 0xf0d28d, 0.46)
+      path.lineStyle(2, this.palette.routeArrow, this.palette.routeArrowAlpha)
       route.slice(1, -1).forEach((point, index) => {
         if (index % 2 !== 0) return
         const next = route[index + 2] ?? point
@@ -230,9 +276,9 @@ export class OpticalDefenseScene extends Phaser.Scene {
       this.drawEdgeEntrance(path, route[0])
     })
     const core = paths[0].at(-2) ?? level.routeCells.at(-1)!
-    path.fillStyle(0xd7a05f, 0.18)
+    path.fillStyle(this.palette.coreFill, this.colorMode === 'light' ? 0.16 : 0.18)
     path.fillCircle(core.x, core.y, 26)
-    path.lineStyle(3, 0xe0ae6d, 0.8)
+    path.lineStyle(3, this.palette.coreLine, 0.8)
     path.strokeCircle(core.x, core.y, 25)
     path.strokeCircle(core.x, core.y, 16)
   }
@@ -256,38 +302,38 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const used = rows.filter((row) => row.isOccupied)
     // 按样式分组批量绘制，让 Phaser 只切换少量批次（WebGL 下同风格图形合批为一次绘制）。
     if (!compact) {
-      g.fillStyle(0x142321, 0.92)
+      g.fillStyle(this.palette.emptyCell, 0.92)
       empty.forEach(({ point }) => g.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
-      g.fillStyle(0x1b302e, 0.92)
+      g.fillStyle(this.palette.usedCell, 0.92)
       used.forEach(({ point }) => g.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
-      g.lineStyle(1, 0x42534e, 0.28)
+      g.lineStyle(1, this.palette.emptyCellBorder, this.colorMode === 'light' ? 0.4 : 0.28)
       empty.forEach(({ point }) => g.strokeRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
-      g.lineStyle(1, 0x71a49b, 0.5)
+      g.lineStyle(1, this.palette.usedCellBorder, this.colorMode === 'light' ? 0.58 : 0.5)
       used.forEach(({ point }) => g.strokeRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
     }
-    g.fillStyle(0x182a28, 0.94)
+    g.fillStyle(this.palette.emptyPlate, 0.94)
     empty.forEach(({ point }) => g.fillRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
-    g.fillStyle(0x203b39, 0.94)
+    g.fillStyle(this.palette.usedPlate, 0.94)
     used.forEach(({ point }) => g.fillRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
-    g.lineStyle(1, 0x3f6662, 0.48)
+    g.lineStyle(1, this.palette.emptyPlateBorder, this.colorMode === 'light' ? 0.62 : 0.48)
     empty.forEach(({ point }) => g.strokeRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
-    g.lineStyle(1, 0x7bc0b4, 0.72)
+    g.lineStyle(1, this.palette.usedPlateBorder, 0.72)
     used.forEach(({ point }) => g.strokeRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
     if (!compact) {
-      g.fillStyle(0x050908, 0.92)
+      g.fillStyle(this.palette.emptySocket, 0.92)
       empty.forEach(({ point }) => g.fillCircle(point.x, point.y, 9 * scale))
-      g.fillStyle(0x050908, 0.58)
+      g.fillStyle(this.palette.usedSocket, this.colorMode === 'light' ? 0.9 : 0.58)
       used.forEach(({ point }) => g.fillCircle(point.x, point.y, 13 * scale))
-      g.lineStyle(1.5, 0x5b817c, 0.72)
+      g.lineStyle(1.5, this.palette.emptySocketBorder, 0.72)
       empty.forEach(({ point }) => g.strokeCircle(point.x, point.y, 11 * scale))
-      g.lineStyle(1.5, 0xa4c9c2, 0.76)
+      g.lineStyle(1.5, this.palette.usedSocketBorder, 0.76)
       used.forEach(({ point }) => g.strokeCircle(point.x, point.y, 15 * scale))
     }
     rows.filter((row) => row.isRecommended).forEach(({ point }) => {
       const margin = plate / 2 + 4
-      g.lineStyle(3, 0x74f4e0, 0.92)
+      g.lineStyle(3, this.palette.recommended, 0.92)
       g.strokeRoundedRect(point.x - margin, point.y - margin, margin * 2, margin * 2, 8)
-      g.lineStyle(1, 0xf7e897, 0.82)
+      g.lineStyle(1, this.palette.recommendedInner, 0.82)
       g.strokeCircle(point.x, point.y, 20 * scale)
     })
   }
@@ -296,7 +342,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const g = this.beamGraphics
     g.clear()
     network.segments.forEach((segment) => {
-      const color = powerColor(segment.power)
+      const color = powerColor(segment.power, this.colorMode)
       const width = Math.max(1.2, Math.min(8, totalPower(segment.power) / 22))
       if (snapshot.beamGlow) {
         g.lineStyle(width + 12, color, 0.08)
@@ -306,7 +352,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       }
       g.lineStyle(width, color, 0.92)
       g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
-      g.lineStyle(1, 0xffffff, 0.85)
+      g.lineStyle(1, this.palette.beamCore, this.colorMode === 'light' ? 0.72 : 0.85)
       g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
     })
   }
@@ -331,7 +377,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
         const radius = terminalAttackRange(placement)
         if (!radius) return
         const point = pointFor(snapshot.level, placement)
-        const color = DEVICE_COLORS[placement.kind]
+        const color = deviceColor(placement.kind, this.colorMode)
         const selected = placement.id === snapshot.selectedId
         ranges.fillStyle(color, selected ? 0.055 : 0.022)
         ranges.fillCircle(point.x, point.y, radius)
@@ -347,13 +393,13 @@ export class OpticalDefenseScene extends Phaser.Scene {
       const radius = terminalAttackRange(placement)
       if (!radius) return
       const point = pointFor(snapshot.level, placement)
-      const color = DEVICE_COLORS[placement.kind]
+      const color = deviceColor(placement.kind, this.colorMode)
       if (placement.kind === 'accelerator') {
         const angle = placement.rotationDeg * Math.PI / 180
         const chargeFraction = Math.min(1, (placement.acceleratorChargeJ ?? 0) / 360)
         attacks.lineStyle(2 + chargeFraction * 4, color, network.poweredDeviceIds.has(placement.id) ? 0.42 : 0.22)
         attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
-        attacks.lineStyle(1, 0xffffff, 0.26 + chargeFraction * 0.32)
+        attacks.lineStyle(1, this.palette.beamCore, 0.26 + chargeFraction * 0.32)
         attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
       } else if (placement.kind === 'laser-emitter' && !network.poweredDeviceIds.has(placement.id)) {
         const angle = placement.rotationDeg * Math.PI / 180
@@ -372,7 +418,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
         const end = { x: point.x + Math.cos(angle) * radius, y: point.y + Math.sin(angle) * radius }
         attacks.lineStyle(11, color, 0.24)
         attacks.lineBetween(point.x, point.y, end.x, end.y)
-        attacks.lineStyle(2, 0xffffff, 0.95)
+        attacks.lineStyle(2, this.palette.beamCore, 0.95)
         attacks.lineBetween(point.x, point.y, end.x, end.y)
         return
       }
@@ -383,7 +429,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
         const pulseRadius = Math.max(20, radius * pulseProgress)
         attacks.lineStyle(4 - pulseProgress * 2, color, 0.72 * (1 - pulseProgress * 0.75))
         attacks.strokeCircle(point.x, point.y, pulseRadius)
-        attacks.lineStyle(1, 0xffffff, 0.36 * (1 - pulseProgress))
+        attacks.lineStyle(1, this.palette.beamCore, 0.36 * (1 - pulseProgress))
         attacks.strokeCircle(point.x, point.y, Math.max(14, pulseRadius - 8))
         return
       }
@@ -394,9 +440,9 @@ export class OpticalDefenseScene extends Phaser.Scene {
       if (placement.kind === 'laser-emitter') {
         attacks.lineStyle(4, color, 0.28)
         attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
-        attacks.lineStyle(1.5, 0xffffff, 0.9)
+        attacks.lineStyle(1.5, this.palette.beamCore, 0.9)
         attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
-        attacks.fillStyle(0xffffff, 0.95)
+        attacks.fillStyle(this.palette.beamCore, 0.95)
         attacks.fillCircle(targetPoint.x, targetPoint.y, 5)
       } else {
         const burstRadius = placement.kind === 'radiation-source' ? 52 : 36
@@ -423,15 +469,15 @@ export class OpticalDefenseScene extends Phaser.Scene {
     }
     existing?.graphics.destroy(true)
     existing?.label.destroy(true)
-    const color = DEVICE_COLORS[placement.kind]
+    const color = deviceColor(placement.kind, this.colorMode)
     const g = this.add.graphics()
     if (placement.id === selectedId) {
-      g.lineStyle(2, 0xffffff, 0.9)
+      g.lineStyle(2, this.palette.selected, 0.9)
       g.strokeCircle(0, 0, 25)
       g.fillStyle(color, 0.13)
       g.fillCircle(0, 0, 24)
     }
-    g.fillStyle(0x071013, 0.96)
+    g.fillStyle(this.palette.deviceBody, 0.96)
     g.fillCircle(0, 0, 19)
     g.lineStyle(2.4, color, 0.95)
     if (placement.kind === 'mirror') {
@@ -443,7 +489,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       const angle = placement.rotationDeg * Math.PI / 180
       const forward = { x: Math.cos(angle), y: Math.sin(angle) }
       const side = { x: -forward.y, y: forward.x }
-      g.fillStyle(0xdaf7ff, 0.1)
+      g.fillStyle(this.palette.prismFill, this.colorMode === 'light' ? 0.08 : 0.1)
       g.fillTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
       g.strokeTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
       ;[0xff4f58, 0x3ee68d, 0x4ea7ff].forEach((beamColor, index) => {
@@ -512,7 +558,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillCircle(0, 0, placement.kind.startsWith('source-') ? 10 : 7)
     }
     const label = this.add.text(0, placement.kind === 'mirror' ? 11 : 0, DEVICE_LABELS[placement.kind], {
-      fontFamily: 'Arial, sans-serif', fontSize: placement.kind === 'mirror' ? '8px' : '7px', color: '#f6ffff', fontStyle: 'bold',
+      fontFamily: 'Arial, sans-serif', fontSize: placement.kind === 'mirror' ? '8px' : '7px', color: this.palette.deviceLabel, fontStyle: 'bold',
     }).setOrigin(0.5)
     g.setPosition(point.x, point.y)
     label.setPosition(point.x, point.y + (placement.kind === 'mirror' ? 11 : 0))
@@ -529,7 +575,9 @@ export class OpticalDefenseScene extends Phaser.Scene {
     }
     const path = level.paths?.[enemy.routeIndex ?? 0] ?? level.path
     const point = pointOnPath(path, enemy.progress)
-    const color = enemy.kind === 'boss' ? 0xff4967 : enemy.kind === 'armored' ? 0xa7b3c2 : enemy.kind === 'resistant' ? 0xd98bff : enemy.kind === 'fast' ? 0xffce59 : 0xf4f6f0
+    const color = this.colorMode === 'light'
+      ? enemy.kind === 'boss' ? 0xb92f4c : enemy.kind === 'armored' ? 0x667687 : enemy.kind === 'resistant' ? 0x8c45a4 : enemy.kind === 'fast' ? 0xa96b04 : 0x354b48
+      : enemy.kind === 'boss' ? 0xff4967 : enemy.kind === 'armored' ? 0xa7b3c2 : enemy.kind === 'resistant' ? 0xd98bff : enemy.kind === 'fast' ? 0xffce59 : 0xf4f6f0
     const size = enemy.kind === 'boss' ? 22 : enemy.kind === 'armored' ? 17 : 13
     // 状态变化时才重建敌人图形（位置每帧 setPosition，血量按 5% 分档）。
     const healthBucket = Math.round(enemy.health / enemy.maxHealth * 20)
@@ -549,7 +597,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     g.setPosition(point.x, point.y)
     if (cached && cached.signature === signature) return
     g.clear()
-    g.fillStyle(0x050708, 0.88)
+    g.fillStyle(this.palette.enemyBacking, this.colorMode === 'light' ? 0.96 : 0.88)
     g.fillCircle(0, 0, size + 4)
     g.fillStyle(color, 1)
     if (enemy.kind === 'armored') g.fillRoundedRect(-size, -size, size * 2, size * 2, 5)
@@ -559,9 +607,11 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.lineStyle(3, enemy.resistance === 'r' ? 0xff4f58 : enemy.resistance === 'g' ? 0x3ee68d : 0x4ea7ff, 1)
       g.strokeCircle(0, 0, size + 2)
     }
-    g.fillStyle(0x172226, 1)
+    g.fillStyle(this.palette.healthTrack, 1)
     g.fillRoundedRect(-18, size + 7, 36, 4, 2)
-    g.fillStyle(enemy.health / enemy.maxHealth < 0.3 ? 0xff5e67 : 0x5df1a6, 1)
+    g.fillStyle(enemy.health / enemy.maxHealth < 0.3
+      ? (this.colorMode === 'light' ? 0xc83d4a : 0xff5e67)
+      : (this.colorMode === 'light' ? 0x21825d : 0x5df1a6), 1)
     g.fillRoundedRect(-18, size + 7, 36 * (enemy.health / enemy.maxHealth), 4, 2)
     if (enemy.status.freezeSeconds > 0) {
       g.lineStyle(2, 0x69e9ff, 0.9)
@@ -590,7 +640,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.lineBetween(size + 4, -size - 4, -size - 4, size + 4)
     }
     if (enemy.status.vulnerableSeconds > 0) {
-      g.lineStyle(2, 0xffffff, 0.92)
+      g.lineStyle(2, this.palette.selected, 0.92)
       g.lineBetween(-size - 7, 0, -size - 2, -5)
       g.lineBetween(-size - 2, -5, 2, 4)
       g.lineBetween(2, 4, size + 7, -4)
@@ -607,11 +657,11 @@ export class OpticalDefenseScene extends Phaser.Scene {
     snapshot.battle.events.filter((event) => event.id > this.handledEventId).forEach((event) => {
       this.handledEventId = Math.max(this.handledEventId, event.id)
       if (event.type === 'kill') {
-        const text = this.add.text(event.point.x, event.point.y - 20, `+${event.value}W`, { color: '#7bffc0', fontFamily: 'Arial', fontSize: '14px', fontStyle: 'bold' }).setOrigin(0.5)
+        const text = this.add.text(event.point.x, event.point.y - 20, `+${event.value}W`, { color: this.colorMode === 'light' ? '#167a55' : '#7bffc0', fontFamily: 'Arial', fontSize: '14px', fontStyle: 'bold' }).setOrigin(0.5)
         this.tweens.add({ targets: text, y: text.y - 30, alpha: 0, duration: snapshot.reduceMotion ? 200 : 760, onComplete: () => text.destroy() })
       }
       if (event.type === 'explosion') {
-        const ring = this.add.circle(event.point.x, event.point.y, 24, 0xffd36a, 0.32).setStrokeStyle(4, 0xffffff, 0.9)
+        const ring = this.add.circle(event.point.x, event.point.y, 24, 0xffd36a, 0.32).setStrokeStyle(4, this.palette.selected, 0.9)
         const scale = event.radius / 24
         this.tweens.add({ targets: ring, scale, alpha: 0, duration: snapshot.reduceMotion ? 260 : 850, ease: 'Cubic.Out', onComplete: () => ring.destroy() })
         this.cameras.main.shake(snapshot.reduceMotion ? 50 : 260, snapshot.reduceMotion ? 0.001 : 0.008)
@@ -622,7 +672,13 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private drawSnapshot() {
     const snapshot = this.snapshot
     if (!snapshot) return
-    if (this.lastLevelId !== snapshot.level.id) {
+    const colorModeChanged = this.colorMode !== snapshot.colorMode
+    if (colorModeChanged) {
+      this.colorMode = snapshot.colorMode
+      this.palette = SCENE_PALETTES[this.colorMode]
+      this.cameras.main.setBackgroundColor(this.palette.background)
+    }
+    if (this.lastLevelId !== snapshot.level.id || colorModeChanged) {
       this.drawBoard(snapshot.level)
       this.lastLevelId = snapshot.level.id
       this.lastHoleSignature = '\u0000'

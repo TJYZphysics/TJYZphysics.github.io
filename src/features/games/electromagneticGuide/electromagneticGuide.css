@@ -22,8 +22,7 @@
 @media(max-width:760px){.em-guide__inspector{max-width:440px}.em-guide__stage canvas.is-sandbox{cursor:crosshair}}
 .em-guide__level-strip{scrollbar-width:none}.em-guide__level-strip::-webkit-scrollbar{display:none}
 
-/* Theme integration. The field canvas stays dark for particle/field contrast;
-   all surrounding navigation, editing and telemetry UI follows the site mode. */
+/* Theme integration keeps the field canvas and its controls readable in both modes. */
 html[data-color-mode='light'] .em-guide{--em-cyan:#147b8d;--em-blue:#496fba;--em-amber:#a76a16;--em-green:#197354;--em-line:rgba(35,55,67,.14);color:#202b32;border-color:rgba(35,55,67,.15);background:radial-gradient(circle at 95% 0,rgba(44,118,151,.1),transparent 36%),linear-gradient(145deg,#f8faf9 0,#e8eeef 58%,#edf1f1 100%);box-shadow:inset 0 1px #fff,0 25px 62px rgba(39,52,60,.11)}
 html[data-color-mode='light'] .em-guide:before{opacity:.38;background-image:linear-gradient(rgba(41,69,83,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(41,69,83,.06) 1px,transparent 1px)}
 html[data-color-mode='light'] .em-guide__header p,html[data-color-mode='light'] .em-guide__level-badge span,html[data-color-mode='light'] .em-guide__level-badge small,html[data-color-mode='light'] .em-guide__mission p,html[data-color-mode='light'] .em-guide__panel-title small,html[data-color-mode='light'] .em-guide__tools small,html[data-color-mode='light'] .em-guide__particles small,html[data-color-mode='light'] .em-guide__goal p,html[data-color-mode='light'] .em-guide__legend,html[data-color-mode='light'] .em-guide__inspector label,html[data-color-mode='light'] .em-guide__inspector>small{color:#667988}
@@ -40,7 +39,13 @@ html[data-color-mode='light'] .em-guide__tools>button.is-active{background:rgba(
 html[data-color-mode='light'] .em-guide__tools b{color:#596d7b}
 html[data-color-mode='light'] .em-guide__tool-icon{background:rgba(35,55,67,.06)}
 html[data-color-mode='light'] .em-guide__transform button,html[data-color-mode='light'] .em-guide__edit-actions button{color:#465966;border-color:rgba(35,55,67,.15);background:rgba(255,255,255,.72)}
-html[data-color-mode='light'] .em-guide__stage{border-color:rgba(32,78,99,.3);background:#07101a;box-shadow:inset 0 0 45px rgba(0,0,0,.38),0 12px 28px rgba(41,53,61,.12)}
+html[data-color-mode='light'] .em-guide__stage{border-color:rgba(32,78,99,.3);background:#edf4f3;box-shadow:inset 0 0 34px rgba(36,84,98,.08),0 12px 28px rgba(41,53,61,.12)}
+html[data-color-mode='light'] .em-guide__canvas-label{border-color:rgba(35,82,99,.18);color:#466a78;background:rgba(246,251,251,.88)}
+html[data-color-mode='light'] .em-guide__zoom{border-color:rgba(35,82,99,.18);background:rgba(246,251,251,.9)}
+html[data-color-mode='light'] .em-guide__zoom button:hover{background:rgba(20,123,141,.1)}
+html[data-color-mode='light'] .em-guide__zoom span{color:#466a78}
+html[data-color-mode='light'] .em-guide__launch{border-color:rgba(35,82,99,.2);background:rgba(246,251,251,.94);box-shadow:0 10px 30px rgba(41,53,61,.16)}
+html[data-color-mode='light'] .em-guide__timeline{background:#c9d8db}
 html[data-color-mode='light'] .em-guide__particles article{border-color:rgba(35,55,67,.12);background:rgba(255,255,255,.62)}
 html[data-color-mode='light'] .em-guide__particles dt{color:#728391}
 html[data-color-mode='light'] .em-guide__goal{background:rgba(25,115,84,.07)}
@@ -89,4 +94,40 @@ html[data-theme='claude-dark'] .em-guide__inspector input[type=number],html[data
   .em-guide__edit-actions button,
   .em-guide__launch button { min-height: 44px; touch-action: manipulation; }
   .em-guide__inspector input[type="range"] { min-height: 44px; }
+}
+
+/* Flat light materials avoid cloudy gradients and keep field colors distinct. */
+html[data-color-mode='light'] .em-guide {
+  background: #f3f6f6;
+  box-shadow: 0 14px 34px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .em-guide::before { opacity: 0; }
+html[data-color-mode='light'] .em-guide__level-badge,
+html[data-color-mode='light'] .em-guide__mission,
+html[data-color-mode='light'] .em-guide__goal { background: #eaf1f1; }
+html[data-color-mode='light'] .em-guide__levels,
+html[data-color-mode='light'] .em-guide__panel,
+html[data-color-mode='light'] .em-guide__status {
+  background: #fafcfc;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .em-guide__tools > button,
+html[data-color-mode='light'] .em-guide__particles article,
+html[data-color-mode='light'] .em-guide__transform button,
+html[data-color-mode='light'] .em-guide__edit-actions button { background: #f4f7f7; }
+html[data-color-mode='light'] .em-guide__tools > button:hover:not(:disabled) { background: #eef3f3; }
+html[data-color-mode='light'] .em-guide__tools > button.is-active { background: #e4eff0; }
+html[data-color-mode='light'] .em-guide__inspector {
+  background: #f2f4f6;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .em-guide__stage {
+  background: #edf2f2;
+  box-shadow: 0 10px 24px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .em-guide__canvas-label,
+html[data-color-mode='light'] .em-guide__zoom,
+html[data-color-mode='light'] .em-guide__launch {
+  background: #f9fbfb;
+  box-shadow: 0 4px 12px rgba(35, 52, 61, .08);
 }

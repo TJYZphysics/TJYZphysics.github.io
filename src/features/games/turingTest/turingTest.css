@@ -163,6 +163,146 @@
 .tt-share-zone__status { display: block; min-height: 18px; margin-top: 12px; color: #7f8da4; font-size: 10px; }
 .tt-restart { margin: 24px auto 0; display: flex; color: #9eabc0; border-color: var(--tt-line); background: transparent; }
 
+html[data-theme='light'] .turing-test {
+  --tt-cyan: #176f82;
+  --tt-cyan-soft: rgba(23, 111, 130, .1);
+  --tt-amber: #9a5b12;
+  --tt-violet: #6654b5;
+  --tt-green: #2b7655;
+  --tt-ink: #202a32;
+  --tt-muted: #606d76;
+  --tt-line: rgba(38, 64, 76, .16);
+  background:
+    linear-gradient(118deg, transparent 0 71%, rgba(154, 91, 18, .055) 71% 78%, transparent 78%),
+    linear-gradient(145deg, #fff, #edf3f3 66%);
+  box-shadow: inset 0 1px #fff, 0 28px 70px rgba(39, 55, 61, .12);
+}
+
+html[data-theme='light'] .turing-test::before {
+  opacity: .8;
+  background: linear-gradient(90deg, rgba(23, 111, 130, .09), transparent 24%, transparent 76%, rgba(154, 91, 18, .07));
+}
+
+html[data-theme='light'] .turing-test__grid {
+  opacity: .52;
+  background-image:
+    linear-gradient(rgba(49, 95, 118, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(49, 95, 118, .07) 1px, transparent 1px);
+}
+
+html[data-theme='light'] .tt-intro h2 { color: #18242d; }
+html[data-theme='light'] .tt-intro__note { color: #4d5f6d; }
+html[data-theme='light'] .tt-intro__disclaimer { color: #687680; }
+html[data-theme='light'] .tt-intro__factions > i {
+  border-color: rgba(102, 84, 181, .28);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: 0 8px 24px rgba(71, 57, 126, .1);
+}
+
+html[data-theme='light'] .tt-primary-action {
+  color: #fff;
+  background: linear-gradient(135deg, #20879a, var(--tt-cyan));
+  box-shadow: 0 15px 34px rgba(23, 111, 130, .2), inset 0 1px rgba(255, 255, 255, .25);
+}
+
+html[data-theme='light'] .tt-primary-action:hover {
+  box-shadow: 0 19px 40px rgba(23, 111, 130, .25), inset 0 1px rgba(255, 255, 255, .3);
+}
+
+html[data-theme='light'] .tt-quiz__header > button {
+  color: #536673;
+  background: rgba(255, 255, 255, .68);
+  box-shadow: 0 6px 18px rgba(39, 55, 61, .06);
+}
+
+html[data-theme='light'] .tt-quiz__header > button:hover:not(:disabled) { color: var(--tt-cyan); }
+html[data-theme='light'] .tt-quiz__header strong i { color: #74818a; }
+html[data-theme='light'] .tt-progress { background: rgba(38, 64, 76, .09); }
+html[data-theme='light'] .tt-progress > i { box-shadow: 0 0 12px rgba(23, 111, 130, .2); }
+
+html[data-theme='light'] .tt-answer-scale button {
+  color: #52636f;
+  background: linear-gradient(155deg, rgba(255, 255, 255, .92), rgba(235, 242, 242, .84));
+  box-shadow: inset 0 1px #fff, 0 8px 24px rgba(39, 55, 61, .045);
+}
+
+html[data-theme='light'] .tt-answer-scale button:hover,
+html[data-theme='light'] .tt-answer-scale button.is-selected {
+  border-color: rgba(23, 111, 130, .52);
+  color: #123e49;
+  background: var(--tt-cyan-soft);
+  box-shadow: 0 10px 24px rgba(23, 111, 130, .09);
+}
+
+html[data-theme='light'] .tt-answer-scale button > i { border-color: rgba(38, 64, 76, .24); }
+html[data-theme='light'] .tt-answer-scale button:hover > i,
+html[data-theme='light'] .tt-answer-scale button.is-selected > i { color: #fff; }
+html[data-theme='light'] .tt-quiz__counter { color: #687680; }
+
+html[data-theme='light'] .tt-result__score b {
+  color: #1e2a32;
+  text-shadow: 0 8px 30px color-mix(in srgb, var(--tt-result-accent) 16%, transparent);
+}
+
+html[data-theme='light'] .tt-result__score small { color: #687680; }
+html[data-theme='light'] .tt-spectrum > div:first-child { color: #5d6b75; }
+html[data-theme='light'] .tt-spectrum__track { box-shadow: 0 7px 24px rgba(78, 65, 135, .14); }
+html[data-theme='light'] .tt-spectrum__track::after { border-color: rgba(30, 51, 61, .28); }
+html[data-theme='light'] .tt-spectrum__track > i { border-color: #fff; }
+html[data-theme='light'] .tt-spectrum__track b { color: #fff; }
+
+html[data-theme='light'] .tt-radar,
+html[data-theme='light'] .tt-dimensions {
+  background: rgba(255, 255, 255, .72);
+  box-shadow: inset 0 1px #fff, 0 12px 32px rgba(39, 55, 61, .06);
+}
+
+html[data-theme='light'] .tt-radar figcaption span,
+html[data-theme='light'] .tt-dimensions h3 { color: #23333d; }
+html[data-theme='light'] .tt-radar figcaption small,
+html[data-theme='light'] .tt-dimensions header > span { color: #65737d; }
+html[data-theme='light'] .tt-radar__grid { stroke: rgba(42, 76, 91, .17); }
+html[data-theme='light'] .tt-radar__axis { stroke: rgba(42, 76, 91, .14); }
+html[data-theme='light'] .tt-radar__shape { filter: drop-shadow(0 5px 7px color-mix(in srgb, var(--tt-result-accent) 18%, transparent)); }
+html[data-theme='light'] .tt-radar__point { fill: #fff; }
+html[data-theme='light'] .tt-radar__label { fill: #53636e; }
+html[data-theme='light'] .tt-dimension__heading strong { color: #2a3943; }
+html[data-theme='light'] .tt-dimension__track::after { background: rgba(30, 51, 61, .3); }
+html[data-theme='light'] .tt-dimension__track i { border-color: #fff; }
+html[data-theme='light'] .tt-dimension__poles { color: #63727c; }
+html[data-theme='light'] .tt-profile p { color: #596974; }
+html[data-theme='light'] .tt-profile li { color: #3f515d; }
+
+html[data-theme='light'] .tt-share-zone {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .8), rgba(228, 238, 239, .66));
+  box-shadow: inset 0 1px #fff, 0 14px 38px rgba(39, 55, 61, .065);
+}
+
+/* The preview mirrors the intentionally theme-independent dark export poster. */
+html[data-theme='light'] .tt-share-preview {
+  --tt-poster-accent: #a895ff;
+  color: #f4f7ff;
+}
+
+html[data-theme='light'] .tt-share-preview--turing { --tt-poster-accent: #59e1ff; }
+html[data-theme='light'] .tt-share-preview--von-neumann { --tt-poster-accent: #ffb65e; }
+html[data-theme='light'] .tt-share-preview__spectrum {
+  background: linear-gradient(90deg, #ffb65e, #a895ff, #59e1ff);
+}
+
+html[data-theme='light'] .tt-share-zone__actions button,
+html[data-theme='light'] .tt-restart { color: #fff; }
+html[data-theme='light'] .tt-share-zone__actions button.is-secondary {
+  color: #3d5360;
+  background: rgba(255, 255, 255, .72);
+}
+
+html[data-theme='light'] .tt-share-zone__status { color: #66747e; }
+html[data-theme='light'] .tt-restart {
+  color: #50636f;
+  background: rgba(255, 255, 255, .35);
+}
+
 @keyframes tt-fade-in { from { opacity: 0; transform: translateY(10px); } }
 @keyframes tt-question-in { from { opacity: 0; transform: translateX(35px); } }
 @keyframes tt-question-out { to { opacity: 0; transform: translateX(-35px); } }

@@ -48,14 +48,40 @@ function calculatePalette(theme: WaveColorTheme, value: number) {
   return `rgb(${rgb.join(',')})`
 }
 
+function calculateLightPalette(theme: WaveColorTheme, value: number) {
+  const t = clamp((value + 1) / 2, 0, 1)
+  if (theme === 'thermal') {
+    const rgb = t < 0.34
+      ? mixColor([48, 67, 110], [43, 108, 122], t / 0.34)
+      : t < 0.68
+        ? mixColor([43, 108, 122], [159, 118, 49], (t - 0.34) / 0.34)
+        : mixColor([159, 118, 49], [155, 64, 64], (t - 0.68) / 0.32)
+    return `rgb(${rgb.join(',')})`
+  }
+  if (theme === 'mono') {
+    const gray = Math.round(56 + t * 112)
+    return `rgb(${gray},${Math.min(194, gray + 6)},${Math.min(202, gray + 12)})`
+  }
+  const rgb = t < 0.5
+    ? mixColor([56, 66, 135], [28, 100, 111], t * 2)
+    : mixColor([28, 100, 111], [109, 62, 126], (t - 0.5) * 2)
+  return `rgb(${rgb.join(',')})`
+}
+
 const COLOR_LUTS: Record<WaveColorTheme, string[]> = {
   neon: Array.from({ length: 129 }, (_, index) => calculatePalette('neon', index / 64 - 1)),
   thermal: Array.from({ length: 129 }, (_, index) => calculatePalette('thermal', index / 64 - 1)),
   mono: Array.from({ length: 129 }, (_, index) => calculatePalette('mono', index / 64 - 1)),
 }
 
-function palette(theme: WaveColorTheme, value: number) {
-  return COLOR_LUTS[theme][Math.round(clamp((value + 1) * 64, 0, 128))]
+const LIGHT_COLOR_LUTS: Record<WaveColorTheme, string[]> = {
+  neon: Array.from({ length: 129 }, (_, index) => calculateLightPalette('neon', index / 64 - 1)),
+  thermal: Array.from({ length: 129 }, (_, index) => calculateLightPalette('thermal', index / 64 - 1)),
+  mono: Array.from({ length: 129 }, (_, index) => calculateLightPalette('mono', index / 64 - 1)),
+}
+
+function palette(theme: WaveColorTheme, value: number, light = false) {
+  return (light ? LIGHT_COLOR_LUTS : COLOR_LUTS)[theme][Math.round(clamp((value + 1) * 64, 0, 128))]
 }
 
 function projectPoint(
@@ -88,11 +114,12 @@ function projectPoint(
 }
 
 function drawBackdrop(context: CanvasRenderingContext2D, width: number, height: number) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   const gradient = context.createRadialGradient(width * 0.48, height * 0.35, 20, width * 0.5, height * 0.52, width * 0.72)
   gradient.addColorStop(0, '#142854')
   gradient.addColorStop(0.48, '#0a1430')
   gradient.addColorStop(1, '#050914')
-  context.fillStyle = gradient
+  context.fillStyle = light ? '#e9eff0' : gradient
   context.fillRect(0, 0, width, height)
 }
 
@@ -106,6 +133,7 @@ function drawProjection(
   camera: WaveCamera,
   receiverDistance: number,
 ) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   const basePaddingX = Math.max(34, width * 0.06)
   const basePaddingY = Math.max(38, height * 0.08)
   const plotWidth = (width - basePaddingX * 2) * camera.zoom
@@ -116,12 +144,12 @@ function drawProjection(
   const cellHeight = plotHeight / (field.rows - 1)
   context.save()
   context.globalAlpha = 1
-  context.fillStyle = 'rgba(5, 10, 25, .84)'
+  context.fillStyle = light ? 'rgba(235, 244, 246, .92)' : 'rgba(5, 10, 25, .84)'
   context.fillRect(paddingX - 8, paddingY - 8, plotWidth + 16, plotHeight + 16)
   for (let row = 0; row < field.rows - 1; row += 1) {
     for (let column = 0; column < field.columns - 1; column += 1) {
       const index = row * field.columns + column
-      context.fillStyle = palette(theme, values[index])
+      context.fillStyle = palette(theme, values[index], light)
       context.fillRect(
         paddingX + column * cellWidth,
         paddingY + (field.rows - 2 - row) * cellHeight,
@@ -130,7 +158,7 @@ function drawProjection(
       )
     }
   }
-  context.strokeStyle = 'rgba(170, 209, 255, .2)'
+  context.strokeStyle = light ? 'rgba(31, 83, 101, .28)' : 'rgba(170, 209, 255, .2)'
   context.lineWidth = 1
   context.strokeRect(paddingX - 8, paddingY - 8, plotWidth + 16, plotHeight + 16)
 
@@ -143,7 +171,7 @@ function drawProjection(
       cursor = aperture.end
     }
     segments.push([cursor, field.width / 2])
-    context.strokeStyle = 'rgba(233, 239, 255, .82)'
+    context.strokeStyle = light ? 'rgba(38, 72, 86, .82)' : 'rgba(233, 239, 255, .82)'
     context.lineWidth = 4
     for (const [start, end] of segments) {
       context.beginPath()
@@ -156,15 +184,15 @@ function drawProjection(
   const screenZ = receiverScreenZ(field, receiverDistance)
   const receiverY = paddingY + plotHeight - (screenZ / field.depth) * plotHeight
   context.save()
-  context.shadowColor = 'rgba(119, 224, 241, .45)'
+  context.shadowColor = light ? 'rgba(12, 114, 133, .28)' : 'rgba(119, 224, 241, .45)'
   context.shadowBlur = 9
-  context.fillStyle = 'rgba(216, 244, 249, .76)'
+  context.fillStyle = light ? 'rgba(36, 128, 145, .72)' : 'rgba(216, 244, 249, .76)'
   context.fillRect(paddingX - 5, receiverY - 3, plotWidth + 10, 6)
   context.shadowBlur = 0
-  context.strokeStyle = 'rgba(121, 219, 235, .94)'
+  context.strokeStyle = light ? 'rgba(5, 99, 117, .94)' : 'rgba(121, 219, 235, .94)'
   context.lineWidth = 1.2
   context.strokeRect(paddingX - 5, receiverY - 3, plotWidth + 10, 6)
-  context.fillStyle = 'rgba(196, 240, 247, .92)'
+  context.fillStyle = light ? 'rgba(13, 75, 90, .94)' : 'rgba(196, 240, 247, .92)'
   context.font = '700 9px "SFMono-Regular", Consolas, monospace'
   context.fillText(`RECEIVER · R ${receiverDistance.toFixed(1)} m`, paddingX + 6, receiverY - 9)
   context.restore()
@@ -175,16 +203,16 @@ function drawProjection(
     const sourceY = paddingY + plotHeight - (source.z / field.depth) * plotHeight
     context.beginPath()
     context.arc(sourceX, sourceY, 5, 0, Math.PI * 2)
-    context.fillStyle = '#fff1a6'
+    context.fillStyle = light ? '#c88308' : '#fff1a6'
     context.shadowColor = '#ffd96b'
     context.shadowBlur = 12
     context.fill()
     context.shadowBlur = 0
-    context.fillStyle = 'rgba(255,241,166,.88)'
+    context.fillStyle = light ? 'rgba(120,73,0,.9)' : 'rgba(255,241,166,.88)'
     context.fillText('S', sourceX + 9, sourceY - 8)
   }
 
-  context.fillStyle = 'rgba(188, 205, 234, .72)'
+  context.fillStyle = light ? 'rgba(42, 72, 87, .78)' : 'rgba(188, 205, 234, .72)'
   context.font = '11px "SFMono-Regular", Consolas, monospace'
   context.fillText('x / m', width - paddingX - 24, height - 14)
   context.fillText('z / m', 12, paddingY + 6)
@@ -205,6 +233,7 @@ function drawMeshReceiver(
   camera: WaveCamera,
   receiverDistance: number,
 ) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   const z = receiverScreenZ(field, receiverDistance)
   const halfWidth = field.width * 0.47
   const bottom = -0.46
@@ -237,7 +266,7 @@ function drawMeshReceiver(
 
   context.save()
   context.lineJoin = 'round'
-  context.shadowColor = 'rgba(104, 225, 242, .34)'
+  context.shadowColor = light ? 'rgba(19, 113, 130, .2)' : 'rgba(104, 225, 242, .34)'
   context.shadowBlur = 12
   for (const face of faces) {
     context.beginPath()
@@ -246,7 +275,7 @@ function drawMeshReceiver(
     context.closePath()
     context.fillStyle = face.fill
     context.fill()
-    context.strokeStyle = 'rgba(249, 255, 255, .98)'
+    context.strokeStyle = light ? 'rgba(28, 92, 108, .72)' : 'rgba(249, 255, 255, .98)'
     context.lineWidth = 1.2
     context.stroke()
   }
@@ -270,13 +299,13 @@ function drawMeshReceiver(
   const labelWidth = context.measureText(label).width + 14
   const labelX = Math.min(Math.max(8, labelAnchor.x + 6), width - labelWidth - 8)
   const labelY = Math.min(Math.max(18, labelAnchor.y - 23), height - 24)
-  context.fillStyle = 'rgba(7, 21, 38, .82)'
+  context.fillStyle = light ? 'rgba(244, 250, 251, .94)' : 'rgba(7, 21, 38, .82)'
   context.beginPath()
   context.roundRect(labelX, labelY, labelWidth, 18, 5)
   context.fill()
-  context.strokeStyle = 'rgba(126, 229, 242, .55)'
+  context.strokeStyle = light ? 'rgba(18, 107, 125, .48)' : 'rgba(126, 229, 242, .55)'
   context.stroke()
-  context.fillStyle = '#d9f9fc'
+  context.fillStyle = light ? '#17566a' : '#d9f9fc'
   context.fillText(label, labelX + 7, labelY + 12)
   context.restore()
 }
@@ -288,18 +317,19 @@ function drawMeshSources(
   field: WaveField,
   camera: WaveCamera,
 ) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   context.save()
   context.font = '600 10px "SFMono-Regular", Consolas, monospace'
   for (const source of field.sourcePositions) {
     const point = projectPoint(source.x, 0.3, source.z, field, camera, width, height)
     context.beginPath()
     context.arc(point.x, point.y, 5.5, 0, Math.PI * 2)
-    context.fillStyle = '#fff1a6'
+    context.fillStyle = light ? '#c88308' : '#fff1a6'
     context.shadowColor = '#ffd96b'
     context.shadowBlur = 15
     context.fill()
     context.shadowBlur = 0
-    context.fillStyle = 'rgba(255,241,166,.9)'
+    context.fillStyle = light ? 'rgba(120,73,0,.9)' : 'rgba(255,241,166,.9)'
     context.fillText('S', point.x + 9, point.y - 8)
   }
   context.restore()
@@ -387,10 +417,11 @@ function buildBarrierSegments(
 }
 
 function strokeBarrierSegment(context: CanvasRenderingContext2D, segment: BarrierSegment) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   context.globalAlpha = 1
-  context.strokeStyle = 'rgba(239, 244, 255, .9)'
+  context.strokeStyle = light ? 'rgba(38, 72, 86, .82)' : 'rgba(239, 244, 255, .9)'
   context.lineWidth = 4
-  context.shadowColor = 'rgba(102, 232, 255, .28)'
+  context.shadowColor = light ? 'rgba(17, 100, 119, .18)' : 'rgba(102, 232, 255, .28)'
   context.shadowBlur = 10
   context.beginPath()
   context.moveTo(segment.from.x, segment.from.y)
@@ -410,6 +441,7 @@ function drawMesh(
   cache: WaveRenderCache,
   renderStride: number,
 ) {
+  const light = document.documentElement.dataset.colorMode === 'light'
   const verticalScale = Math.min(field.width, field.depth) * 0.12
   const cosYaw = Math.cos(camera.yaw)
   const sinYaw = Math.sin(camera.yaw)
@@ -502,10 +534,10 @@ function drawMesh(
       path.closePath()
       buckets[bucket] = path
     }
-    context.globalAlpha = 0.72
+    context.globalAlpha = light ? 0.72 : 0.72
     buckets.forEach((path, bucket) => {
       if (!path) return
-      context.fillStyle = palette(theme, (bucket + 0.5) * 2 / bucketCount - 1)
+      context.fillStyle = palette(theme, (bucket + 0.5) * 2 / bucketCount - 1, light)
       context.fill(path)
     })
     context.globalAlpha = 1
@@ -535,12 +567,12 @@ function drawMesh(
     context.lineTo(cache.pointX[lowerIndex], cache.pointY[lowerIndex])
     context.closePath()
     context.shadowBlur = 0
-    context.globalAlpha = 0.72
-    context.fillStyle = palette(theme, average)
+    context.globalAlpha = light ? 0.72 : 0.72
+    context.fillStyle = palette(theme, average, light)
     context.fill()
     if (width >= 600) {
-      context.globalAlpha = theme === 'mono' ? 0.18 : 0.22
-      context.strokeStyle = theme === 'mono' ? '#dbe7f4' : '#9beeff'
+      context.globalAlpha = light ? 0.18 : theme === 'mono' ? 0.18 : 0.22
+      context.strokeStyle = light ? '#275e68' : theme === 'mono' ? '#dbe7f4' : '#9beeff'
       context.lineWidth = 0.55
       context.stroke()
     }

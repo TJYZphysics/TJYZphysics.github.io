@@ -30,6 +30,7 @@ const DEFAULT_PRESET: ThreeBodyPresetKey = 'figure-eight'
 const FIXED_STEP = 0.004
 const GRAVITY = 1
 const SOFTENING = 0.025
+const LIGHT_BODY_COLORS = ['#187f94', '#556fb2', '#b77c20'] as const
 
 function presetLabel(key: ThreeBodyPresetKey): string {
   return THREE_BODY_PRESETS.find((preset) => preset.key === key)?.label ?? key
@@ -52,31 +53,25 @@ function drawScene(
   const width = canvas.width / pixelRatio
   const height = canvas.height / pixelRatio
   if (width <= 0 || height <= 0) return
+  const light = document.documentElement.dataset.colorMode === 'light'
 
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
   context.clearRect(0, 0, width, height)
 
-  const background = context.createRadialGradient(
-    width * 0.54,
-    height * 0.44,
-    12,
-    width * 0.5,
-    height * 0.5,
-    Math.max(width, height) * 0.7,
-  )
+  const background = context.createRadialGradient(width * 0.54, height * 0.44, 12, width * 0.5, height * 0.5, Math.max(width, height) * 0.7)
   background.addColorStop(0, 'rgba(30, 53, 102, 0.48)')
   background.addColorStop(0.46, 'rgba(10, 17, 43, 0.2)')
   background.addColorStop(1, 'rgba(4, 7, 20, 0.72)')
-  context.fillStyle = background
+  context.fillStyle = light ? '#edf2f3' : background
   context.fillRect(0, 0, width, height)
 
   context.save()
-  for (let index = 0; index < 58; index += 1) {
+  for (let index = 0; index < (light ? 34 : 58); index += 1) {
     const x = ((index * 83) % 997) / 997
     const y = ((index * 47 + 19) % 613) / 613
     const radius = index % 7 === 0 ? 1.15 : 0.55
-    context.globalAlpha = 0.2 + (index % 5) * 0.07
-    context.fillStyle = index % 9 === 0 ? '#7ce9ff' : '#dbe8ff'
+    context.globalAlpha = light ? 0.12 + (index % 3) * 0.035 : 0.2 + (index % 5) * 0.07
+    context.fillStyle = light ? '#6f8790' : (index % 9 === 0 ? '#7ce9ff' : '#dbe8ff')
     context.beginPath()
     context.arc(x * width, y * height, radius, 0, Math.PI * 2)
     context.fill()
@@ -110,7 +105,7 @@ function drawScene(
   })
 
   context.save()
-  context.strokeStyle = 'rgba(117, 169, 255, 0.105)'
+  context.strokeStyle = light ? 'rgba(42, 91, 108, 0.14)' : 'rgba(117, 169, 255, 0.105)'
   context.lineWidth = 1
   const gridSize = Math.max(44, Math.min(72, width / 10))
   for (let x = origin.x % gridSize; x < width; x += gridSize) {
@@ -130,11 +125,11 @@ function drawScene(
   trails.forEach((trail, bodyIndex) => {
     if (trail.length < 2) return
     context.save()
-    context.strokeStyle = bodies[bodyIndex]?.color ?? '#7ce9ff'
+    context.strokeStyle = light ? LIGHT_BODY_COLORS[bodyIndex] ?? '#187f94' : bodies[bodyIndex]?.color ?? '#7ce9ff'
     context.lineCap = 'round'
     context.lineJoin = 'round'
     context.lineWidth = 1.45
-    context.globalAlpha = 0.48
+    context.globalAlpha = light ? 0.7 : 0.48
     context.beginPath()
     trail.forEach((point, pointIndex) => {
       const projected = project(point)
@@ -147,8 +142,8 @@ function drawScene(
 
   const projectedCenter = project(center)
   context.save()
-  context.strokeStyle = 'rgba(243, 245, 248, 0.72)'
-  context.fillStyle = 'rgba(243, 245, 248, 0.72)'
+  context.strokeStyle = light ? 'rgba(28, 67, 82, 0.76)' : 'rgba(243, 245, 248, 0.72)'
+  context.fillStyle = light ? 'rgba(28, 67, 82, 0.86)' : 'rgba(243, 245, 248, 0.72)'
   context.lineWidth = 1
   context.beginPath()
   context.arc(projectedCenter.x, projectedCenter.y, 5, 0, Math.PI * 2)
@@ -163,9 +158,30 @@ function drawScene(
   context.fillText('质心', projectedCenter.x + 11, projectedCenter.y - 10)
   context.restore()
 
-  bodies.forEach((body) => {
+  bodies.forEach((body, bodyIndex) => {
     const point = project(body.position)
     const radius = 7.5 + Math.sqrt(body.mass) * 4.4
+    const bodyColor = light ? LIGHT_BODY_COLORS[bodyIndex] ?? '#187f94' : body.color
+    if (light) {
+      context.save()
+      context.globalAlpha = 0.12
+      context.fillStyle = bodyColor
+      context.beginPath()
+      context.arc(point.x, point.y, radius * 1.65, 0, Math.PI * 2)
+      context.fill()
+      context.restore()
+      context.fillStyle = bodyColor
+      context.strokeStyle = 'rgba(255,255,255,.9)'
+      context.lineWidth = 2
+      context.beginPath()
+      context.arc(point.x, point.y, radius, 0, Math.PI * 2)
+      context.fill()
+      context.stroke()
+      context.strokeStyle = 'rgba(32,61,72,.48)'
+      context.lineWidth = 1
+      context.stroke()
+      return
+    }
     const halo = context.createRadialGradient(
       point.x,
       point.y,
@@ -174,9 +190,9 @@ function drawScene(
       point.y,
       radius * 2.7,
     )
-    halo.addColorStop(0, body.color)
-    halo.addColorStop(0.35, `${body.color}7d`)
-    halo.addColorStop(1, `${body.color}00`)
+    halo.addColorStop(0, bodyColor)
+    halo.addColorStop(0.35, `${bodyColor}7d`)
+    halo.addColorStop(1, `${bodyColor}00`)
     context.fillStyle = halo
     context.beginPath()
     context.arc(point.x, point.y, radius * 2.7, 0, Math.PI * 2)
@@ -191,7 +207,7 @@ function drawScene(
       radius,
     )
     sphere.addColorStop(0, '#ffffff')
-    sphere.addColorStop(0.18, body.color)
+    sphere.addColorStop(0.18, bodyColor)
     sphere.addColorStop(1, '#172345')
     context.fillStyle = sphere
     context.beginPath()
@@ -201,7 +217,7 @@ function drawScene(
 
   context.save()
   context.font = '600 11px Inter, "Noto Sans SC", sans-serif'
-  context.fillStyle = running ? '#7ce9ff' : 'rgba(225, 234, 255, 0.7)'
+  context.fillStyle = running ? (light ? '#0b6f83' : '#7ce9ff') : (light ? 'rgba(42, 67, 79, 0.78)' : 'rgba(225, 234, 255, 0.7)')
   context.textAlign = 'right'
   context.fillText(running ? 'LIVE · 数值积分中' : 'HOLD · 等待指令', width - 18, 25)
   context.restore()
@@ -308,6 +324,15 @@ export function ThreeBodyLab() {
     }
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const canvas = canvasRef.current
+      if (canvas) drawScene(canvas, bodiesRef.current, trailsRef.current, runningRef.current)
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-color-mode'] })
     return () => observer.disconnect()
   }, [])
 

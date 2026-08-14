@@ -6,6 +6,7 @@ import {
   edgePointFor, isEdgeCell, validateCustomLevel,
 } from './customLevel'
 import type { CustomLevelConfig, CustomGrid, GridCell } from './customLevel'
+import type { OpticalColorMode } from './colorMode'
 
 type Tool = 'brush' | 'erase' | 'entrance' | 'core'
 
@@ -64,16 +65,54 @@ function removeCell(config: CustomLevelConfig, cell: GridCell): CustomLevelConfi
   }
 }
 
-function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevelConfig, grid: CustomGrid) {
+const BUILDER_PALETTES = {
+  dark: {
+    background: '#0b100f',
+    grid: 'rgba(81,97,92,0.2)',
+    road: '#292620',
+    roadBorder: 'rgba(166,141,97,0.22)',
+    route: 'rgba(235,202,132,0.55)',
+    entranceWash: 'rgba(94,225,164,0.16)',
+    entranceFill: 'rgba(94,225,164,0.5)',
+    entranceMarker: 'rgba(94,225,164,0.55)',
+    entranceLine: '#63e9ad',
+    coreWash: 'rgba(224,174,109,0.14)',
+    coreFill: 'rgba(224,174,109,0.45)',
+    coreMarker: 'rgba(224,174,109,0.5)',
+    coreLine: '#e0ae6d',
+    hole: '#142321',
+    holeBorder: 'rgba(66,83,78,0.4)',
+  },
+  light: {
+    background: '#edf3f1',
+    grid: 'rgba(46,76,68,0.16)',
+    road: '#ded4bd',
+    roadBorder: 'rgba(134,99,41,0.34)',
+    route: 'rgba(139,100,33,0.72)',
+    entranceWash: 'rgba(24,126,87,0.16)',
+    entranceFill: 'rgba(24,126,87,0.28)',
+    entranceMarker: 'rgba(24,126,87,0.4)',
+    entranceLine: '#167a55',
+    coreWash: 'rgba(165,105,22,0.14)',
+    coreFill: 'rgba(165,105,22,0.26)',
+    coreMarker: 'rgba(165,105,22,0.38)',
+    coreLine: '#9b620e',
+    hole: '#d7e7e2',
+    holeBorder: 'rgba(42,83,72,0.38)',
+  },
+} as const
+
+function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevelConfig, grid: CustomGrid, colorMode: OpticalColorMode) {
   const ctx = canvas?.getContext('2d')
   if (!ctx) return
+  const palette = BUILDER_PALETTES[colorMode]
   const { cellSize: cs, columns, rows, originX, originY } = grid
   const half = cs / 2
   ctx.clearRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT)
-  ctx.fillStyle = '#0b100f'
+  ctx.fillStyle = palette.background
   ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT)
 
-  ctx.strokeStyle = 'rgba(81,97,92,0.2)'
+  ctx.strokeStyle = palette.grid
   ctx.lineWidth = 1
   ctx.beginPath()
   for (let column = 0; column <= columns; column += 1) {
@@ -91,9 +130,9 @@ function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevel
     const point = cellCenter(grid, cell)
     ctx.fillRect(point.x - half, point.y - half, cs, cs)
   }
-  ctx.fillStyle = '#292620'
+  ctx.fillStyle = palette.road
   routeSet.forEach((key) => drawRoadCell(key.split(':').map(Number) as unknown as GridCell))
-  ctx.strokeStyle = 'rgba(166,141,97,0.22)'
+  ctx.strokeStyle = palette.roadBorder
   ctx.strokeRect(originX, originY, columns * cs, rows * cs)
   routeSet.forEach((key) => {
     const point = cellCenter(grid, key.split(':').map(Number) as unknown as GridCell)
@@ -109,13 +148,13 @@ function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevel
     else if (cell[1] === 0) ctx.fillRect(point.x - half, 0, cs, originY)
     else ctx.fillRect(point.x - half, originY + rows * cs, cs, BOARD_HEIGHT - originY - rows * cs)
   }
-  if (config.entranceCell) fillEdgeStrip(config.entranceCell, 'rgba(94,225,164,0.16)')
-  if (config.coreCell) fillEdgeStrip(config.coreCell, 'rgba(224,174,109,0.14)')
+  if (config.entranceCell) fillEdgeStrip(config.entranceCell, palette.entranceWash)
+  if (config.coreCell) fillEdgeStrip(config.coreCell, palette.coreWash)
 
   // 敌人行进折线（保留自交顺序）。
   const polyline = orderedPathCells(config)
   if (polyline.length >= 2) {
-    ctx.strokeStyle = 'rgba(235,202,132,0.55)'
+    ctx.strokeStyle = palette.route
     ctx.lineWidth = 3
     ctx.lineJoin = 'round'
     ctx.beginPath()
@@ -137,45 +176,46 @@ function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevel
   }
   if (config.entranceCell) {
     const point = cellCenter(grid, config.entranceCell)
-    ctx.fillStyle = 'rgba(94,225,164,0.5)'
+    ctx.fillStyle = palette.entranceFill
     ctx.fillRect(point.x - half, point.y - half, cs, cs)
-    ctx.strokeStyle = '#63e9ad'
+    ctx.strokeStyle = palette.entranceLine
     ctx.lineWidth = 3
     ctx.strokeRect(point.x - half + 2, point.y - half + 2, cs - 4, cs - 4)
-    drawEdgeMarker(config.entranceCell, 'rgba(94,225,164,0.55)')
+    drawEdgeMarker(config.entranceCell, palette.entranceMarker)
   }
   if (config.coreCell) {
     const point = cellCenter(grid, config.coreCell)
-    ctx.fillStyle = 'rgba(224,174,109,0.45)'
+    ctx.fillStyle = palette.coreFill
     ctx.fillRect(point.x - half, point.y - half, cs, cs)
-    ctx.strokeStyle = '#e0ae6d'
+    ctx.strokeStyle = palette.coreLine
     ctx.lineWidth = 3
     ctx.strokeRect(point.x - half + 2, point.y - half + 2, cs - 4, cs - 4)
     ctx.lineWidth = 1.5
     ctx.beginPath()
     ctx.arc(point.x, point.y, Math.min(cs * 0.42, 22), 0, Math.PI * 2)
     ctx.stroke()
-    drawEdgeMarker(config.coreCell, 'rgba(224,174,109,0.5)')
+    drawEdgeMarker(config.coreCell, palette.coreMarker)
   }
 
   // 设备孔位（非道路格）。
   const plate = Math.max(24, Math.min(cs - 6, 46))
-  ctx.fillStyle = '#142321'
+  ctx.fillStyle = palette.hole
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
       const cell: GridCell = [column, row]
       if (routeSet.has(cellKey(cell))) continue
       const point = cellCenter(grid, cell)
       ctx.fillRect(point.x - plate / 2, point.y - plate / 2, plate, plate)
-      ctx.strokeStyle = 'rgba(66,83,78,0.4)'
+      ctx.strokeStyle = palette.holeBorder
       ctx.lineWidth = 1
       ctx.strokeRect(point.x - plate / 2, point.y - plate / 2, plate, plate)
     }
   }
 }
 
-export function CustomLevelBuilder({ config, onChange, onStart }: {
+export function CustomLevelBuilder({ config, colorMode, onChange, onStart }: {
   config: CustomLevelConfig
+  colorMode: OpticalColorMode
   onChange: (next: CustomLevelConfig) => void
   onStart: () => void
 }) {
@@ -190,8 +230,8 @@ export function CustomLevelBuilder({ config, onChange, onStart }: {
   useEffect(() => { latestConfigRef.current = config }, [config])
 
   useEffect(() => {
-    drawBuilderCanvas(canvasRef.current, config, grid)
-  }, [config, grid])
+    drawBuilderCanvas(canvasRef.current, config, grid, colorMode)
+  }, [colorMode, config, grid])
 
   const toCanvasPoint = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current

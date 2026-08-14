@@ -493,8 +493,7 @@
   }
 }
 
-/* Site theme integration. The simulation viewport intentionally stays dark so
-   body trails remain legible; controls and readouts follow the selected mode. */
+/* Site theme integration covers both the controls and the simulation viewport. */
 html[data-color-mode='light'] .three-body-lab {
   --tb-ink: #202831;
   --tb-muted: #637080;
@@ -583,8 +582,17 @@ html[data-color-mode='light'] .three-body-metrics strong {
 
 html[data-color-mode='light'] .three-body-canvas-frame {
   border-color: rgba(30, 56, 82, .28);
-  background: #0c152b;
-  box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 18px 42px rgba(35, 48, 63, .14);
+  background: #e5eef0;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .9), 0 18px 42px rgba(35, 48, 63, .14);
+}
+
+html[data-color-mode='light'] .three-body-canvas-frame::before {
+  border-color: rgba(35, 82, 99, .16);
+  box-shadow: inset 0 0 40px rgba(34, 88, 104, .06);
+}
+
+html[data-color-mode='light'] .three-body-readout {
+  color: rgba(38, 67, 80, .72);
 }
 
 html[data-theme='claude-light'] .three-body-lab {
@@ -659,3 +667,32 @@ html[data-theme='claude-dark'] .three-body-actions .three-body-primary {
   .three-body-actions button { min-height: 44px; touch-action: manipulation; }
   .three-body-range input[type="range"] { height: 44px; }
 }
+
+/* Flat light materials: hierarchy comes from borders and spacing, not glow. */
+html[data-color-mode='light'] .three-body-console,
+html[data-color-mode='light'] .three-body-metrics {
+  background: #f8fafb;
+  box-shadow: 0 12px 28px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .three-body-console::before { background: none; }
+html[data-color-mode='light'] .three-body-actions button {
+  background: #fff;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .three-body-actions .three-body-primary {
+  border-color: #14768d;
+  background: #14768d;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .three-body-range input[type='range']::-webkit-slider-runnable-track,
+html[data-color-mode='light'] .three-body-range input[type='range']::-moz-range-track {
+  background: #c5d9de;
+  box-shadow: none;
+}
+html[data-color-mode='light'] .three-body-status,
+html[data-color-mode='light'] .three-body-metrics > div { background: #f2f6f7; }
+html[data-color-mode='light'] .three-body-canvas-frame {
+  background: #edf2f3;
+  box-shadow: 0 12px 28px rgba(35, 52, 61, .08);
+}
+html[data-color-mode='light'] .three-body-canvas-frame::before { box-shadow: none; }
