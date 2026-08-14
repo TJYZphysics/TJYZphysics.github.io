@@ -19,8 +19,8 @@ function holeIdAt(level: LevelConfig, column: number, row: number) {
 }
 
 describe('optical defense levels and simulation', () => {
-  it('defines nineteen hand-authored levels with valid routes and progressive device access', () => {
-    expect(OPTICAL_DEFENSE_LEVELS).toHaveLength(19)
+  it('defines twenty levels with valid routes and progressive device access', () => {
+    expect(OPTICAL_DEFENSE_LEVELS).toHaveLength(20)
     expect(OPTICAL_DEFENSE_LEVELS[0].capacityW).toBe(100)
     OPTICAL_DEFENSE_LEVELS.forEach((level, index) => {
       expect(level.id).toBe(index + 1)

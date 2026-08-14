@@ -3,7 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 
 const freshSave = {
   version: 3,
-  unlockedLevel: 19,
+  unlockedLevel: 20,
   stars: {},
   unlockedDevices: ['source-red', 'mirror', 'bulb'],
   settings: { sound: false, reduceMotion: true, beamGlow: true, gameSpeed: 1 },

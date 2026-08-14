@@ -2,14 +2,16 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { OPTICAL_DEFENSE_LEVELS } from './levels'
+import { CUSTOM_LEVEL_ID } from './customLevel'
 import {
   augmentRecommended, buildRecommended, buildWrong, simulate,
 } from './benchmark-strategies'
 import type { BenchmarkMetrics } from './benchmark-strategies'
 
 describe('optical defense deterministic campaign benchmark', () => {
-  it('runs legal recommended and counter-example policies for all nineteen levels', () => {
-    const results = OPTICAL_DEFENSE_LEVELS.map((level) => {
+  it('runs legal recommended and counter-example policies for all nineteen authored levels', () => {
+    // 第二十关「自由实验」是运行时自定义关卡，不参与静态难度基准。
+    const results = OPTICAL_DEFENSE_LEVELS.filter((level) => level.id !== CUSTOM_LEVEL_ID).map((level) => {
       const recommendedBuild = augmentRecommended(buildRecommended(level), level)
       const wrongBuild = buildWrong(level)
       expect(recommendedBuild.usedPowerW).toBeLessThanOrEqual(level.capacityW)
@@ -55,7 +57,7 @@ describe('optical defense deterministic campaign benchmark', () => {
       mkdirSync('test-results', { recursive: true })
       writeFileSync('test-results/optical-benchmark.json', JSON.stringify({
         generatedAt: new Date().toISOString(),
-        levels: OPTICAL_DEFENSE_LEVELS.map((level) => {
+        levels: OPTICAL_DEFENSE_LEVELS.filter((level) => level.id !== CUSTOM_LEVEL_ID).map((level) => {
           const build = augmentRecommended(buildRecommended(level), level)
           return {
             id: level.id,

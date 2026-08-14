@@ -22,3 +22,5 @@ GITHUB_OPERATIONS_SKILL.md
 规则手册.md
 预期效果.md
 src/features/games/opticalDefense/iteration.tools.test.ts
+docs/
+publish-level25-fix.ps1

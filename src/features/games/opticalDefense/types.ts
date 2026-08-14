@@ -1,3 +1,5 @@
+import type { Tuning } from './tuning'
+
 export type Point = { x: number; y: number }
 
 export type RgbPower = { r: number; g: number; b: number }
@@ -132,6 +134,8 @@ export type LevelConfig = {
   waves: LevelWave[]
   availableDevices: DeviceKind[]
   recommended: DeviceKind[]
+  /** 第二十关调参。缺省时各系统使用 DEFAULT_TUNING。 */
+  tuning?: Tuning
 }
 
 export type SaveData = {

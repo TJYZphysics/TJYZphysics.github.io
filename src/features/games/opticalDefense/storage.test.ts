@@ -12,13 +12,13 @@ describe('optical defense save data', () => {
       setItem: (key: string, value: string) => values.set(key, value),
     }
     const save = readOpticalSave(storage)
-    expect(save.unlockedLevel).toBe(19)
+    expect(save.unlockedLevel).toBe(20)
     expect(save.unlockedDevices).toEqual(['source-red', 'mirror', 'bulb'])
     expect(writeOpticalSave({ ...save, unlockedLevel: 4, settings: { ...save.settings, sound: false, gameSpeed: 3 } }, storage)).toBe(true)
     expect(values.has(OPTICAL_SAVE_KEY)).toBe(true)
     expect(readOpticalSave(storage)).toMatchObject({
       version: 3,
-      unlockedLevel: 19,
+      unlockedLevel: 20,
       settings: { sound: false, gameSpeed: 3 },
       tutorial: { dismissed: false, completedLevels: [] },
     })
@@ -29,7 +29,7 @@ describe('optical defense save data', () => {
       getItem: (key: string) => key === LEGACY_OPTICAL_SAVE_KEY ? JSON.stringify({ unlockedLevel: 4, stars: { 1: 2 } }) : null,
     })
     expect(result.recovered).toBe(true)
-    expect(result.save.unlockedLevel).toBe(19)
+    expect(result.save.unlockedLevel).toBe(20)
     expect(result.save.unlockedDevices).toContain('splitter')
     expect(result.save.stars[1]).toBe(2)
   })
@@ -47,7 +47,7 @@ describe('optical defense save data', () => {
     expect(result.recovered).toBe(true)
     expect(result.save).toMatchObject({
       version: 3,
-      unlockedLevel: 19,
+      unlockedLevel: 20,
       stars: { 1: 3, 6: 2 },
       settings: { sound: false, reduceMotion: true, beamGlow: false, gameSpeed: 3 },
       tutorial: { dismissed: false, completedLevels: [] },
@@ -58,7 +58,7 @@ describe('optical defense save data', () => {
   it('preserves valid v3 tutorial completion and dismissal state', () => {
     const result = readOpticalSaveResult({ getItem: (key: string) => key === OPTICAL_SAVE_KEY ? JSON.stringify({
       version: 3,
-      unlockedLevel: 19,
+      unlockedLevel: 20,
       stars: { 1: 2 },
       unlockedDevices: ['source-red', 'mirror', 'bulb'],
       settings: { sound: true, reduceMotion: false, beamGlow: true, gameSpeed: 2 },
@@ -76,7 +76,7 @@ describe('optical defense save data', () => {
       unlockedDevices: ['source-red', 'unknown-device', 'mirror', 'mirror'],
       settings: { sound: 'yes', reduceMotion: true, beamGlow: 1, gameSpeed: 99 },
     }) })
-    expect(result.save.unlockedLevel).toBe(19)
+    expect(result.save.unlockedLevel).toBe(20)
     expect(result.save.stars).toEqual({ 1: 3, 2: 0 })
     expect(result.save.unlockedDevices).toEqual(['source-red', 'mirror', 'bulb'])
     expect(result.save.settings).toEqual({ sound: true, reduceMotion: true, beamGlow: true, gameSpeed: 1 })
@@ -84,7 +84,7 @@ describe('optical defense save data', () => {
   })
 
   it('recovers invalid JSON and reports failed writes', () => {
-    expect(readOpticalSaveResult({ getItem: () => '{broken' })).toMatchObject({ recovered: true, save: { unlockedLevel: 19 } })
+    expect(readOpticalSaveResult({ getItem: () => '{broken' })).toMatchObject({ recovered: true, save: { unlockedLevel: 20 } })
     expect(writeOpticalSave(readOpticalSave({ getItem: () => null }), { setItem: () => { throw new Error('quota') } })).toBe(false)
   })
 })

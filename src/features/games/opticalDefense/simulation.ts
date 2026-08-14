@@ -14,6 +14,8 @@ import {
 } from './rules'
 import { traceOpticalNetwork } from './optics'
 import type { OpticalNetwork } from './optics'
+import { DEFAULT_TUNING } from './tuning'
+import type { Tuning } from './tuning'
 import type {
   CapacitorState,
   DeviceKind,
@@ -387,6 +389,32 @@ export function togglePause(state: BattleState): BattleState {
   return state
 }
 
+/**
+ * 第二十关：应用新的波次/敌人参数。重建波次计划，已在场的敌人保持旧参数，
+ * 后续新刷出的敌人使用新参数；`nextSpawnIndex` 对齐到当前已推进的时间。
+ */
+export function rebuildSpawnPlan(state: BattleState, level: LevelConfig): BattleState {
+  const spawnPlan = buildSpawnPlan(level)
+  const nextSpawnIndex = spawnPlan.findIndex((entry) => entry.atSeconds > state.elapsedSeconds)
+  return {
+    ...state,
+    spawnPlan,
+    nextSpawnIndex: nextSpawnIndex === -1 ? spawnPlan.length : nextSpawnIndex,
+    network: undefined,
+  }
+}
+
+/** 第二十关：核心归零后选择「继续游戏（不扣除血量）」，核心回满并继续运行。 */
+export function continueAfterCoreLoss(state: BattleState, level: LevelConfig): BattleState {
+  if (state.phase !== 'defeat') return state
+  return { ...state, phase: 'running', coreHealth: level.coreHealth }
+}
+
+/** 第二十关：清除所有在场敌人，保留设备、金币与已结算的击杀/逃脱统计。 */
+export function clearEnemies(state: BattleState): BattleState {
+  return { ...state, enemies: state.enemies.filter((enemy) => enemy.dead || enemy.escaped) }
+}
+
 export function queueCapacitorDetonation(state: BattleState, placementId: string): ActionResult {
   const capacitor = state.placements.find((placement) => placement.id === placementId && placement.kind === 'capacitor')
   if (!capacitor || capacitor.destroyed || (capacitor.chargeJ ?? 0) <= 0) {
@@ -401,24 +429,45 @@ export function queueCapacitorDetonation(state: BattleState, placementId: string
   }
 }
 
-export function pathLength(path: readonly Point[]) {
-  return path.slice(1).reduce((length, point, index) => length + Math.hypot(point.x - path[index].x, point.y - path[index].y), 0)
-}
+type PathMetrics = { total: number; cumulative: number[] }
+const pathMetricsCache = new WeakMap<readonly Point[], PathMetrics>()
 
-export function pointOnPath(path: readonly Point[], progress: number): Point {
-  const targetDistance = pathLength(path) * Math.max(0, Math.min(1, progress))
-  let covered = 0
+function pathMetrics(path: readonly Point[]): PathMetrics {
+  const cached = pathMetricsCache.get(path)
+  if (cached) return cached
+  const cumulative = [0]
   for (let index = 1; index < path.length; index += 1) {
     const start = path[index - 1]
     const end = path[index]
-    const segment = Math.hypot(end.x - start.x, end.y - start.y)
-    if (covered + segment >= targetDistance) {
-      const ratio = segment ? (targetDistance - covered) / segment : 0
-      return { x: start.x + (end.x - start.x) * ratio, y: start.y + (end.y - start.y) * ratio }
-    }
-    covered += segment
+    cumulative.push(cumulative[index - 1] + Math.hypot(end.x - start.x, end.y - start.y))
   }
-  return path.at(-1) ?? { x: 0, y: 0 }
+  const metrics = { total: cumulative.at(-1) ?? 0, cumulative }
+  pathMetricsCache.set(path, metrics)
+  return metrics
+}
+
+export function pathLength(path: readonly Point[]) {
+  return pathMetrics(path).total
+}
+
+export function pointOnPath(path: readonly Point[], progress: number): Point {
+  if (!path.length) return { x: 0, y: 0 }
+  const { total, cumulative } = pathMetrics(path)
+  const targetDistance = total * Math.max(0, Math.min(1, progress))
+  if (targetDistance <= 0) return { ...path[0] }
+  // 累计长度单调递增，二分查找敌人所在线段，避免长路径逐段扫描。
+  let low = 0
+  let high = cumulative.length - 1
+  while (low < high) {
+    const mid = (low + high) >> 1
+    if (cumulative[mid + 1] < targetDistance) low = mid + 1
+    else high = mid
+  }
+  const start = path[low]
+  const end = path[low + 1] ?? start
+  const segment = (cumulative[low + 1] ?? cumulative[low]) - cumulative[low]
+  const ratio = segment > 0 ? (targetDistance - cumulative[low]) / segment : 0
+  return { x: start.x + (end.x - start.x) * ratio, y: start.y + (end.y - start.y) * ratio }
 }
 
 export function activeRgb(state: BattleState): RgbPower {
@@ -498,6 +547,7 @@ function placementPoint(level: LevelConfig, placement: DevicePlacement) {
 }
 
 function applyTerminalAttacks(state: BattleState, level: LevelConfig, deltaSeconds: number, network: OpticalNetwork) {
+  const tuning = level.tuning ?? DEFAULT_TUNING
   const terminals = state.placements.filter((placement) => ATTACK_DEVICES.includes(placement.kind) && placement.enabled !== false && network.deviceInputs.has(placement.id))
   if (!terminals.length) return { enemies: state.enemies, placements: state.placements }
   let enemies = state.enemies
@@ -537,7 +587,7 @@ function applyTerminalAttacks(state: BattleState, level: LevelConfig, deltaSecon
         }).map((enemy) => enemy.id))
         if (lineTargetIds.size) {
           enemies = enemies.map((enemy) => lineTargetIds.has(enemy.id)
-            ? applyOpticalHit(enemy, terminalRgb, 0, { directDamage, statusMultiplier: 0.6 })
+            ? applyOpticalHit(enemy, terminalRgb, 0, { directDamage, statusMultiplier: 0.6, tuning })
             : enemy)
           charge = 0
           cooldown = Math.max(1.4, 2.4 - (upgradeLevel - 1) * 0.35)
@@ -563,6 +613,7 @@ function applyTerminalAttacks(state: BattleState, level: LevelConfig, deltaSecon
           ? applyOpticalHit(enemy, { r: 0, g: 0, b: 0 }, 0, {
             directDamage,
             forceStatus: terminal.kind === 'frost-tower' ? 'freeze' : 'burn',
+            tuning,
           })
           : enemy)
         cooldown = (profile.periodS ?? 1) * intervalMultiplier
@@ -575,13 +626,18 @@ function applyTerminalAttacks(state: BattleState, level: LevelConfig, deltaSecon
     const affectedIds = new Set(profile.area ? candidates.map((enemy) => enemy.id) : [target.id])
     enemies = enemies.map((enemy) => {
       if (!affectedIds.has(enemy.id)) return enemy
-      return applyOpticalHit(enemy, terminalRgb, deltaSeconds, { damageMultiplier })
+      return applyOpticalHit(enemy, terminalRgb, deltaSeconds, { damageMultiplier, tuning })
     })
   })
   return { enemies, placements }
 }
 
-function spawnEnemy(entry: SpawnEntry, id: number, levelId: number): EnemyState {
+function spawnEnemy(entry: SpawnEntry, id: number, levelId: number, tuning: Tuning = DEFAULT_TUNING): EnemyState {
+  const shield = entry.kind === 'boss'
+    ? Math.max(tuning.armorShield.bossShieldMinimum, entry.health * tuning.armorShield.bossShieldFraction)
+    : entry.kind === 'armored' && levelId >= tuning.armorShield.armoredShieldLevelFloor
+      ? Math.max(tuning.armorShield.armoredShieldMinimum, entry.health * tuning.armorShield.armoredShieldFraction)
+      : 0
   return {
     id: `enemy-${id}`,
     kind: entry.kind,
@@ -595,22 +651,19 @@ function spawnEnemy(entry: SpawnEntry, id: number, levelId: number): EnemyState 
     routeIndex: entry.routeIndex,
     status: {
       ...EMPTY_STATUS,
-      shield: entry.kind === 'boss'
-        ? Math.max(120, entry.health * 0.15)
-        : entry.kind === 'armored' && levelId >= 5
-          ? Math.max(30, entry.health * 0.12)
-          : 0,
+      shield,
     },
   }
 }
 
 function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): BattleState {
+  const tuning = level.tuning ?? DEFAULT_TUNING
   let next: BattleState = { ...state, elapsedSeconds: state.elapsedSeconds + delta, events: [] }
   const spawned: EnemyState[] = []
   let spawnIndex = next.nextSpawnIndex
   let entityId = next.nextEntityId
   while (spawnIndex < next.spawnPlan.length && next.spawnPlan[spawnIndex].atSeconds <= next.elapsedSeconds) {
-    spawned.push(spawnEnemy(next.spawnPlan[spawnIndex], entityId, level.id))
+    spawned.push(spawnEnemy(next.spawnPlan[spawnIndex], entityId, level.id, tuning))
     spawnIndex += 1
     entityId += 1
   }
@@ -620,7 +673,7 @@ function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): 
 
   next.enemies = next.enemies.map((enemy) => {
     if (enemy.dead || enemy.escaped) return enemy
-    const statusTicked = tickStatuses(enemy, delta)
+    const statusTicked = tickStatuses(enemy, delta, tuning)
     if (statusTicked.dead) return statusTicked
     const slowdown = statusTicked.status.freezeSeconds > 0
       ? 1 - 0.45 * Math.max(0, Math.min(1, statusTicked.status.freezeStrength))
@@ -638,7 +691,11 @@ function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): 
   next.enemies = next.enemies.map((enemy) => {
     const blockedPower = network.blockedHits.get(enemy.id)
     return blockedPower && !enemy.dead && !enemy.escaped
-      ? applyOpticalHit(enemy, blockedPower, delta, { damageMultiplier: 0.22, statusMultiplier: 0.25 })
+      ? applyOpticalHit(enemy, blockedPower, delta, {
+          damageMultiplier: tuning.damage.bareBeamDamageMultiplier,
+          statusMultiplier: tuning.damage.bareBeamStatusMultiplier,
+          tuning,
+        })
       : enemy
   })
   const terminalResult = applyTerminalAttacks(next, level, delta, network)
@@ -663,7 +720,7 @@ function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): 
       if (enemy.dead || enemy.escaped) return enemy
       const enemyPoint = pointOnPath(enemyPath(level, enemy), enemy.progress)
       if (Math.hypot(enemyPoint.x - point.x, enemyPoint.y - point.y) > explosion.radius) return enemy
-      return applyOpticalHit(enemy, { r: 0, g: 0, b: 0 }, 0, { directDamage: explosion.damage })
+      return applyOpticalHit(enemy, { r: 0, g: 0, b: 0 }, 0, { directDamage: explosion.damage, tuning })
     })
     next.placements = next.placements.filter((placement) => placement.id !== capacitor.id)
     network = traceOpticalNetwork(level, next.placements, next.enemies.map((enemy) => ({ ...enemy, position: pointOnPath(enemyPath(level, enemy), enemy.progress) })))
@@ -678,7 +735,7 @@ function tickBattleStep(state: BattleState, level: LevelConfig, delta: number): 
       next.events.push({ id: next.nextEntityId++, type: 'kill', value: current.rewardPowerW, point: pointOnPath(enemyPath(level, current), current.progress) })
     }
     if (!previous.escaped && current?.escaped) {
-      next.coreHealth -= current.kind === 'boss' ? 3 : 1
+      next.coreHealth -= current.kind === 'boss' ? tuning.coreLeak.bossDamage : tuning.coreLeak.otherDamage
       next.events.push({ id: next.nextEntityId++, type: 'escape', point: enemyPath(level, current).at(-1) ?? { x: 900, y: 260 } })
     }
   })

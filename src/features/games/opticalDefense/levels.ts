@@ -38,6 +38,8 @@ const layouts: LayoutSpec[] = [
   { columns: 16, rows: 9, cellSize: 76, routes: [[[0, 2], [2, 2], [2, 7], [5, 7], [5, 3], [8, 3], [8, 7], [11, 7], [11, 1], [14, 1], [14, 5], [15, 5]]] },
   { columns: 16, rows: 9, cellSize: 76, routes: [[[0, 1], [3, 1], [3, 4], [7, 4], [7, 7], [11, 7], [11, 4], [15, 4]], [[0, 7], [3, 7], [3, 4], [7, 4], [7, 1], [11, 1], [11, 4], [15, 4]]] },
   { columns: 16, rows: 9, cellSize: 76, routes: [[[0, 4], [2, 4], [2, 1], [5, 1], [5, 7], [8, 7], [8, 2], [11, 2], [11, 7], [14, 7], [14, 4], [15, 4]]] },
+  // 第二十关「自由实验」：占位布局，实际棋盘由 customLevel.buildCustomLevel 动态生成。
+  { columns: 16, rows: 9, cellSize: 76, routes: [[[0, 4], [2, 4], [2, 1], [6, 1], [6, 7], [11, 7], [11, 4], [15, 4]]] },
 ]
 
 function expandRoute(waypoints: GridCell[]) {
@@ -99,6 +101,7 @@ const definitions: Definition[] = [
   { title: '能量瀑布', lesson: '串联收集器，把范围终端的逸散重新汇成有效光束。', startingCoins: 780, coreHealth: 8, waves: [wave(0, normal(22, 134), fast(20, 82)), wave(1.2, armored(12, 398), resistant(16, 'r', 232)), wave(1.4, resistant(12, 'g', 238), resistant(12, 'b', 238)), wave(1.7, armored(13, 414), fast(26, 84)), wave(2, boss(1120))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['collector', 'radiation-source', 'brazier'] },
   { title: '交叉火线', lesson: '第二个双入口战场要求把火力投向两个相反方向。', startingCoins: 830, coreHealth: 10, waves: [wave(0, fast(16, 86, 0), fast(16, 86, 1)), wave(1.2, armored(8, 424, 0), armored(8, 424, 1)), wave(1.4, resistant(12, 'r', 246, 0), resistant(12, 'b', 246, 1)), wave(1.7, normal(20, 142, 0), resistant(14, 'g', 252, 1)), wave(2, boss(1180, 0), boss(1180, 1))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['splitter', 'laser-emitter', 'capacitor'] },
   { title: '光谱风暴', lesson: '在最长路径上迎战重甲、抗性与首领的最终混编。', startingCoins: 900, coreHealth: 8, waves: [wave(0, normal(24, 150), fast(22, 90)), wave(1.2, armored(14, 438), resistant(16, 'r', 260)), wave(1.4, resistant(14, 'g', 268), resistant(14, 'b', 268)), wave(1.6, fast(28, 92), armored(14, 454)), wave(1.8, resistant(10, 'r', 276), resistant(10, 'g', 276), resistant(10, 'b', 276)), wave(2.2, armored(10, 470), boss(1320))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['combiner', 'collector', 'accelerator', 'capacitor'] },
+  { title: '自由实验', lesson: '完全开放的自定义实验台：绘制路径、指定出入口，并可实时调节全部战斗参数。', startingCoins: 300, coreHealth: 10, waves: [wave(0, normal(8)), wave(2, fast(6)), wave(2, armored(3))], availableDevices: ALL_LEVEL_DEVICES, recommended: ['source-red', 'mirror', 'bulb'] },
 ]
 
 if (definitions.length !== layouts.length || definitions.length !== LEVEL_CAPACITIES_W.length) {

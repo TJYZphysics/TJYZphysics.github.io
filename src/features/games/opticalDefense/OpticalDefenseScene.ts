@@ -69,8 +69,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private beamGraphics!: Phaser.GameObjects.Graphics
   private attackGraphics!: Phaser.GameObjects.Graphics
   private entityLayer!: Phaser.GameObjects.Container
-  private deviceObjects = new Map<string, { container: Phaser.GameObjects.Container; signature: string }>()
-  private enemyObjects = new Map<string, { container: Phaser.GameObjects.Container; graphics: Phaser.GameObjects.Graphics }>()
+  private deviceObjects = new Map<string, { graphics: Phaser.GameObjects.Graphics; label: Phaser.GameObjects.Text; signature: string }>()
+  private enemyObjects = new Map<string, { graphics: Phaser.GameObjects.Graphics; signature: string }>()
   private lastLevelId = -1
   private lastHoleSignature = '\u0000'
   private handledEventId = 0
@@ -137,6 +137,37 @@ export class OpticalDefenseScene extends Phaser.Scene {
     if (closestHole) this.callbacks.onHole(`h-${closestHole.index}`)
   }
 
+  private fillEdgeExtension(path: Phaser.GameObjects.Graphics, grid: LevelConfig['grid'], edgePoint: Point) {
+    const halfCell = grid.cellSize / 2
+    if (edgePoint.x <= 1) {
+      path.fillRect(0, edgePoint.y - halfCell, grid.originX, grid.cellSize)
+      return
+    }
+    if (edgePoint.x >= LAB_WIDTH - 1) {
+      path.fillRect(grid.originX + grid.columns * grid.cellSize, edgePoint.y - halfCell, LAB_WIDTH - grid.originX - grid.columns * grid.cellSize, grid.cellSize)
+      return
+    }
+    const x = edgePoint.x - halfCell
+    if (edgePoint.y <= 1) path.fillRect(x, 0, grid.cellSize, grid.originY)
+    else path.fillRect(x, grid.originY + grid.rows * grid.cellSize, grid.cellSize, LAB_HEIGHT - grid.originY - grid.rows * grid.cellSize)
+  }
+
+  private drawEdgeEntrance(path: Phaser.GameObjects.Graphics, edgePoint: Point) {
+    const isLeft = edgePoint.x <= 1
+    const isRight = edgePoint.x >= LAB_WIDTH - 1
+    const isTop = edgePoint.y <= 1
+    path.fillStyle(0x5ee1a4, 0.24)
+    if (isLeft) path.fillRect(0, edgePoint.y - 18, 18, 36)
+    else if (isRight) path.fillRect(LAB_WIDTH - 18, edgePoint.y - 18, 18, 36)
+    else if (isTop) path.fillRect(edgePoint.x - 18, 0, 36, 18)
+    else path.fillRect(edgePoint.x - 18, LAB_HEIGHT - 18, 36, 18)
+    path.lineStyle(3, 0x63e9ad, 0.82)
+    if (isLeft) path.lineBetween(17, edgePoint.y - 18, 17, edgePoint.y + 18)
+    else if (isRight) path.lineBetween(LAB_WIDTH - 17, edgePoint.y - 18, LAB_WIDTH - 17, edgePoint.y + 18)
+    else if (isTop) path.lineBetween(edgePoint.x - 18, 17, edgePoint.x + 18, 17)
+    else path.lineBetween(edgePoint.x - 18, LAB_HEIGHT - 17, edgePoint.x + 18, LAB_HEIGHT - 17)
+  }
+
   private drawBoard(level: LevelConfig) {
     const g = this.board
     g.clear()
@@ -164,8 +195,10 @@ export class OpticalDefenseScene extends Phaser.Scene {
     level.routeCells.forEach((point) => {
       path.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize)
     })
-    path.fillRect(0, level.path[0].y - halfCell, originX, cellSize)
-    path.fillRect(originX + columns * cellSize, level.path.at(-1)!.y - halfCell, LAB_WIDTH - originX - columns * cellSize, cellSize)
+    ;(level.paths ?? [level.path]).forEach((route) => {
+      this.fillEdgeExtension(path, level.grid, route[0])
+      this.fillEdgeExtension(path, level.grid, route.at(-1)!)
+    })
 
     path.lineStyle(1, 0xa68d61, 0.24)
     level.routeCells.forEach((point) => {
@@ -194,11 +227,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
         path.lineBetween(backX + perpendicularX * 6, backY + perpendicularY * 6, tipX, tipY)
         path.lineBetween(backX - perpendicularX * 6, backY - perpendicularY * 6, tipX, tipY)
       })
-      const entrance = route[0]
-      path.fillStyle(0x5ee1a4, 0.24)
-      path.fillRect(entrance.x === 0 ? 0 : LAB_WIDTH - 18, entrance.y - 18, 18, 36)
-      path.lineStyle(3, 0x63e9ad, 0.82)
-      path.lineBetween(entrance.x === 0 ? 17 : LAB_WIDTH - 17, entrance.y - 18, entrance.x === 0 ? 17 : LAB_WIDTH - 17, entrance.y + 18)
+      this.drawEdgeEntrance(path, route[0])
     })
     const core = paths[0].at(-2) ?? level.routeCells.at(-1)!
     path.fillStyle(0xd7a05f, 0.18)
@@ -215,28 +244,51 @@ export class OpticalDefenseScene extends Phaser.Scene {
     g.clear()
     const cellSize = level.grid.cellSize
     const halfCell = cellSize / 2
-    level.holes.forEach((point, index) => {
+    const plate = Math.max(20, Math.min(cellSize - 6, 62))
+    const scale = plate / 62
+    // 小格地图（大地图）略去单元格底与内部圆，只画面板，显著减少绘制调用。
+    const compact = cellSize <= 40
+    const rows = level.holes.map((point, index) => {
       const id = `h-${index}`
-      const isOccupied = occupied.has(id)
-      const isRecommended = recommended.has(id) && !isOccupied
-      g.fillStyle(isOccupied ? 0x1b302e : 0x142321, 0.92)
-      g.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize)
-      g.lineStyle(1, isOccupied ? 0x71a49b : 0x42534e, isOccupied ? 0.5 : 0.28)
-      g.strokeRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize)
-      g.fillStyle(isOccupied ? 0x203b39 : 0x182a28, 0.94)
-      g.fillRoundedRect(point.x - 31, point.y - 31, 62, 62, 7)
-      g.lineStyle(1, isOccupied ? 0x7bc0b4 : 0x3f6662, isOccupied ? 0.72 : 0.48)
-      g.strokeRoundedRect(point.x - 31, point.y - 31, 62, 62, 7)
-      g.fillStyle(0x050908, isOccupied ? 0.58 : 0.92)
-      g.fillCircle(point.x, point.y, occupied.has(id) ? 13 : 9)
-      g.lineStyle(1.5, isOccupied ? 0xa4c9c2 : 0x5b817c, isOccupied ? 0.76 : 0.72)
-      g.strokeCircle(point.x, point.y, occupied.has(id) ? 15 : 11)
-      if (isRecommended) {
-        g.lineStyle(3, 0x74f4e0, 0.92)
-        g.strokeRoundedRect(point.x - 35, point.y - 35, 70, 70, 8)
-        g.lineStyle(1, 0xf7e897, 0.82)
-        g.strokeCircle(point.x, point.y, 20)
-      }
+      return { point, id, isOccupied: occupied.has(id), isRecommended: recommended.has(id) && !occupied.has(id) }
+    })
+    const empty = rows.filter((row) => !row.isOccupied)
+    const used = rows.filter((row) => row.isOccupied)
+    // 按样式分组批量绘制，让 Phaser 只切换少量批次（WebGL 下同风格图形合批为一次绘制）。
+    if (!compact) {
+      g.fillStyle(0x142321, 0.92)
+      empty.forEach(({ point }) => g.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
+      g.fillStyle(0x1b302e, 0.92)
+      used.forEach(({ point }) => g.fillRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
+      g.lineStyle(1, 0x42534e, 0.28)
+      empty.forEach(({ point }) => g.strokeRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
+      g.lineStyle(1, 0x71a49b, 0.5)
+      used.forEach(({ point }) => g.strokeRect(point.x - halfCell, point.y - halfCell, cellSize, cellSize))
+    }
+    g.fillStyle(0x182a28, 0.94)
+    empty.forEach(({ point }) => g.fillRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
+    g.fillStyle(0x203b39, 0.94)
+    used.forEach(({ point }) => g.fillRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
+    g.lineStyle(1, 0x3f6662, 0.48)
+    empty.forEach(({ point }) => g.strokeRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
+    g.lineStyle(1, 0x7bc0b4, 0.72)
+    used.forEach(({ point }) => g.strokeRoundedRect(point.x - plate / 2, point.y - plate / 2, plate, plate, 7))
+    if (!compact) {
+      g.fillStyle(0x050908, 0.92)
+      empty.forEach(({ point }) => g.fillCircle(point.x, point.y, 9 * scale))
+      g.fillStyle(0x050908, 0.58)
+      used.forEach(({ point }) => g.fillCircle(point.x, point.y, 13 * scale))
+      g.lineStyle(1.5, 0x5b817c, 0.72)
+      empty.forEach(({ point }) => g.strokeCircle(point.x, point.y, 11 * scale))
+      g.lineStyle(1.5, 0xa4c9c2, 0.76)
+      used.forEach(({ point }) => g.strokeCircle(point.x, point.y, 15 * scale))
+    }
+    rows.filter((row) => row.isRecommended).forEach(({ point }) => {
+      const margin = plate / 2 + 4
+      g.lineStyle(3, 0x74f4e0, 0.92)
+      g.strokeRoundedRect(point.x - margin, point.y - margin, margin * 2, margin * 2, 8)
+      g.lineStyle(1, 0xf7e897, 0.82)
+      g.strokeCircle(point.x, point.y, 20 * scale)
     })
   }
 
@@ -259,36 +311,54 @@ export class OpticalDefenseScene extends Phaser.Scene {
     })
   }
 
+  private lastRangeSignature: string | null = null
+
   private drawAttackRanges(snapshot: SceneSnapshot, network: OpticalNetwork) {
     const ranges = this.rangeGraphics
     const attacks = this.attackGraphics
-    ranges.clear()
-    attacks.clear()
     const alive = snapshot.battle.enemies.filter((enemy) => !enemy.dead && !enemy.escaped).sort((left, right) => right.progress - left.progress)
+
+    // 静态范围圈：仅当设备构成/升级/选中态变化时重绘。避免每帧重建大半径圆
+    // （30 台终端 × 大圆会产生大量 WebGL 顶点，是大地图卡顿的主因）。
+    const rangeSignature = snapshot.battle.placements.map((placement) => {
+      if (!terminalAttackRange(placement)) return ''
+      return `${placement.holeId}:${placement.kind}:${placement.upgradeLevel ?? 1}:${placement.id === snapshot.selectedId}`
+    }).join('|')
+    if (rangeSignature !== this.lastRangeSignature) {
+      this.lastRangeSignature = rangeSignature
+      ranges.clear()
+      snapshot.battle.placements.forEach((placement) => {
+        const radius = terminalAttackRange(placement)
+        if (!radius) return
+        const point = pointFor(snapshot.level, placement)
+        const color = DEVICE_COLORS[placement.kind]
+        const selected = placement.id === snapshot.selectedId
+        ranges.fillStyle(color, selected ? 0.055 : 0.022)
+        ranges.fillCircle(point.x, point.y, radius)
+        ranges.lineStyle(selected ? 2.2 : 1.2, color, selected ? 0.55 : 0.25)
+        ranges.strokeCircle(point.x, point.y, radius)
+        ranges.lineStyle(1, color, 0.18)
+        ranges.strokeCircle(point.x, point.y, radius * 0.5)
+      })
+    }
+
+    attacks.clear()
     snapshot.battle.placements.forEach((placement) => {
       const radius = terminalAttackRange(placement)
       if (!radius) return
       const point = pointFor(snapshot.level, placement)
       const color = DEVICE_COLORS[placement.kind]
-      const selected = placement.id === snapshot.selectedId
-      ranges.fillStyle(color, selected ? 0.055 : 0.022)
-      ranges.fillCircle(point.x, point.y, radius)
-      ranges.lineStyle(selected ? 2.2 : 1.2, color, selected ? 0.55 : 0.25)
-      ranges.strokeCircle(point.x, point.y, radius)
-      ranges.lineStyle(1, color, 0.18)
-      ranges.strokeCircle(point.x, point.y, radius * 0.5)
-
       if (placement.kind === 'accelerator') {
         const angle = placement.rotationDeg * Math.PI / 180
         const chargeFraction = Math.min(1, (placement.acceleratorChargeJ ?? 0) / 360)
-        ranges.lineStyle(2 + chargeFraction * 4, color, network.poweredDeviceIds.has(placement.id) ? 0.42 : 0.22)
-        ranges.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
-        ranges.lineStyle(1, 0xffffff, 0.26 + chargeFraction * 0.32)
-        ranges.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
+        attacks.lineStyle(2 + chargeFraction * 4, color, network.poweredDeviceIds.has(placement.id) ? 0.42 : 0.22)
+        attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
+        attacks.lineStyle(1, 0xffffff, 0.26 + chargeFraction * 0.32)
+        attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
       } else if (placement.kind === 'laser-emitter' && !network.poweredDeviceIds.has(placement.id)) {
         const angle = placement.rotationDeg * Math.PI / 180
-        ranges.lineStyle(2, color, 0.32)
-        ranges.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
+        attacks.lineStyle(2, color, 0.32)
+        attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
       }
       const candidates = alive.filter((enemy) => {
         const path = snapshot.level.paths?.[enemy.routeIndex ?? 0] ?? snapshot.level.path
@@ -347,12 +417,13 @@ export class OpticalDefenseScene extends Phaser.Scene {
     ].join(':')
     const existing = this.deviceObjects.get(placement.id)
     if (existing?.signature === signature) {
-      existing.container.setPosition(point.x, point.y)
+      existing.graphics.setPosition(point.x, point.y)
+      existing.label.setPosition(point.x, point.y + (placement.kind === 'mirror' ? 11 : 0))
       return
     }
-    existing?.container.destroy(true)
+    existing?.graphics.destroy(true)
+    existing?.label.destroy(true)
     const color = DEVICE_COLORS[placement.kind]
-    const container = this.add.container(point.x, point.y)
     const g = this.add.graphics()
     if (placement.id === selectedId) {
       g.lineStyle(2, 0xffffff, 0.9)
@@ -443,14 +514,16 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const label = this.add.text(0, placement.kind === 'mirror' ? 11 : 0, DEVICE_LABELS[placement.kind], {
       fontFamily: 'Arial, sans-serif', fontSize: placement.kind === 'mirror' ? '8px' : '7px', color: '#f6ffff', fontStyle: 'bold',
     }).setOrigin(0.5)
-    container.add([g, label])
-    this.entityLayer.add(container)
-    this.deviceObjects.set(placement.id, { container, signature })
+    g.setPosition(point.x, point.y)
+    label.setPosition(point.x, point.y + (placement.kind === 'mirror' ? 11 : 0))
+    this.entityLayer.add(g)
+    this.entityLayer.add(label)
+    this.deviceObjects.set(placement.id, { graphics: g, label, signature })
   }
 
   private drawEnemy(level: LevelConfig, enemy: BattleState['enemies'][number]) {
     if (enemy.dead || enemy.escaped) {
-      this.enemyObjects.get(enemy.id)?.container.destroy(true)
+      this.enemyObjects.get(enemy.id)?.graphics.destroy(true)
       this.enemyObjects.delete(enemy.id)
       return
     }
@@ -458,10 +531,23 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const point = pointOnPath(path, enemy.progress)
     const color = enemy.kind === 'boss' ? 0xff4967 : enemy.kind === 'armored' ? 0xa7b3c2 : enemy.kind === 'resistant' ? 0xd98bff : enemy.kind === 'fast' ? 0xffce59 : 0xf4f6f0
     const size = enemy.kind === 'boss' ? 22 : enemy.kind === 'armored' ? 17 : 13
+    // 状态变化时才重建敌人图形（位置每帧 setPosition，血量按 5% 分档）。
+    const healthBucket = Math.round(enemy.health / enemy.maxHealth * 20)
+    const shieldBucket = enemy.status.shield > 0
+      ? Math.round(Math.min(1, enemy.status.shield / Math.max(1, enemy.kind === 'boss' ? enemy.maxHealth * 0.15 : enemy.maxHealth * 0.12)) * 10)
+      : 0
+    const signature = [
+      enemy.kind, enemy.resistance ?? '', healthBucket, shieldBucket,
+      enemy.status.freezeSeconds > 0 ? 1 : 0,
+      enemy.status.burnSeconds > 0 || enemy.status.poisonSeconds > 0 ? 1 : 0,
+      Math.ceil(enemy.status.radiationStacks),
+      enemy.status.armorBrokenSeconds > 0 ? 1 : 0,
+      enemy.status.vulnerableSeconds > 0 ? 1 : 0,
+    ].join(':')
     const cached = this.enemyObjects.get(enemy.id)
-    const container = cached?.container ?? this.add.container(point.x, point.y)
     const g = cached?.graphics ?? this.add.graphics()
-    container.setPosition(point.x, point.y)
+    g.setPosition(point.x, point.y)
+    if (cached && cached.signature === signature) return
     g.clear()
     g.fillStyle(0x050708, 0.88)
     g.fillCircle(0, 0, size + 4)
@@ -510,9 +596,10 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.lineBetween(2, 4, size + 7, -4)
     }
     if (!cached) {
-      container.add(g)
-      this.entityLayer.add(container)
-      this.enemyObjects.set(enemy.id, { container, graphics: g })
+      this.entityLayer.add(g)
+      this.enemyObjects.set(enemy.id, { graphics: g, signature })
+    } else {
+      cached.signature = signature
     }
   }
 
@@ -539,8 +626,9 @@ export class OpticalDefenseScene extends Phaser.Scene {
       this.drawBoard(snapshot.level)
       this.lastLevelId = snapshot.level.id
       this.lastHoleSignature = '\u0000'
-      this.deviceObjects.forEach(({ container }) => container.destroy(true))
-      this.enemyObjects.forEach(({ container }) => container.destroy(true))
+      this.lastRangeSignature = null
+      this.deviceObjects.forEach(({ graphics, label }) => { graphics.destroy(true); label.destroy(true) })
+      this.enemyObjects.forEach(({ graphics }) => graphics.destroy(true))
       this.deviceObjects.clear()
       this.enemyObjects.clear()
     }
@@ -558,15 +646,16 @@ export class OpticalDefenseScene extends Phaser.Scene {
     snapshot.battle.placements.forEach((placement) => this.drawDevice(snapshot.level, placement, snapshot.selectedId))
     snapshot.battle.enemies.forEach((enemy) => this.drawEnemy(snapshot.level, enemy))
     const placementIds = new Set(snapshot.battle.placements.map((placement) => placement.id))
-    this.deviceObjects.forEach(({ container }, id) => {
+    this.deviceObjects.forEach(({ graphics, label }, id) => {
       if (placementIds.has(id)) return
-      container.destroy(true)
+      graphics.destroy(true)
+      label.destroy(true)
       this.deviceObjects.delete(id)
     })
     const enemyIds = new Set(snapshot.battle.enemies.filter((enemy) => !enemy.dead && !enemy.escaped).map((enemy) => enemy.id))
-    this.enemyObjects.forEach(({ container }, id) => {
+    this.enemyObjects.forEach(({ graphics }, id) => {
       if (enemyIds.has(id)) return
-      container.destroy(true)
+      graphics.destroy(true)
       this.enemyObjects.delete(id)
     })
     this.playEvents(snapshot)

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BatteryCharging, BookOpen, Check, ChevronRight, CircleDot, Coins, Combine, Crosshair, DoorOpen, Filter,
   Flame, Gauge, HeartPulse, HelpCircle, Layers3, Lightbulb, Link2, ListFilter, Pause, Play, RadioTower,
-  Minus, Plus, RefreshCw, RotateCw, ScanLine, Settings, Shield, Snowflake, Sparkles,
+  Minus, Plus, RefreshCw, RotateCw, ScanLine, Settings, Shield, SlidersHorizontal, Snowflake, Sparkles,
   SplitSquareHorizontal, SquareStack, Trash2, Triangle, Waves, X, Zap,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -11,16 +11,22 @@ import './opticalDefense.css'
 import { OPTICAL_DEFENSE_LEVELS } from './levels'
 import type { OpticalDefenseScene, SceneSnapshot } from './OpticalDefenseScene'
 import {
-  ACCELERATOR_MAX_CHARGE_J, ACCELERATOR_MIN_INPUT_W, advanceBattle, attachSensor, createBattleState, DEVICE_COSTS, deviceLevel,
-  deviceUpgradeCost, placeDevice, pointOnPath, queueCapacitorDetonation, rotateDevice, scoreBattle,
-  sellDevice, setDeviceRotation, snapDeviceOutputToTarget, startWave, TERMINAL_ATTACK_PROFILES, togglePause,
-  updateDevice, upgradeDevice,
+  ACCELERATOR_MAX_CHARGE_J, ACCELERATOR_MIN_INPUT_W, advanceBattle, attachSensor, clearEnemies, continueAfterCoreLoss,
+  createBattleState, DEVICE_COSTS, deviceLevel, deviceUpgradeCost, placeDevice, pointOnPath, queueCapacitorDetonation,
+  rebuildSpawnPlan, rotateDevice, scoreBattle, sellDevice, setDeviceRotation, snapDeviceOutputToTarget, startWave,
+  TERMINAL_ATTACK_PROFILES, togglePause, updateDevice, upgradeDevice,
 } from './simulation'
 import type { BattleState } from './simulation'
 import { prismSplitPower, scaleRgb, SOURCE_POWER_W, sourceRgb, splitPower, totalPower } from './rules'
 import { OPTICAL_TRANSMISSION, splitterOutputCount, traceOpticalNetwork } from './optics'
 import { DEFAULT_SAVE, readOpticalSaveResult, writeOpticalSave } from './storage'
-import type { DeviceKind, DevicePlacement, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
+import {
+  buildCustomLevel, CUSTOM_LEVEL_ID, createDefaultCustomConfig, loadCustomConfig, saveCustomConfig,
+} from './customLevel'
+import type { CustomLevelConfig } from './customLevel'
+import { CustomLevelBuilder } from './CustomLevelBuilder'
+import { CustomLevelConsole } from './CustomLevelConsole'
+import type { DeviceKind, DevicePlacement, Point, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
 
 type ToolDefinition = {
   kind: DeviceKind
@@ -68,6 +74,16 @@ const TUTORIAL_LEVELS = new Set([1, 3, 4, 5, 6, 7, 8, 9])
 const MANUAL_TABS = ['快速上手', '颜色与反应', '光路仪器', '攻击终端', '敌人', '数值'] as const
 type ManualTab = typeof MANUAL_TABS[number]
 
+type ConfirmKind = 'reset-level' | 'reset-map' | 'reset-custom-level' | 'reset-enemies' | 'reset-tuning'
+
+const CONFIRM_META: Record<ConfirmKind, { title: string; message: string; confirmLabel: string }> = {
+  'reset-level': { title: '重置本关', message: '确定要重置本关吗？当前布防与战斗进度将被清空。', confirmLabel: '重置本关' },
+  'reset-map': { title: '重置地图', message: '确定要重置地图吗？自定义的地图、路径与全部参数将恢复到初始状态。', confirmLabel: '重置地图' },
+  'reset-custom-level': { title: '重置关卡', message: '确定要重置关卡吗？将保留当前地图与参数，清空敌人和全部仪器。', confirmLabel: '重置关卡' },
+  'reset-enemies': { title: '重置敌人', message: '确定要清除所有在场敌人吗？', confirmLabel: '重置敌人' },
+  'reset-tuning': { title: '恢复默认调参', message: '确定要将第二十关的全部参数恢复到默认值吗？', confirmLabel: '恢复默认' },
+}
+
 function initialLevelId() {
   const stored = Number(window.sessionStorage.getItem('tjyz-optical-current-level'))
   return Number.isInteger(stored) && stored >= 1 && stored <= OPTICAL_DEFENSE_LEVELS.length ? stored : 1
@@ -95,8 +111,18 @@ export function OpticalDefenseGame() {
   const [initialSave] = useState(() => readOpticalSaveResult())
   const [save, setSave] = useState<SaveData>(initialSave.save)
   const [levelId, setLevelId] = useState(initialLevelId)
-  const level = OPTICAL_DEFENSE_LEVELS[levelId - 1]
+  const [customConfig, setCustomConfig] = useState<CustomLevelConfig>(() => loadCustomConfig())
+  const level = useMemo(
+    () => levelId === CUSTOM_LEVEL_ID ? buildCustomLevel(customConfig) : OPTICAL_DEFENSE_LEVELS[levelId - 1],
+    [customConfig, levelId],
+  )
   const [battle, setBattle] = useState(() => createBattleState(level))
+  const levelRef = useRef(level)
+  levelRef.current = level
+  const [builderOpen, setBuilderOpen] = useState(() => levelId === CUSTOM_LEVEL_ID)
+  const [showConsole, setShowConsole] = useState(false)
+  const [resetMenuOpen, setResetMenuOpen] = useState(false)
+  const [confirmState, setConfirmState] = useState<ConfirmKind | null>(null)
   const [selectedTool, setSelectedTool] = useState<DeviceKind>('source-red')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [snapOutput, setSnapOutput] = useState<{ placementId: string; outputIndex: number } | null>(null)
@@ -177,6 +203,10 @@ export function OpticalDefenseGame() {
   }, [save])
 
   useEffect(() => {
+    saveCustomConfig(customConfig)
+  }, [customConfig])
+
+  useEffect(() => {
     if (save.tutorial.dismissed || save.tutorial.completedLevels.includes(level.id) || !TUTORIAL_LEVELS.has(level.id)) return
     setTutorialOpen(true)
   }, [level.id, save.tutorial.completedLevels, save.tutorial.dismissed])
@@ -208,11 +238,11 @@ export function OpticalDefenseGame() {
   }, [])
 
   useEffect(() => {
-    if (!stageRef.current) return undefined
+    if (!stageRef.current || builderOpen) return undefined
     let disposed = false
     let game: { destroy: (removeCanvas: boolean) => void } | null = null
     void import('./OpticalDefenseScene').then(({ OpticalDefenseScene, Phaser }) => {
-      if (disposed || !stageRef.current) return
+      if (disposed || !stageRef.current || builderOpen) return
       const scene = new OpticalDefenseScene({
         onHole: (holeId) => callbacksRef.current.onHole(holeId),
         onDevice: (id) => callbacksRef.current.onDevice(id),
@@ -241,7 +271,7 @@ export function OpticalDefenseGame() {
       sceneRef.current = null
       game?.destroy(true)
     }
-  }, [])
+  }, [builderOpen, levelId])
 
   callbacksRef.current.onHole = (holeId: string) => {
     if (snapOutput) {
@@ -388,9 +418,11 @@ export function OpticalDefenseGame() {
   const selectLevel = useCallback((nextLevelId: number) => {
     const nextLevel = OPTICAL_DEFENSE_LEVELS[nextLevelId - 1]
     if (!nextLevel) return
+    const isCustom = nextLevelId === CUSTOM_LEVEL_ID
+    const targetLevel = isCustom ? buildCustomLevel(customConfig) : nextLevel
     setLevelId(nextLevelId)
-    commitBattle(createBattleState(nextLevel))
-    setSelectedTool(nextLevel.availableDevices[0])
+    commitBattle(createBattleState(targetLevel))
+    setSelectedTool(targetLevel.availableDevices[0])
     setSelectedId(null)
     setSnapOutput(null)
     setCompletedStars(0)
@@ -398,12 +430,16 @@ export function OpticalDefenseGame() {
     tutorialSnappedRef.current = false
     tutorialWaveStartedRef.current = false
     tutorialFirstKillRef.current = false
+    setBuilderOpen(isCustom)
+    setShowConsole(false)
+    setResetMenuOpen(false)
     setShowLevels(false)
-    setMessage(`LEVEL ${String(nextLevelId).padStart(2, '0')} 光场已校准。`)
+    setMessage(isCustom ? '第二十关：请先构建你的自定义地图，再进入实验台。' : `LEVEL ${String(nextLevelId).padStart(2, '0')} 光场已校准。`)
     window.sessionStorage.setItem('tjyz-optical-current-level', String(nextLevelId))
-  }, [commitBattle])
+  }, [commitBattle, customConfig])
 
   useEffect(() => {
+    if (builderOpen) return undefined
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target instanceof Element ? event.target : null
       const isControl = target?.closest('input, select, textarea, button, [contenteditable="true"], [role="dialog"]')
@@ -420,7 +456,7 @@ export function OpticalDefenseGame() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [battle.phase, selectedId])
+  }, [battle.phase, builderOpen, selectedId])
 
   const runControl = () => {
     const current = battleRef.current
@@ -442,6 +478,78 @@ export function OpticalDefenseGame() {
     tutorialWaveStartedRef.current = false
     tutorialFirstKillRef.current = false
     setMessage('本关实验台已重置。')
+  }
+
+  const startCustomLevel = () => {
+    const customLevel = buildCustomLevel(customConfig)
+    commitBattle(createBattleState(customLevel))
+    setSelectedTool(customLevel.availableDevices[0])
+    setSelectedId(null)
+    setSnapOutput(null)
+    setCompletedStars(0)
+    tutorialPlacementKindsRef.current.clear()
+    setBuilderOpen(false)
+    setMessage('第二十关实验台已就绪，可点击控制台实时调整参数。')
+  }
+
+  const resetCustomMap = () => {
+    const fresh = createDefaultCustomConfig()
+    setCustomConfig(fresh)
+    setBuilderOpen(true)
+    commitBattle(createBattleState(buildCustomLevel(fresh)))
+    setSelectedId(null)
+    setSnapOutput(null)
+    setCompletedStars(0)
+    setResetMenuOpen(false)
+    setMessage('地图已重置为初始状态。')
+  }
+
+  const resetCustomLevel = () => {
+    commitBattle(createBattleState(level))
+    setSelectedId(null)
+    setSnapOutput(null)
+    setCompletedStars(0)
+    tutorialPlacementKindsRef.current.clear()
+    setResetMenuOpen(false)
+    setMessage('本关实验台已重置，地图与参数保留。')
+  }
+
+  const resetCustomEnemies = () => {
+    // 核心已失守时选择「重置敌人」：清空威胁、恢复核心并继续作战。
+    commitBattle((current) => current.phase === 'defeat'
+      ? { ...clearEnemies(current), phase: 'running', coreHealth: level.coreHealth }
+      : clearEnemies(current))
+    setResetMenuOpen(false)
+    setMessage('在场敌人已全部清除。')
+  }
+
+  const continueCustomAfterCoreLoss = () => {
+    commitBattle((current) => continueAfterCoreLoss(current, level))
+    setMessage('核心生命已恢复，继续作战。')
+  }
+
+  const resetCustomTuning = () => {
+    const fresh = createDefaultCustomConfig()
+    applyCustomConfig({ ...customConfig, tuning: fresh.tuning })
+    setMessage('第二十关调参已恢复默认。')
+  }
+
+  const runConfirm = (kind: ConfirmKind) => {
+    if (kind === 'reset-level') resetLevel()
+    else if (kind === 'reset-map') resetCustomMap()
+    else if (kind === 'reset-custom-level') resetCustomLevel()
+    else if (kind === 'reset-enemies') resetCustomEnemies()
+    else if (kind === 'reset-tuning') resetCustomTuning()
+  }
+
+  const applyCustomConfig = (next: CustomLevelConfig) => {
+    setCustomConfig(next)
+    commitBattle((current) => rebuildSpawnPlan({
+      ...current,
+      coins: next.startingCoins,
+      capacityW: next.capacityW,
+      coreHealth: next.coreHealth,
+    }, buildCustomLevel(next)))
   }
 
   const patchSelected = (patch: Parameters<typeof updateDevice>[2]) => {
@@ -479,11 +587,23 @@ export function OpticalDefenseGame() {
 
   useEffect(() => setKeyboardHoleIndex(0), [levelId])
 
-  const onBoardKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+  // 键盘网格回调全部基于 ref 读取最新状态，保证可被 KeyboardGrid 稳定复用（减少战斗步进的重复渲染）。
+  const onBoardActivate = useCallback((index: number) => {
+    const holeId = `h-${index}`
+    const placement = battleRef.current.placements.find((item) => item.holeId === holeId && !item.destroyed)
+    if (placement) callbacksRef.current.onDevice(placement.id)
+    else callbacksRef.current.onHole(holeId)
+  }, [])
+
+  const onBoardFocus = useCallback((index: number) => {
+    setKeyboardHoleIndex(index)
+  }, [])
+
+  const onBoardKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       const holeId = `h-${index}`
-      const placement = battle.placements.find((item) => item.holeId === holeId && !item.destroyed)
+      const placement = battleRef.current.placements.find((item) => item.holeId === holeId && !item.destroyed)
       if (placement) callbacksRef.current.onDevice(placement.id)
       else callbacksRef.current.onHole(holeId)
       return
@@ -494,8 +614,8 @@ export function OpticalDefenseGame() {
     const vector = vectors[event.key]
     if (!vector) return
     event.preventDefault()
-    const origin = level.holes[index]
-    const next = level.holes.map((point, holeIndex) => {
+    const origin = levelRef.current.holes[index]
+    const next = levelRef.current.holes.map((point, holeIndex) => {
       const dx = point.x - origin.x
       const dy = point.y - origin.y
       const forward = dx * vector.x + dy * vector.y
@@ -506,7 +626,7 @@ export function OpticalDefenseGame() {
     setKeyboardHoleIndex(next.holeIndex)
     requestAnimationFrame(() => event.currentTarget.parentElement
       ?.querySelector<HTMLButtonElement>(`[data-board-hole="${next.holeIndex}"]`)?.focus())
-  }
+  }, [])
 
   return (
     <section className="optical-defense" aria-labelledby="optical-defense-title" data-testid="optical-defense">
@@ -518,30 +638,45 @@ export function OpticalDefenseGame() {
         <button className="optical-defense__level-button" type="button" onClick={() => setShowLevels(true)} data-testid="open-levels">
           <span>LEVEL</span><strong>{String(level.id).padStart(2, '0')}</strong><ChevronRight aria-hidden="true" />
         </button>
-        <div className="optical-defense__meters" aria-label="战斗资源">
+        {!builderOpen && <div className="optical-defense__meters" aria-label="战斗资源">
           <div><Zap aria-hidden="true" /><span>功率</span><strong data-testid="power-meter">{battle.usedPowerW}/{battle.capacityW}W</strong></div>
           <div><Coins aria-hidden="true" /><span>金币</span><strong>{battle.coins}</strong></div>
           <div><HeartPulse aria-hidden="true" /><span>核心</span><strong>{battle.coreHealth}/{level.coreHealth}</strong></div>
           <div><Waves aria-hidden="true" /><span>击败</span><strong>{defeatedEnemies}/{battle.spawnPlan.length}</strong></div>
-        </div>
+        </div>}
         <div className="optical-defense__top-actions">
+          {levelId === CUSTOM_LEVEL_ID && !builderOpen && <button type="button" className="optical-defense__console-button" onClick={() => setShowConsole(true)} data-testid="open-console"><SlidersHorizontal aria-hidden="true" /><span>控制台</span></button>}
           <div className="optical-defense__speed" aria-label="战斗倍速" data-testid="game-speed"><Gauge aria-hidden="true" />{([1, 2, 3] as const).map((speed) => <button key={speed} type="button" className={save.settings.gameSpeed === speed ? 'is-active' : ''} aria-pressed={save.settings.gameSpeed === speed} onClick={() => setGameSpeed(speed)}>{speed}×</button>)}</div>
-          <button type="button" onClick={resetLevel} aria-label="重置本关" title="重置本关"><RefreshCw aria-hidden="true" /></button>
+          <div className="optical-defense__reset-wrap">
+            <button type="button" onClick={() => {
+              if (levelId === CUSTOM_LEVEL_ID) {
+                if (builderOpen) setConfirmState('reset-map')
+                else setResetMenuOpen((open) => !open)
+              } else {
+                setConfirmState('reset-level')
+              }
+            }} aria-label="重置" title={levelId === CUSTOM_LEVEL_ID ? (builderOpen ? '重置地图' : '重置地图 / 重置关卡 / 重置敌人') : '重置本关'} aria-haspopup={levelId === CUSTOM_LEVEL_ID && !builderOpen ? 'menu' : undefined}><RefreshCw aria-hidden="true" /></button>
+            {resetMenuOpen && levelId === CUSTOM_LEVEL_ID && <div className="optical-defense__reset-menu" role="menu" aria-label="重置选项">
+              <button type="button" role="menuitem" onClick={() => { setResetMenuOpen(false); setConfirmState('reset-map') }}><RotateCw aria-hidden="true" /><span><strong>重置地图</strong><small>恢复到初始状态</small></span></button>
+              <button type="button" role="menuitem" onClick={() => { setResetMenuOpen(false); setConfirmState('reset-custom-level') }}><RefreshCw aria-hidden="true" /><span><strong>重置关卡</strong><small>保留地图，清空敌人与仪器</small></span></button>
+              <button type="button" role="menuitem" onClick={() => { setResetMenuOpen(false); setConfirmState('reset-enemies') }}><Trash2 aria-hidden="true" /><span><strong>重置敌人</strong><small>清除所有在场敌人</small></span></button>
+            </div>}
+          </div>
           <button type="button" onClick={() => setShowHelp(true)} aria-label="打开游戏说明" title="说明" data-testid="open-help"><HelpCircle aria-hidden="true" /></button>
           <button type="button" onClick={() => setShowSettings(true)} aria-label="打开设置" title="设置" data-testid="open-settings"><Settings aria-hidden="true" /></button>
-          <button className="is-primary" type="button" onClick={runControl} disabled={battle.phase === 'victory' || battle.phase === 'defeat'} data-testid="wave-control">
+          <button className="is-primary" type="button" onClick={runControl} disabled={builderOpen || battle.phase === 'victory' || battle.phase === 'defeat'} data-testid="wave-control">
             {battle.phase === 'running' ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
             <span>{battle.phase === 'build' ? '启动波次' : battle.phase === 'running' ? '暂停' : '继续'}</span>
           </button>
         </div>
       </header>
 
-      <div className="optical-defense__mission">
+      {!builderOpen && <div className="optical-defense__mission">
         <div><span>LEVEL {String(level.id).padStart(2, '0')}</span><strong>{level.title}</strong></div>
         <p>{level.lesson}</p>
         <div className="optical-defense__threats" aria-label="本关敌人编成">{Object.entries(enemyRoster).map(([kind, count]) => <span key={kind} className={`is-${kind}`}>{({ normal: '常规', fast: '高速', armored: '重甲', resistant: '抗性', boss: '首领' } as Record<string, string>)[kind]} ×{count}</span>)}</div>
         <i style={{ width: `${Math.min(100, waveProgress * 100)}%` }} />
-      </div>
+      </div>}
 
       {tutorialOpen && tutorialSteps.length > 0 && <aside className={`optical-defense__tutorial${tutorialComplete ? ' is-complete' : ''}`} aria-label="本关实战教学" data-testid="tutorial-bar">
         <div><BookOpen aria-hidden="true" /><span><strong>{tutorialComplete ? '本关教学完成' : `LEVEL ${String(level.id).padStart(2, '0')} 实战任务`}</strong><small>自由操作，任务不会锁定仪器或安装孔</small></span></div>
@@ -549,7 +684,9 @@ export function OpticalDefenseGame() {
         <div className="optical-defense__tutorial-actions"><button type="button" onClick={() => { setShowHelp(true); setManualTab('快速上手') }}>打开手册</button><button type="button" aria-label="关闭教学" title="关闭全部自动教学，可从手册重播" onClick={() => { setTutorialOpen(false); setSave((current) => ({ ...current, tutorial: { ...current.tutorial, dismissed: true } })) }}><X /></button></div>
       </aside>}
 
-      <div className="optical-defense__workspace">
+      {builderOpen && levelId === CUSTOM_LEVEL_ID
+        ? <CustomLevelBuilder config={customConfig} onChange={setCustomConfig} onStart={startCustomLevel} />
+        : <div className="optical-defense__workspace">
         <aside className="optical-defense__palette" aria-label="仪器仓">
           {toolGroups.map((group) => {
             const available = group.tools.filter((tool) => availableDevices.includes(tool.kind))
@@ -580,25 +717,16 @@ export function OpticalDefenseGame() {
           onPointerDown={() => workspaceRef.current?.focus()}
         >
           <div className="optical-defense__canvas-shell" ref={stageRef} data-testid="optical-canvas" data-scene-ready={sceneReady} aria-busy={!sceneReady}>
-            <div className="optical-defense__keyboard-grid" role="grid" aria-label="可键盘操作的仪器安装孔">
-              {level.holes.map((point, index) => {
-                const holeId = `h-${index}`
-                const placement = battle.placements.find((item) => item.holeId === holeId && !item.destroyed)
-                const name = placement ? TOOLS.find((tool) => tool.kind === placement.kind)?.name : null
-                return <button
-                  key={holeId}
-                  type="button"
-                  role="gridcell"
-                  tabIndex={index === keyboardHoleIndex ? 0 : -1}
-                  aria-label={placement ? `${holeId.toUpperCase()}，已安装${name}，按回车选择` : `${holeId.toUpperCase()}，空安装孔，按回车放置${TOOLS.find((tool) => tool.kind === selectedTool)?.name}`}
-                  data-board-hole={index}
-                  style={{ left: `${point.x / LAB_WIDTH * 100}%`, top: `${point.y / LAB_HEIGHT * 100}%` }}
-                  onFocus={() => setKeyboardHoleIndex(index)}
-                  onKeyDown={(event) => onBoardKeyDown(event, index)}
-                  onClick={() => placement ? callbacksRef.current.onDevice(placement.id) : callbacksRef.current.onHole(holeId)}
-                />
-              })}
-            </div>
+            <KeyboardGrid
+              holes={level.holes}
+              placements={battle.placements}
+              placementSignature={battle.placements.filter((placement) => !placement.destroyed).map((placement) => `${placement.holeId}:${placement.kind}`).sort().join('|')}
+              keyboardHoleIndex={keyboardHoleIndex}
+              toolName={TOOLS.find((tool) => tool.kind === selectedTool)?.name ?? ''}
+              onActivate={onBoardActivate}
+              onFocusIndex={onBoardFocus}
+              onBoardKeyDown={onBoardKeyDown}
+            />
           </div>
           <div className="optical-defense__field-status">
             <span className={`is-${battle.phase}`}>{battle.phase === 'build' ? '布防' : battle.phase === 'running' ? '运行' : battle.phase === 'paused' ? '暂停' : battle.phase === 'victory' ? '完成' : '核心失效'}</span>
@@ -644,7 +772,7 @@ export function OpticalDefenseGame() {
             }}
           /> : <div className="optical-defense__empty-inspector"><Layers3 aria-hidden="true" /><strong>仪器总览</strong><dl><div><dt>已安装</dt><dd>{battle.placements.length}</dd></div><div><dt>光束容量</dt><dd>{battle.capacityW - battle.usedPowerW}W</dd></div><div><dt>已击败</dt><dd>{defeatedEnemies}</dd></div></dl></div>}
         </aside>
-      </div>
+        </div>}
 
       {showLevels && <div className="optical-defense__overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setShowLevels(false)}>
         <section className="optical-defense__modal optical-defense__level-modal" role="dialog" aria-modal="true" aria-labelledby="optical-levels-title">
@@ -667,6 +795,8 @@ export function OpticalDefenseGame() {
         </section>
       </div>}
 
+      {showConsole && levelId === CUSTOM_LEVEL_ID && <CustomLevelConsole config={customConfig} onChange={applyCustomConfig} onClose={() => setShowConsole(false)} onResetTuning={() => setConfirmState('reset-tuning')} />}
+
       {showHelp && <div className="optical-defense__overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setShowHelp(false)}>
         <section className="optical-defense__modal optical-defense__help" role="dialog" aria-modal="true" aria-labelledby="optical-help-title" data-testid="help-dialog">
           <header><div><span>FIELD MANUAL</span><h3 id="optical-help-title">游戏说明</h3></div><button onClick={() => setShowHelp(false)} aria-label="关闭游戏说明"><X /></button></header>
@@ -684,9 +814,36 @@ export function OpticalDefenseGame() {
         </section>
       </div>}
 
-      {battle.phase === 'defeat' && <div className="optical-defense__overlay">
-        <section className="optical-defense__modal optical-defense__result" role="dialog" aria-modal="true" aria-labelledby="optical-defeat-title"><Shield aria-hidden="true" /><span>CORE OFFLINE</span><h3 id="optical-defeat-title">核心失守</h3><button className="is-primary" onClick={resetLevel}><RefreshCw />重新校准</button></section>
-      </div>}
+      {battle.phase === 'defeat' && (levelId === CUSTOM_LEVEL_ID ? (
+        <div className="optical-defense__overlay">
+          <section className="optical-defense__modal optical-defense__result optical-defense__defeat-custom" role="dialog" aria-modal="true" aria-labelledby="optical-defeat-title">
+            <Shield aria-hidden="true" /><span>CORE OFFLINE</span><h3 id="optical-defeat-title">核心失守</h3>
+            <p className="optical-defense__defeat-hint">选择如何继续这场自定义实验：</p>
+            <div className="optical-defense__defeat-options">
+              <button onClick={continueCustomAfterCoreLoss} data-testid="defeat-continue"><HeartPulse aria-hidden="true" /><span><strong>继续游戏</strong><small>核心生命回满，不扣除血量</small></span></button>
+              <button onClick={resetCustomEnemies}><Trash2 aria-hidden="true" /><span><strong>重置敌人</strong><small>清除所有在场敌人</small></span></button>
+              <button onClick={resetCustomLevel}><RefreshCw aria-hidden="true" /><span><strong>重置关卡</strong><small>保留地图，清空敌人与仪器</small></span></button>
+              <button onClick={resetCustomMap}><RotateCw aria-hidden="true" /><span><strong>重置地图</strong><small>回到关卡构建</small></span></button>
+            </div>
+          </section>
+        </div>
+      ) : (
+        <div className="optical-defense__overlay">
+          <section className="optical-defense__modal optical-defense__result" role="dialog" aria-modal="true" aria-labelledby="optical-defeat-title"><Shield aria-hidden="true" /><span>CORE OFFLINE</span><h3 id="optical-defeat-title">核心失守</h3><button className="is-primary" onClick={resetLevel}><RefreshCw />重新校准</button></section>
+        </div>
+      ))}
+
+      {confirmState && <ConfirmDialog
+        title={CONFIRM_META[confirmState].title}
+        message={CONFIRM_META[confirmState].message}
+        confirmLabel={CONFIRM_META[confirmState].confirmLabel}
+        onCancel={() => setConfirmState(null)}
+        onConfirm={() => {
+          const kind = confirmState
+          setConfirmState(null)
+          runConfirm(kind)
+        }}
+      />}
     </section>
   )
 }
@@ -722,6 +879,68 @@ function ManualPage({ tab }: { tab: ManualTab }) {
     <article><h4>设备价格</h4><p>镜面 18、分束 32、棱镜 46、合束 34、滤光 22、收集 44、灯泡 30、激光 46、辐射 50、寒冰/火焰 52、加速器 82、光闸 20、传感器 28、电容 68。</p></article>
     <article><h4>容量奖励</h4><p>普通与高速敌人返还 1W；重甲与抗性返还 2W，Boss 返还 20W。奖励会提高本关可用功率容量，不会直接增强现有光束。</p></article>
   </div>
+}
+
+const KeyboardGrid = memo(function KeyboardGrid({
+  holes, placements, placementSignature, keyboardHoleIndex, toolName, onActivate, onFocusIndex, onBoardKeyDown,
+}: {
+  holes: Point[]
+  placements: DevicePlacement[]
+  placementSignature: string
+  keyboardHoleIndex: number
+  toolName: string
+  onActivate: (index: number) => void
+  onFocusIndex: (index: number) => void
+  onBoardKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => void
+}) {
+  return (
+    <div className="optical-defense__keyboard-grid" role="grid" aria-label="可键盘操作的仪器安装孔">
+      {holes.map((point, index) => {
+        const holeId = `h-${index}`
+        const placement = placements.find((item) => item.holeId === holeId && !item.destroyed)
+        const name = placement ? TOOLS.find((tool) => tool.kind === placement.kind)?.name : null
+        return <button
+          key={holeId}
+          type="button"
+          role="gridcell"
+          tabIndex={index === keyboardHoleIndex ? 0 : -1}
+          aria-label={placement ? `${holeId.toUpperCase()}，已安装${name}，按回车选择` : `${holeId.toUpperCase()}，空安装孔，按回车放置${toolName}`}
+          data-board-hole={index}
+          style={{ left: `${point.x / LAB_WIDTH * 100}%`, top: `${point.y / LAB_HEIGHT * 100}%` }}
+          onFocus={() => onFocusIndex(index)}
+          onKeyDown={(event) => onBoardKeyDown(event, index)}
+          onClick={() => onActivate(index)}
+        />
+      })}
+    </div>
+  )
+}, (prev, next) => (
+  // 战斗步进只改变 placements 数组引用，孔位与类型签名不变时不重渲染，避免大地图每步重建数百个按钮。
+  prev.holes === next.holes
+  && prev.placementSignature === next.placementSignature
+  && prev.keyboardHoleIndex === next.keyboardHoleIndex
+  && prev.toolName === next.toolName
+))
+
+function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }: {
+  title: string
+  message: string
+  confirmLabel: string
+  onConfirm: () => void
+  onCancel: () => void
+}) {
+  return (
+    <div className="optical-defense__overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onCancel()}>
+      <section className="optical-defense__modal optical-defense__confirm" role="dialog" aria-modal="true" aria-labelledby="optical-confirm-title" data-testid="confirm-dialog">
+        <header><div><Shield aria-hidden="true" /><span><strong id="optical-confirm-title">{title}</strong></span></div><button onClick={onCancel} aria-label="取消"><X /></button></header>
+        <p className="optical-defense__confirm-message">{message}</p>
+        <div className="optical-defense__confirm-actions">
+          <button type="button" onClick={onCancel}>取消</button>
+          <button type="button" className="is-danger" onClick={onConfirm} data-testid="confirm-ok">{confirmLabel}</button>
+        </div>
+      </section>
+    </div>
+  )
 }
 
 function DeviceInspector({
