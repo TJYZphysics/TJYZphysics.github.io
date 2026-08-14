@@ -28,52 +28,27 @@
 
 html[data-theme='light'] .blog-page,
 html[data-theme='light'] .article-page {
-  --blog-bg: #edf3f7;
-  --blog-glow: rgba(38, 117, 154, .12);
-  --blog-text: #162334;
-  --blog-muted: #526276;
-  --blog-faint: #6d7d91;
-  --blog-accent: #13748a;
-  --blog-accent-ink: #fff;
-  --blog-line: rgba(28, 58, 82, .18);
+  --blog-bg: #f4f5f8;
+  --blog-glow: rgba(49, 89, 184, .1);
+  --blog-text: #171a22;
+  --blog-muted: #5a6470;
+  --blog-faint: #6c7684;
+  --blog-accent: #2453c7;
+  --blog-accent-ink: #fffefa;
+  --blog-line: rgba(23, 26, 34, .16);
   --blog-control: rgba(255, 255, 255, .88);
-  --blog-control-hover: rgba(19, 116, 138, .08);
-  --blog-paper: #fbfdfe;
-  --blog-paper-edge: #dbe5eb;
-  --blog-paper-shadow: #c8d5dd;
-  --blog-paper-text: #162334;
-  --blog-paper-muted: #526276;
-  --blog-paper-faint: #6c7d91;
-  --blog-code: #172231;
-  --blog-code-text: #f0f5fa;
-  --blog-inline-code: rgba(19, 116, 138, .09);
-  --blog-reaction: #edf3f6;
-  --blog-reaction-text: #34485d;
-}
-
-html[data-theme='claude-light'] .blog-page,
-html[data-theme='claude-light'] .article-page {
-  --blog-bg: #f4f1ea;
-  --blog-glow: rgba(181, 92, 59, .1);
-  --blog-text: #292724;
-  --blog-muted: #67615a;
-  --blog-faint: #82796f;
-  --blog-accent: #a84e32;
-  --blog-accent-ink: #fffaf3;
-  --blog-line: rgba(72, 62, 52, .18);
-  --blog-control: rgba(255, 252, 246, .9);
-  --blog-control-hover: rgba(168, 78, 50, .075);
-  --blog-paper: #fffaf1;
-  --blog-paper-edge: #e1d7c7;
-  --blog-paper-shadow: #cec1ae;
-  --blog-paper-text: #292724;
-  --blog-paper-muted: #655f58;
-  --blog-paper-faint: #7c746b;
-  --blog-code: #292724;
-  --blog-code-text: #f8f3e9;
-  --blog-inline-code: rgba(168, 78, 50, .1);
-  --blog-reaction: #f3ece1;
-  --blog-reaction-text: #504941;
+  --blog-control-hover: rgba(36, 83, 199, .08);
+  --blog-paper: #fdfdfd;
+  --blog-paper-edge: #dce0e6;
+  --blog-paper-shadow: #c9cdd4;
+  --blog-paper-text: #171a22;
+  --blog-paper-muted: #5a6470;
+  --blog-paper-faint: #6c7684;
+  --blog-code: #181f2f;
+  --blog-code-text: #f0f4fb;
+  --blog-inline-code: rgba(36, 83, 199, .09);
+  --blog-reaction: #eef0f4;
+  --blog-reaction-text: #3a4350;
 }
 
 html[data-theme='claude-dark'] .blog-page,
@@ -183,13 +158,23 @@ html[data-theme='claude-dark'] .article-page {
 .comments-placeholder > svg { color: var(--blog-accent) !important; }
 .comments-placeholder p { color: var(--blog-muted) !important; }
 
-/* The bundled GitHub Dark syntax theme needs explicit warm/cool light-theme corrections. */
+/* Cobalt-aerospace refinements: shadows are tinted by the body ink, code blocks
+   stay dark for contrast on the light page. */
+html[data-color-mode='light'] .notebook-shell { filter: drop-shadow(0 16px 30px rgba(23, 26, 34, .07)) !important; }
+html[data-color-mode='light'] .notebook-paper { box-shadow: inset 10px 0 24px rgba(23, 26, 34, .045), inset 0 1px #fff !important; }
+html[data-color-mode='light'] .notebook-paper::after { background: #e3e6ec !important; box-shadow: 5px 7px 0 #d5dae1 !important; }
+html[data-color-mode='light'] .article-paper { box-shadow: 0 22px 48px rgba(23, 26, 34, .08), inset 0 1px #fff !important; }
+html[data-color-mode='light'] .blog-search { box-shadow: inset 0 1px #fff, 0 14px 34px rgba(23, 26, 34, .06) !important; }
+html[data-color-mode='light'] .blog-tags button.is-active,
+html[data-color-mode='light'] .blog-tags button:hover { color: var(--blog-accent-ink) !important; }
 html[data-color-mode='light'] .markdown-body .hljs-comment,
-html[data-color-mode='light'] .markdown-body .hljs-quote { color: #708090; }
+html[data-color-mode='light'] .markdown-body .hljs-quote { color: #7b8590; }
 html[data-color-mode='light'] .markdown-body .hljs-keyword,
 html[data-color-mode='light'] .markdown-body .hljs-selector-tag { color: #ff7b72; }
 html[data-color-mode='light'] .markdown-body .hljs-string,
-html[data-color-mode='light'] .markdown-body .hljs-attr { color: #a5d6ff; }
+html[data-color-mode='light'] .markdown-body .hljs-attr { color: #a6c1ff; }
+html[data-color-mode='light'] .markdown-body .hljs-title,
+html[data-color-mode='light'] .markdown-body .hljs-built_in { color: #79c0ff; }
 
 @media (max-width: 1050px) {
   .article-toc > div { background: var(--blog-control) !important; }

@@ -1,3 +1,4 @@
+import { LIGHT_TOKENS, rgba } from '../../../lib/theme'
 import { receiverScreenZ, type WaveField } from './physics'
 
 export type WaveDisplayMode = 'mesh' | 'projection'
@@ -52,9 +53,9 @@ function calculateLightPalette(theme: WaveColorTheme, value: number) {
   const t = clamp((value + 1) / 2, 0, 1)
   if (theme === 'thermal') {
     const rgb = t < 0.34
-      ? mixColor([48, 67, 110], [43, 108, 122], t / 0.34)
+      ? mixColor([48, 67, 110], [49, 89, 184], t / 0.34)
       : t < 0.68
-        ? mixColor([43, 108, 122], [159, 118, 49], (t - 0.34) / 0.34)
+        ? mixColor([49, 89, 184], [159, 118, 49], (t - 0.34) / 0.34)
         : mixColor([159, 118, 49], [155, 64, 64], (t - 0.68) / 0.32)
     return `rgb(${rgb.join(',')})`
   }
@@ -63,8 +64,8 @@ function calculateLightPalette(theme: WaveColorTheme, value: number) {
     return `rgb(${gray},${Math.min(194, gray + 6)},${Math.min(202, gray + 12)})`
   }
   const rgb = t < 0.5
-    ? mixColor([56, 66, 135], [28, 100, 111], t * 2)
-    : mixColor([28, 100, 111], [109, 62, 126], (t - 0.5) * 2)
+    ? mixColor([33, 70, 163], [120, 132, 158], t * 2)
+    : mixColor([120, 132, 158], [192, 71, 58], (t - 0.5) * 2)
   return `rgb(${rgb.join(',')})`
 }
 
@@ -115,11 +116,20 @@ function projectPoint(
 
 function drawBackdrop(context: CanvasRenderingContext2D, width: number, height: number) {
   const light = document.documentElement.dataset.colorMode === 'light'
+  if (light) {
+    const lightGradient = context.createRadialGradient(width * 0.48, height * 0.35, 20, width * 0.5, height * 0.52, width * 0.72)
+    lightGradient.addColorStop(0, LIGHT_TOKENS.surface)
+    lightGradient.addColorStop(0.48, '#eef0f5')
+    lightGradient.addColorStop(1, '#e2e6ee')
+    context.fillStyle = lightGradient
+    context.fillRect(0, 0, width, height)
+    return
+  }
   const gradient = context.createRadialGradient(width * 0.48, height * 0.35, 20, width * 0.5, height * 0.52, width * 0.72)
   gradient.addColorStop(0, '#142854')
   gradient.addColorStop(0.48, '#0a1430')
   gradient.addColorStop(1, '#050914')
-  context.fillStyle = light ? '#e9eff0' : gradient
+  context.fillStyle = gradient
   context.fillRect(0, 0, width, height)
 }
 
@@ -144,7 +154,7 @@ function drawProjection(
   const cellHeight = plotHeight / (field.rows - 1)
   context.save()
   context.globalAlpha = 1
-  context.fillStyle = light ? 'rgba(235, 244, 246, .92)' : 'rgba(5, 10, 25, .84)'
+  context.fillStyle = light ? 'rgba(240, 242, 247, .92)' : 'rgba(5, 10, 25, .84)'
   context.fillRect(paddingX - 8, paddingY - 8, plotWidth + 16, plotHeight + 16)
   for (let row = 0; row < field.rows - 1; row += 1) {
     for (let column = 0; column < field.columns - 1; column += 1) {
@@ -158,7 +168,7 @@ function drawProjection(
       )
     }
   }
-  context.strokeStyle = light ? 'rgba(31, 83, 101, .28)' : 'rgba(170, 209, 255, .2)'
+  context.strokeStyle = light ? 'rgba(49, 89, 184, .25)' : 'rgba(170, 209, 255, .2)'
   context.lineWidth = 1
   context.strokeRect(paddingX - 8, paddingY - 8, plotWidth + 16, plotHeight + 16)
 
@@ -171,7 +181,7 @@ function drawProjection(
       cursor = aperture.end
     }
     segments.push([cursor, field.width / 2])
-    context.strokeStyle = light ? 'rgba(38, 72, 86, .82)' : 'rgba(233, 239, 255, .82)'
+    context.strokeStyle = light ? 'rgba(36, 83, 199, .8)' : 'rgba(233, 239, 255, .82)'
     context.lineWidth = 4
     for (const [start, end] of segments) {
       context.beginPath()
@@ -184,15 +194,15 @@ function drawProjection(
   const screenZ = receiverScreenZ(field, receiverDistance)
   const receiverY = paddingY + plotHeight - (screenZ / field.depth) * plotHeight
   context.save()
-  context.shadowColor = light ? 'rgba(12, 114, 133, .28)' : 'rgba(119, 224, 241, .45)'
+  context.shadowColor = light ? rgba(LIGHT_TOKENS.accent, .3) : 'rgba(119, 224, 241, .45)'
   context.shadowBlur = 9
-  context.fillStyle = light ? 'rgba(36, 128, 145, .72)' : 'rgba(216, 244, 249, .76)'
+  context.fillStyle = light ? rgba(LIGHT_TOKENS.blue, .4) : 'rgba(216, 244, 249, .76)'
   context.fillRect(paddingX - 5, receiverY - 3, plotWidth + 10, 6)
   context.shadowBlur = 0
-  context.strokeStyle = light ? 'rgba(5, 99, 117, .94)' : 'rgba(121, 219, 235, .94)'
+  context.strokeStyle = light ? rgba(LIGHT_TOKENS.accentStrong, .95) : 'rgba(121, 219, 235, .94)'
   context.lineWidth = 1.2
   context.strokeRect(paddingX - 5, receiverY - 3, plotWidth + 10, 6)
-  context.fillStyle = light ? 'rgba(13, 75, 90, .94)' : 'rgba(196, 240, 247, .92)'
+  context.fillStyle = light ? rgba(LIGHT_TOKENS.accentStrong, .95) : 'rgba(196, 240, 247, .92)'
   context.font = '700 9px "SFMono-Regular", Consolas, monospace'
   context.fillText(`RECEIVER · R ${receiverDistance.toFixed(1)} m`, paddingX + 6, receiverY - 9)
   context.restore()
@@ -212,7 +222,7 @@ function drawProjection(
     context.fillText('S', sourceX + 9, sourceY - 8)
   }
 
-  context.fillStyle = light ? 'rgba(42, 72, 87, .78)' : 'rgba(188, 205, 234, .72)'
+  context.fillStyle = light ? rgba(LIGHT_TOKENS.blue, .78) : 'rgba(188, 205, 234, .72)'
   context.font = '11px "SFMono-Regular", Consolas, monospace'
   context.fillText('x / m', width - paddingX - 24, height - 14)
   context.fillText('z / m', 12, paddingY + 6)
@@ -257,16 +267,23 @@ function drawMeshReceiver(
     fill,
     depth: points.reduce((sum, point) => sum + point.depth, 0) / points.length,
   })
-  const faces = [
-    makeFace([back.bottomLeft, back.bottomRight, back.topRight, back.topLeft], 'rgba(70, 161, 180, .88)'),
-    makeFace([front.topLeft, front.topRight, back.topRight, back.topLeft], 'rgba(248, 255, 255, .99)'),
-    makeFace([front.bottomRight, back.bottomRight, back.topRight, front.topRight], 'rgba(83, 181, 199, .96)'),
-    makeFace([front.bottomLeft, front.bottomRight, front.topRight, front.topLeft], 'rgba(224, 250, 252, .92)'),
-  ].sort((a, b) => b.depth - a.depth)
+  const faces = (light
+    ? [
+        makeFace([back.bottomLeft, back.bottomRight, back.topRight, back.topLeft], rgba(LIGHT_TOKENS.blue, .3)),
+        makeFace([front.topLeft, front.topRight, back.topRight, back.topLeft], 'rgba(253, 253, 255, .99)'),
+        makeFace([front.bottomRight, back.bottomRight, back.topRight, front.topRight], rgba(LIGHT_TOKENS.accent, .45)),
+        makeFace([front.bottomLeft, front.bottomRight, front.topRight, front.topLeft], 'rgba(227, 233, 248, .95)'),
+      ]
+    : [
+        makeFace([back.bottomLeft, back.bottomRight, back.topRight, back.topLeft], 'rgba(70, 161, 180, .88)'),
+        makeFace([front.topLeft, front.topRight, back.topRight, back.topLeft], 'rgba(248, 255, 255, .99)'),
+        makeFace([front.bottomRight, back.bottomRight, back.topRight, front.topRight], 'rgba(83, 181, 199, .96)'),
+        makeFace([front.bottomLeft, front.bottomRight, front.topRight, front.topLeft], 'rgba(224, 250, 252, .92)'),
+      ]).sort((a, b) => b.depth - a.depth)
 
   context.save()
   context.lineJoin = 'round'
-  context.shadowColor = light ? 'rgba(19, 113, 130, .2)' : 'rgba(104, 225, 242, .34)'
+  context.shadowColor = light ? rgba(LIGHT_TOKENS.accent, .2) : 'rgba(104, 225, 242, .34)'
   context.shadowBlur = 12
   for (const face of faces) {
     context.beginPath()
@@ -275,7 +292,7 @@ function drawMeshReceiver(
     context.closePath()
     context.fillStyle = face.fill
     context.fill()
-    context.strokeStyle = light ? 'rgba(28, 92, 108, .72)' : 'rgba(249, 255, 255, .98)'
+    context.strokeStyle = light ? rgba(LIGHT_TOKENS.blue, .68) : 'rgba(249, 255, 255, .98)'
     context.lineWidth = 1.2
     context.stroke()
   }
@@ -288,7 +305,9 @@ function drawMeshReceiver(
     context.beginPath()
     context.moveTo(from.x, from.y)
     context.lineTo(to.x, to.y)
-    context.strokeStyle = marker === 5 ? 'rgba(0, 139, 160, .98)' : 'rgba(82, 163, 177, .58)'
+    context.strokeStyle = marker === 5
+      ? (light ? rgba(LIGHT_TOKENS.accentStrong, .95) : 'rgba(0, 139, 160, .98)')
+      : (light ? rgba(LIGHT_TOKENS.blue, .5) : 'rgba(82, 163, 177, .58)')
     context.lineWidth = marker === 5 ? 1.5 : 0.8
     context.stroke()
   }
@@ -299,13 +318,13 @@ function drawMeshReceiver(
   const labelWidth = context.measureText(label).width + 14
   const labelX = Math.min(Math.max(8, labelAnchor.x + 6), width - labelWidth - 8)
   const labelY = Math.min(Math.max(18, labelAnchor.y - 23), height - 24)
-  context.fillStyle = light ? 'rgba(244, 250, 251, .94)' : 'rgba(7, 21, 38, .82)'
+  context.fillStyle = light ? 'rgba(253, 253, 255, .96)' : 'rgba(7, 21, 38, .82)'
   context.beginPath()
   context.roundRect(labelX, labelY, labelWidth, 18, 5)
   context.fill()
-  context.strokeStyle = light ? 'rgba(18, 107, 125, .48)' : 'rgba(126, 229, 242, .55)'
+  context.strokeStyle = light ? rgba(LIGHT_TOKENS.blue, .5) : 'rgba(126, 229, 242, .55)'
   context.stroke()
-  context.fillStyle = light ? '#17566a' : '#d9f9fc'
+  context.fillStyle = light ? rgba(LIGHT_TOKENS.accentStrong, .95) : '#d9f9fc'
   context.fillText(label, labelX + 7, labelY + 12)
   context.restore()
 }
@@ -419,9 +438,9 @@ function buildBarrierSegments(
 function strokeBarrierSegment(context: CanvasRenderingContext2D, segment: BarrierSegment) {
   const light = document.documentElement.dataset.colorMode === 'light'
   context.globalAlpha = 1
-  context.strokeStyle = light ? 'rgba(38, 72, 86, .82)' : 'rgba(239, 244, 255, .9)'
+  context.strokeStyle = light ? rgba(LIGHT_TOKENS.accent, .82) : 'rgba(239, 244, 255, .9)'
   context.lineWidth = 4
-  context.shadowColor = light ? 'rgba(17, 100, 119, .18)' : 'rgba(102, 232, 255, .28)'
+  context.shadowColor = light ? rgba(LIGHT_TOKENS.accent, .2) : 'rgba(102, 232, 255, .28)'
   context.shadowBlur = 10
   context.beginPath()
   context.moveTo(segment.from.x, segment.from.y)
@@ -572,7 +591,7 @@ function drawMesh(
     context.fill()
     if (width >= 600) {
       context.globalAlpha = light ? 0.18 : theme === 'mono' ? 0.18 : 0.22
-      context.strokeStyle = light ? '#275e68' : theme === 'mono' ? '#dbe7f4' : '#9beeff'
+      context.strokeStyle = light ? rgba(LIGHT_TOKENS.blue, .5) : theme === 'mono' ? '#dbe7f4' : '#9beeff'
       context.lineWidth = 0.55
       context.stroke()
     }

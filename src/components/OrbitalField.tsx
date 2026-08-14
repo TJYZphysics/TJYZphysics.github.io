@@ -1,9 +1,16 @@
 import { useEffect, useRef } from 'react'
+import { readThemeMode, useThemeMode } from '../lib/theme'
 
 interface Particle { x: number; y: number; r: number; speed: number; phase: number; color: string }
 
+const PARTICLE_COLORS = {
+  dark: ['#86e9ff', '#8298ff'],
+  light: ['#2453c7', '#3159b8'],
+} as const
+
 export default function OrbitalField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const theme = useThemeMode()
 
   useEffect(() => {
     if (navigator.userAgent.toLowerCase().includes('jsdom')) return
@@ -20,7 +27,7 @@ export default function OrbitalField() {
       r: 0.7 + (index % 4) * 0.45,
       speed: 0.00008 + (index % 6) * 0.000018,
       phase: index * 0.73,
-      color: index % 5 === 0 ? '#86e9ff' : '#8298ff',
+      color: '',
     }))
     const resize = () => {
       const rect = canvas.getBoundingClientRect()
@@ -37,16 +44,17 @@ export default function OrbitalField() {
     const draw = () => {
       const width = canvas.clientWidth
       const height = canvas.clientHeight
+      const colors = PARTICLE_COLORS[readThemeMode()]
       context.clearRect(0, 0, width, height)
       context.save()
       context.translate(pointerX * -9, pointerY * -9)
-      particles.forEach((particle) => {
+      particles.forEach((particle, index) => {
         const drift = frame * particle.speed
         const x = (particle.x + Math.sin(drift + particle.phase) * 0.025) * width
         const y = (particle.y + Math.cos(drift * 1.3 + particle.phase) * 0.025) * height
         context.beginPath()
-        context.fillStyle = particle.color
-        context.globalAlpha = 0.22 + particle.r * 0.12
+        context.fillStyle = colors[index % colors.length]
+        context.globalAlpha = (readThemeMode() === 'light' ? 0.16 : 0.22) + particle.r * 0.1
         context.arc(x, y, particle.r, 0, Math.PI * 2)
         context.fill()
       })
@@ -63,7 +71,7 @@ export default function OrbitalField() {
       window.removeEventListener('resize', resize)
       canvas.removeEventListener('pointermove', move)
     }
-  }, [])
+  }, [theme])
 
   return <canvas ref={canvasRef} className="orbital-field" aria-label="缓慢运动的抽象星体轨迹背景" />
 }

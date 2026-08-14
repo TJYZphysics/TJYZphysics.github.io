@@ -84,19 +84,19 @@ vec3 thermal(float t) {
 }
 
 vec3 neon_light(float t) {
-  if (t < 0.5) return mix(vec3(56.0, 66.0, 135.0), vec3(28.0, 100.0, 111.0), t * 2.0) / 255.0;
-  return mix(vec3(28.0, 100.0, 111.0), vec3(109.0, 62.0, 126.0), (t - 0.5) * 2.0) / 255.0;
+  if (t < 0.5) return mix(vec3(33.0, 70.0, 163.0), vec3(120.0, 132.0, 158.0), t * 2.0) / 255.0;
+  return mix(vec3(120.0, 132.0, 158.0), vec3(192.0, 71.0, 58.0), (t - 0.5) * 2.0) / 255.0;
 }
 
 vec3 thermal_light(float t) {
-  if (t < 0.34) return mix(vec3(48.0, 67.0, 110.0), vec3(43.0, 108.0, 122.0), t / 0.34) / 255.0;
-  if (t < 0.68) return mix(vec3(43.0, 108.0, 122.0), vec3(159.0, 118.0, 49.0), (t - 0.34) / 0.34) / 255.0;
+  if (t < 0.34) return mix(vec3(48.0, 67.0, 110.0), vec3(49.0, 89.0, 184.0), t / 0.34) / 255.0;
+  if (t < 0.68) return mix(vec3(49.0, 89.0, 184.0), vec3(159.0, 118.0, 49.0), (t - 0.34) / 0.34) / 255.0;
   return mix(vec3(159.0, 118.0, 49.0), vec3(155.0, 64.0, 64.0), (t - 0.68) / 0.32) / 255.0;
 }
 
 void main() {
   if (u_line_pass > 0.5) {
-    if (u_light_mode > 0.5) gl_FragColor = vec4(0.05, 0.35, 0.43, 0.30);
+    if (u_light_mode > 0.5) gl_FragColor = vec4(0.141, 0.325, 0.78, 0.3);
     else gl_FragColor = vec4(0.61, 0.93, 1.0, 0.20);
     return;
   }

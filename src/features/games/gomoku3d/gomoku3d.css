@@ -726,158 +726,159 @@
 /* The light UI keeps the board airy while preserving enough tonal separation
    for the white stones and fine spatial lattice. */
 html[data-color-mode="light"] .gomoku3d {
-  --g3-bg: #edf2f1;
-  --g3-panel: #fbfcfb;
-  --g3-panel-strong: #f4f8f7;
-  --g3-line: rgba(30, 67, 75, 0.16);
-  --g3-line-strong: rgba(12, 113, 130, 0.52);
-  --g3-text: #18292f;
-  --g3-muted: #5b6d73;
-  --g3-cyan: #0c7182;
-  --g3-gold: #986300;
+  --g3-bg: #f4f5f8;
+  --g3-panel: #fdfdfd;
+  --g3-panel-strong: #eef0f4;
+  --g3-line: rgba(23, 26, 34, 0.14);
+  --g3-line-strong: rgba(36, 83, 199, 0.52);
+  --g3-text: #171a22;
+  --g3-muted: #606269;
+  --g3-cyan: #2453c7;
+  --g3-gold: #986416;
   background: var(--g3-bg);
 }
 
 html[data-color-mode="light"] .gomoku3d__header {
-  background: #f8faf9;
+  background: #fdfdfd;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.92);
 }
 
 html[data-color-mode="light"] .gomoku3d__title > span {
   color: var(--g3-cyan);
-  border-color: rgba(12, 113, 130, 0.28);
-  background: rgba(12, 113, 130, 0.08);
+  border-color: rgba(36, 83, 199, 0.28);
+  background: rgba(36, 83, 199, 0.08);
 }
 
 html[data-color-mode="light"] .gomoku3d__turn > i {
-  border-color: #18353d;
-  background: #0c171c;
-  box-shadow: 0 0 0 4px rgba(24, 53, 61, 0.09);
+  border-color: #30394a;
+  background: #171a22;
+  box-shadow: 0 0 0 4px rgba(23, 26, 34, 0.09);
 }
 
 html[data-color-mode="light"] .gomoku3d__turn[data-player="white"] > i {
-  border-color: #6c7c80;
-  background: #fff8e8;
-  box-shadow: 0 0 0 4px rgba(89, 109, 115, 0.08);
+  border-color: #5a6a7a;
+  background: #fdfdfd;
+  box-shadow: 0 0 0 4px rgba(23, 26, 34, 0.08);
 }
 
 html[data-color-mode="light"] .gomoku3d__turn span {
-  color: #60747a;
+  color: #606269;
 }
 
 html[data-color-mode="light"] .gomoku3d-board {
-  background: #d8e7ea;
-  box-shadow: inset 0 0 80px rgba(34, 87, 99, 0.08), 0 18px 42px rgba(42, 67, 71, 0.16);
+  background: #e4e9f2;
+  box-shadow: inset 0 0 80px rgba(36, 83, 199, 0.08), 0 18px 42px rgba(23, 26, 34, 0.16);
 }
 
 html[data-color-mode="light"] .gomoku3d-board::after {
-  border-color: rgba(23, 111, 130, 0.25);
+  border-color: rgba(36, 83, 199, 0.25);
 }
 
 html[data-color-mode="light"] .gomoku3d-board__status,
 html[data-color-mode="light"] .gomoku3d-board__counter,
 html[data-color-mode="light"] .gomoku3d-board__hint {
-  color: #24434c;
-  border-color: rgba(31, 91, 104, 0.18);
-  background: rgba(250, 253, 252, 0.86);
-  box-shadow: 0 5px 18px rgba(38, 67, 73, 0.1), inset 0 1px rgba(255, 255, 255, 0.92);
+  color: #34465b;
+  border-color: rgba(36, 83, 199, 0.18);
+  background: rgba(253, 253, 255, 0.88);
+  box-shadow: 0 5px 18px rgba(23, 26, 34, 0.1), inset 0 1px rgba(255, 255, 255, 0.92);
 }
 
 html[data-color-mode="light"] .gomoku3d-board__hint {
-  color: #526970;
+  color: #5a6a7a;
 }
 
 html[data-color-mode="light"] .gomoku3d-board__fallback {
   color: var(--g3-text);
-  background: #edf4f4;
+  background: #eef0f4;
 }
 
 html[data-color-mode="light"] .gomoku3d-board__fallback svg {
-  color: #b7472d;
+  color: #b43c39;
 }
 
 html[data-color-mode="light"] .gomoku3d__result {
   color: var(--g3-text);
-  border-color: rgba(18, 122, 92, 0.38);
-  background: rgba(250, 253, 251, 0.95);
-  box-shadow: 0 22px 65px rgba(39, 65, 68, 0.25);
+  border-color: rgba(40, 114, 85, 0.38);
+  background: rgba(253, 253, 255, 0.96);
+  box-shadow: 0 22px 65px rgba(23, 26, 34, 0.25);
 }
 
 html[data-color-mode="light"] .gomoku3d__result > svg {
-  color: #14735d;
+  color: #287255;
 }
 
 html[data-color-mode="light"] .gomoku3d__result > span {
-  color: #4f6f75;
+  color: #4a5a68;
 }
 
 html[data-color-mode="light"] .gomoku3d__result button {
-  color: #ffffff;
+  color: #fffefa;
   background: var(--g3-cyan);
 }
 
 html[data-color-mode="light"] .gomoku3d__console {
-  box-shadow: 0 12px 30px rgba(47, 70, 72, 0.09), inset 0 1px #ffffff;
+  box-shadow: 0 12px 30px rgba(23, 26, 34, 0.09), inset 0 1px #ffffff;
 }
 
 html[data-color-mode="light"] .gomoku3d__control-group legend {
-  color: #2a4249;
+  color: #2a3a4d;
 }
 
 html[data-color-mode="light"] .gomoku3d__segments {
-  border-color: rgba(35, 77, 85, 0.15);
-  background: #edf3f3;
-  box-shadow: inset 0 1px rgba(35, 77, 85, 0.04);
+  border-color: rgba(23, 26, 34, 0.14);
+  background: #eef0f4;
+  box-shadow: inset 0 1px rgba(23, 26, 34, 0.04);
 }
 
 html[data-color-mode="light"] .gomoku3d__segments button {
-  color: #4f656c;
+  color: #5a6a7a;
 }
 
 html[data-color-mode="light"] .gomoku3d__segments button:hover:not(:disabled) {
-  color: #18363e;
+  color: #20262f;
   background: rgba(255, 255, 255, 0.72);
 }
 
 html[data-color-mode="light"] .gomoku3d__segments button.is-active {
-  color: #ffffff;
+  color: #fffefa;
   background: var(--g3-cyan);
-  box-shadow: 0 5px 14px rgba(12, 113, 130, 0.2);
+  box-shadow: 0 5px 14px rgba(36, 83, 199, 0.2);
 }
 
 html[data-color-mode="light"] .gomoku3d__side-swatch--black {
   border-color: rgba(255, 255, 255, 0.82);
-  background: #091216;
+  background: #171a22;
 }
 
 html[data-color-mode="light"] .gomoku3d__side-swatch--white {
-  border-color: rgba(38, 61, 67, 0.42);
-  background: #fff8e8;
+  border-color: rgba(23, 26, 34, 0.4);
+  background: #fdfdfd;
 }
 
 html[data-color-mode="light"] .gomoku3d__actions button,
 html[data-color-mode="light"] .gomoku3d__assist-confirm button {
-  color: #435a61;
-  border-color: rgba(35, 77, 85, 0.18);
+  color: #4a5a68;
+  border-color: rgba(23, 26, 34, 0.16);
   background: rgba(255, 255, 255, 0.72);
 }
 
 html[data-color-mode="light"] .gomoku3d__actions button:hover:not(:disabled),
 html[data-color-mode="light"] .gomoku3d__assist-confirm button:hover:not(:disabled) {
-  color: #153740;
+  color: #20262f;
   border-color: var(--g3-line-strong);
-  background: rgba(12, 113, 130, 0.08);
+  background: rgba(36, 83, 199, 0.08);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-action span {
-  color: #60757b;
+  color: #606269;
 }
 
 html[data-color-mode="light"] .gomoku3d__actions .gomoku3d__assist-action[aria-pressed="true"],
 html[data-color-mode="light"] .gomoku3d__assist-confirm button.is-primary {
-  color: #ffffff;
+  color: #fffefa;
   border-color: var(--g3-cyan);
   background: var(--g3-cyan);
+  box-shadow: 0 5px 14px rgba(36, 83, 199, 0.2);
 }
 
 html[data-color-mode="light"] .gomoku3d__actions .gomoku3d__assist-action[aria-pressed="true"] span {
@@ -886,104 +887,104 @@ html[data-color-mode="light"] .gomoku3d__actions .gomoku3d__assist-action[aria-p
 
 html[data-color-mode="light"] .gomoku3d__assist-heading span,
 html[data-color-mode="light"] .gomoku3d__assist-selection span {
-  color: #60747a;
+  color: #606269;
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-heading strong,
 html[data-color-mode="light"] .gomoku3d__assist-selection strong {
-  color: #234149;
+  color: #20262f;
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-layers button {
-  color: #52686f;
-  border-color: rgba(35, 77, 85, 0.17);
+  color: #5a6a7a;
+  border-color: rgba(23, 26, 34, 0.16);
   background: rgba(255, 255, 255, 0.66);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-layers button:hover,
 html[data-color-mode="light"] .gomoku3d__assist-layers button.is-active {
-  color: #ffffff;
+  color: #fffefa;
   border-color: var(--g3-cyan);
   background: var(--g3-cyan);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-axis,
 html[data-color-mode="light"] .gomoku3d__assist-corner {
-  color: #64787e;
+  color: #606269;
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-cell {
-  border-color: rgba(35, 77, 85, 0.18);
+  border-color: rgba(23, 26, 34, 0.16);
   background: rgba(255, 255, 255, 0.52);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-cell:hover:not(:disabled) {
-  border-color: rgba(12, 113, 130, 0.62);
-  background: rgba(12, 113, 130, 0.09);
+  border-color: rgba(36, 83, 199, 0.62);
+  background: rgba(36, 83, 199, 0.09);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-cell.is-selected {
   border-color: var(--g3-gold);
-  background: rgba(152, 99, 0, 0.11);
-  box-shadow: 0 0 0 2px rgba(152, 99, 0, 0.1);
+  background: rgba(152, 100, 22, 0.11);
+  box-shadow: 0 0 0 2px rgba(152, 100, 22, 0.1);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-stone--black {
   border-color: rgba(255, 255, 255, 0.78);
-  background: #091216;
+  background: #171a22;
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-stone--white {
-  border-color: rgba(38, 61, 67, 0.45);
-  background: #fff8e8;
-  box-shadow: 0 1px 4px rgba(38, 61, 67, 0.16);
+  border-color: rgba(23, 26, 34, 0.4);
+  background: #fdfdfd;
+  box-shadow: 0 1px 4px rgba(23, 26, 34, 0.16);
 }
 
 html[data-color-mode="light"] .gomoku3d__assist-selection {
-  border-top-color: rgba(35, 77, 85, 0.14);
+  border-top-color: rgba(23, 26, 34, 0.14);
 }
 
 html[data-color-mode="light"] .gomoku3d__readout span {
-  color: #5e7379;
+  color: #606269;
 }
 
 html[data-color-mode="light"] .gomoku3d__readout strong {
-  color: #203e46;
+  color: #20262f;
 }
 
 html[data-color-mode="light"] .gomoku3d__stone-icon--black {
-  color: #15282e;
+  color: #171a22;
 }
 
 html[data-color-mode="light"] .gomoku3d__stone-icon--white {
-  color: #fff8e8;
-  stroke: #53676c;
+  color: #fdfdfd;
+  stroke: #5a6a7a;
   stroke-width: 2;
 }
 
 html[data-color-mode="light"] .gomoku3d__note {
-  color: #596d73;
+  color: #5a6a7a;
 }
 
 html[data-color-mode="light"] .gomoku3d button:focus-visible {
-  outline: 2px solid #0c7182;
+  outline: 2px solid #2453c7;
   outline-offset: 2px;
 }
 
 /* Flat light board shell: depth is carried by the lattice and object edges. */
-html[data-color-mode="light"] .gomoku3d { background: #edf2f2; }
+html[data-color-mode="light"] .gomoku3d { background: #f4f5f8; }
 html[data-color-mode="light"] .gomoku3d__header,
-html[data-color-mode="light"] .gomoku3d__console { box-shadow: 0 10px 24px rgba(35, 52, 61, .07); }
-html[data-color-mode="light"] .gomoku3d__header { background: #fafcfc; }
+html[data-color-mode="light"] .gomoku3d__console { box-shadow: 0 10px 24px rgba(23, 26, 34, .07); }
+html[data-color-mode="light"] .gomoku3d__header { background: #fdfdfd; }
 html[data-color-mode="light"] .gomoku3d-board {
-  background: #e4ecee;
-  box-shadow: 0 10px 24px rgba(35, 52, 61, .08);
+  background: #e4e9f2;
+  box-shadow: 0 10px 24px rgba(23, 26, 34, .08);
 }
 html[data-color-mode="light"] .gomoku3d-board__status,
 html[data-color-mode="light"] .gomoku3d-board__counter,
 html[data-color-mode="light"] .gomoku3d-board__hint {
-  background: #f9fbfb;
-  box-shadow: 0 4px 12px rgba(35, 52, 61, .07);
+  background: #fdfdfd;
+  box-shadow: 0 4px 12px rgba(23, 26, 34, .07);
 }
 html[data-color-mode="light"] .gomoku3d__segments,
 html[data-color-mode="light"] .gomoku3d__assist-cell,

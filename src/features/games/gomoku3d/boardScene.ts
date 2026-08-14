@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { LIGHT_TOKENS, rgba } from '../../../lib/theme'
 import {
   BLACK,
   BOARD_SIZE,
@@ -40,6 +41,23 @@ const BOARD_SPAN = (BOARD_SIZE - 1) * SPACING
 
 type BoardColorMode = 'dark' | 'light'
 
+/** Convert a "#rrggbb" string into the numeric colour used by THREE. */
+function hexToNumber(hex: string): number {
+  return Number.parseInt(hex.slice(1), 16)
+}
+
+/** Cobalt-aerospace light tokens, mirrored from src/lib/theme.ts. */
+const COBALT_LIGHT = {
+  bg: 0xe4e9f2,
+  accent: hexToNumber(LIGHT_TOKENS.accent),
+  blue: hexToNumber(LIGHT_TOKENS.blue),
+  ink: hexToNumber(LIGHT_TOKENS.ink),
+  surface: hexToNumber(LIGHT_TOKENS.surface),
+  success: hexToNumber(LIGHT_TOKENS.success),
+  warning: hexToNumber(LIGHT_TOKENS.warning),
+  danger: hexToNumber(LIGHT_TOKENS.danger),
+}
+
 const BOARD_PALETTES = {
   dark: {
     background: 0x29465f,
@@ -56,18 +74,18 @@ const BOARD_PALETTES = {
     markers: { hover: 0x70eaff, last: 0x8ab7ff, suggestion: 0xffd477, winning: 0x62f4c4 },
   },
   light: {
-    background: 0xe4ecee,
+    background: COBALT_LIGHT.bg,
     exposure: 1.04,
-    hemisphere: { sky: 0xffffff, ground: 0xa9b6b8, intensity: 1.55 },
-    key: { color: 0xfffdf5, intensity: 2.05 },
-    rim: { color: 0x2f8fa1, intensity: 0.7 },
-    lattice: { color: 0x326f80, opacity: 0.3 },
-    frame: { color: 0x176f82, opacity: 0.78 },
-    node: { color: 0x2c7182, opacity: 0.86 },
-    black: { color: 0x26363b, emissive: 0x000000, emissiveIntensity: 0.03, metalness: 0.18, roughness: 0.5 },
-    white: { color: 0xf3eee3, emissive: 0x000000, emissiveIntensity: 0, metalness: 0.02, roughness: 0.55 },
+    hemisphere: { sky: 0xffffff, ground: 0xa9b3c2, intensity: 1.55 },
+    key: { color: 0xffffff, intensity: 2.05 },
+    rim: { color: COBALT_LIGHT.accent, intensity: 0.7 },
+    lattice: { color: COBALT_LIGHT.blue, opacity: 0.3 },
+    frame: { color: COBALT_LIGHT.accent, opacity: 0.78 },
+    node: { color: COBALT_LIGHT.blue, opacity: 0.86 },
+    black: { color: COBALT_LIGHT.ink, emissive: 0x000000, emissiveIntensity: 0.03, metalness: 0.18, roughness: 0.5 },
+    white: { color: COBALT_LIGHT.surface, emissive: 0x000000, emissiveIntensity: 0, metalness: 0.02, roughness: 0.55 },
     filteredOpacity: { black: 0.3, white: 0.46 },
-    markers: { hover: 0x00788c, last: 0x315fa8, suggestion: 0xac6500, winning: 0x11785d },
+    markers: { hover: COBALT_LIGHT.accent, last: COBALT_LIGHT.blue, suggestion: COBALT_LIGHT.warning, winning: COBALT_LIGHT.success },
   },
 } as const
 
@@ -133,9 +151,9 @@ function createOrientationGizmo(colorMode: BoardColorMode) {
   const backdropTexture = createGizmoTexture(128, (context, size) => {
     context.beginPath()
     context.arc(size / 2, size / 2, size * 0.44, 0, Math.PI * 2)
-    context.fillStyle = lightMode ? 'rgba(250, 253, 252, 0.88)' : 'rgba(4, 11, 23, 0.76)'
+    context.fillStyle = lightMode ? rgba(LIGHT_TOKENS.surface, 0.9) : 'rgba(4, 11, 23, 0.76)'
     context.fill()
-    context.strokeStyle = lightMode ? 'rgba(24, 91, 106, 0.34)' : 'rgba(159, 211, 240, 0.3)'
+    context.strokeStyle = lightMode ? rgba(LIGHT_TOKENS.accent, 0.34) : 'rgba(159, 211, 240, 0.3)'
     context.lineWidth = 2
     context.stroke()
   })
@@ -154,7 +172,7 @@ function createOrientationGizmo(colorMode: BoardColorMode) {
 
   const originGeometry = new THREE.SphereGeometry(0.075, 10, 8)
   const originMaterial = new THREE.MeshBasicMaterial({
-    color: lightMode ? 0x173640 : 0xf1f7ff,
+    color: lightMode ? COBALT_LIGHT.ink : 0xf1f7ff,
     depthTest: false,
   })
   geometries.push(originGeometry)
@@ -212,9 +230,9 @@ function createOrientationGizmo(colorMode: BoardColorMode) {
     scene.add(labelSprite)
   }
 
-  addAxis(new THREE.Vector3(1, 0, 0), lightMode ? 0xc53c48 : 0xff6b73, lightMode ? '#a82130' : '#ff7f86', 'X')
-  addAxis(new THREE.Vector3(0, 1, 0), lightMode ? 0x178044 : 0x7ee787, lightMode ? '#0d7138' : '#8df09a', 'Y')
-  addAxis(new THREE.Vector3(0, 0, 1), lightMode ? 0x285fa8 : 0x66aaff, lightMode ? '#1d559d' : '#7cb8ff', 'Z')
+  addAxis(new THREE.Vector3(1, 0, 0), lightMode ? COBALT_LIGHT.danger : 0xff6b73, lightMode ? '#a8322e' : '#ff7f86', 'X')
+  addAxis(new THREE.Vector3(0, 1, 0), lightMode ? COBALT_LIGHT.success : 0x7ee787, lightMode ? '#22684b' : '#8df09a', 'Y')
+  addAxis(new THREE.Vector3(0, 0, 1), lightMode ? COBALT_LIGHT.blue : 0x66aaff, lightMode ? '#2b52a6' : '#7cb8ff', 'Z')
 
   return {
     sync(mainCamera: THREE.PerspectiveCamera, target: THREE.Vector3) {

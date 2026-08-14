@@ -151,71 +151,70 @@
 /* --------------------------------------------------------------- light mode */
 
 html[data-color-mode='light'] .potential-lab {
-  --potential-panel: #fff;
-  --potential-line: #c8d5dd;
-  --potential-text: #142936;
-  --potential-muted: #40586a;
-  --potential-cyan: #08758b;
-  --potential-warm: #c0432a;
-  --potential-cool: #1361c0;
-  --potential-field: #f4f8fa;
+  --potential-panel: #fdfdfd;
+  --potential-line: #cdd1db;
+  --potential-text: #171a22;
+  --potential-muted: #606269;
+  --potential-cyan: #2453c7;
+  --potential-warm: #c0473a;
+  --potential-cool: #3159b8;
+  --potential-field: #f4f5f8;
 }
 
 html[data-color-mode='light'] .potential-lab__console,
 html[data-color-mode='light'] .potential-lab__toolbar,
-html[data-color-mode='light'] .potential-lab__readouts { border-color: var(--potential-line); background: #fff; box-shadow: 0 12px 30px rgba(38, 52, 63, .08); }
-html[data-color-mode='light'] .potential-lab__viewport { border-color: #c2d2dc; box-shadow: 0 12px 30px rgba(38, 52, 63, .09); background: radial-gradient(circle at 50% 18%, rgba(120, 176, 214, .26), transparent 48%), radial-gradient(circle at 84% 84%, rgba(214, 138, 106, .14), transparent 44%), linear-gradient(168deg, #f5f9fc 0%, #e7eef4 60%, #eef3f7 100%); }
-html[data-color-mode='light'] .potential-lab__viewport::after { border-color: rgba(46, 84, 106, .12); }
+html[data-color-mode='light'] .potential-lab__readouts { border-color: var(--potential-line); background: #fdfdfd; box-shadow: 0 12px 30px rgba(23, 26, 34, .08); }
+html[data-color-mode='light'] .potential-lab__viewport { border-color: #cdd1db; box-shadow: 0 12px 30px rgba(23, 26, 34, .09); background: radial-gradient(circle at 50% 18%, rgba(49, 89, 184, .22), transparent 48%), radial-gradient(circle at 84% 84%, rgba(192, 71, 58, .1), transparent 44%), linear-gradient(168deg, #fdfdfd 0%, #eef0f5 60%, #e8eaef 100%); }
+html[data-color-mode='light'] .potential-lab__viewport::after { border-color: rgba(49, 89, 184, .12); }
 
-html[data-color-mode='light'] .potential-lab__heading > span { border-color: rgba(8, 117, 139, .3); background: rgba(8, 117, 139, .08); }
+html[data-color-mode='light'] .potential-lab__heading > span { border-color: rgba(36, 83, 199, .3); background: rgba(36, 83, 199, .08); }
 html[data-color-mode='light'] .potential-lab__heading p,
 html[data-color-mode='light'] .potential-lab__mode-note,
 html[data-color-mode='light'] .potential-lab__empty,
 html[data-color-mode='light'] .potential-lab__notice,
-html[data-color-mode='light'] .potential-lab__footnote { color: #566878; }
-html[data-color-mode='light'] .potential-lab__group legend { color: #1d3444; }
+html[data-color-mode='light'] .potential-lab__footnote { color: #606269; }
+html[data-color-mode='light'] .potential-lab__group legend { color: #171a22; }
 
 html[data-color-mode='light'] .potential-lab__mode,
 html[data-color-mode='light'] .potential-lab__presets,
-html[data-color-mode='light'] .potential-lab__toolbar > div { border-color: #cdd9e0; background: #eef4f7; }
+html[data-color-mode='light'] .potential-lab__toolbar > div { border-color: #cdd1db; background: #e8e9ec; }
 html[data-color-mode='light'] .potential-lab__mode button,
 html[data-color-mode='light'] .potential-lab__toolbar button,
 html[data-color-mode='light'] .potential-lab__presets button,
 html[data-color-mode='light'] .potential-lab__actions button,
-html[data-color-mode='light'] .potential-lab__reset { color: #4b5c6c; }
+html[data-color-mode='light'] .potential-lab__reset { color: #606269; }
 html[data-color-mode='light'] .potential-lab__mode button:hover,
 html[data-color-mode='light'] .potential-lab__toolbar button:hover,
 html[data-color-mode='light'] .potential-lab__presets button:hover,
 html[data-color-mode='light'] .potential-lab__actions button:hover,
-html[data-color-mode='light'] .potential-lab__reset:hover { color: #10242f; background: rgba(8, 117, 139, .1); }
+html[data-color-mode='light'] .potential-lab__reset:hover { color: #171a22; background: rgba(36, 83, 199, .08); }
 html[data-color-mode='light'] .potential-lab__mode button.is-active,
-html[data-color-mode='light'] .potential-lab__toolbar button.is-active { color: #fff; background: linear-gradient(135deg, #0d7f96, #2c6fb5); box-shadow: 0 5px 14px rgba(13, 127, 150, .2); }
+html[data-color-mode='light'] .potential-lab__toolbar button.is-active { color: #fffefa; background: linear-gradient(135deg, #2453c7, #3159b8); box-shadow: 0 5px 14px rgba(36, 83, 199, .2); }
 
 html[data-color-mode='light'] .potential-lab__inputs span,
 html[data-color-mode='light'] .potential-lab__range > span,
 html[data-color-mode='light'] .potential-lab__derived span,
 html[data-color-mode='light'] .potential-lab__readouts span,
-html[data-color-mode='light'] .potential-lab__toolbar-label { color: #5d7080; }
-html[data-color-mode='light'] .potential-lab__inputs input { border-color: #ccdae2; background: var(--potential-field); }
-html[data-color-mode='light'] .potential-lab__inputs input:hover { border-color: rgba(8, 117, 139, .45); }
-html[data-color-mode='light'] .potential-lab__inputs input:focus-visible { border-color: var(--potential-cyan); outline-color: rgba(8, 117, 139, .3); }
+html[data-color-mode='light'] .potential-lab__toolbar-label { color: #606269; }
+html[data-color-mode='light'] .potential-lab__inputs input { border-color: #cdd1db; background: var(--potential-field); }
+html[data-color-mode='light'] .potential-lab__inputs input:hover { border-color: rgba(36, 83, 199, .45); }
+html[data-color-mode='light'] .potential-lab__inputs input:focus-visible { border-color: var(--potential-cyan); outline-color: rgba(36, 83, 199, .3); }
 html[data-color-mode='light'] .potential-lab__actions button,
-html[data-color-mode='light'] .potential-lab__reset { border-color: #ccdae2; background: #f7fafb; }
-html[data-color-mode='light'] .potential-lab__actions .potential-lab__primary { color: #fff; border-color: #0d7f96; background: linear-gradient(135deg, #0d7f96, #2c6fb5); }
-html[data-color-mode='light'] .potential-lab__actions .potential-lab__primary:hover { color: #fff; background: linear-gradient(135deg, #0a6b80, #245e9c); }
+html[data-color-mode='light'] .potential-lab__reset { border-color: #cdd1db; background: #fdfdfd; }
+html[data-color-mode='light'] .potential-lab__actions .potential-lab__primary { color: #fffefa; border-color: #2453c7; background: linear-gradient(135deg, #2453c7, #3159b8); }
+html[data-color-mode='light'] .potential-lab__actions .potential-lab__primary:hover { color: #fffefa; background: linear-gradient(135deg, #2146a3, #2453c7); }
 
-html[data-color-mode='light'] .potential-lab__derived { border-color: rgba(8, 117, 139, .18); background: rgba(8, 117, 139, .05); }
-html[data-color-mode='light'] .potential-lab__readouts > div { background: #fbfdfe; }
-html[data-color-mode='light'] .potential-lab__readouts strong { color: #16303f; }
+html[data-color-mode='light'] .potential-lab__derived { border-color: rgba(36, 83, 199, .18); background: rgba(36, 83, 199, .05); }
+html[data-color-mode='light'] .potential-lab__readouts > div { background: #fdfdfd; }
+html[data-color-mode='light'] .potential-lab__readouts strong { color: #171a22; }
 
-html[data-color-mode='light'] .potential-lab__tag { color: #24404f; border-color: rgba(46, 84, 106, .18); background: rgba(255, 255, 255, .82); }
-html[data-color-mode='light'] .potential-lab__legend { color: #4a6070; }
-html[data-color-mode='light'] .potential-lab__hint { color: #52697a; }
-html[data-color-mode='light'] .potential-lab__selection { color: #0c3644; border-color: rgba(8, 117, 139, .3); background: rgba(255, 255, 255, .86); }
+html[data-color-mode='light'] .potential-lab__tag { color: #3a4b66; border-color: rgba(49, 89, 184, .18); background: rgba(253, 253, 255, .85); }
+html[data-color-mode='light'] .potential-lab__legend { color: #4d5f78; }
+html[data-color-mode='light'] .potential-lab__hint { color: #54657d; }
+html[data-color-mode='light'] .potential-lab__selection { color: #2146a3; border-color: rgba(36, 83, 199, .3); background: rgba(253, 253, 255, .88); }
 
 /* --------------------------------------------------------- claude variants */
 
-html[data-theme='claude-light'] .potential-lab { --potential-cyan: #a65336; --potential-warm: #ba653f; --potential-cool: #79645a; }
 html[data-theme='claude-dark'] .potential-lab { --potential-cyan: #df8f6c; --potential-warm: #efaa7d; --potential-cool: #b9a194; }
 
 /* -------------------------------------------------------------- responsive */

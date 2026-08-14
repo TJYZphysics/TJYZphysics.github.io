@@ -95,9 +95,9 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
     const height = canvas.height
     ctx.clearRect(0, 0, width, height)
     const isLight = colorMode === 'light'
-    ctx.fillStyle = isLight ? '#f4f8f6' : '#0d1516'
+    ctx.fillStyle = isLight ? '#f4f5f8' : '#0d1516'
     ctx.fillRect(0, 0, width, height)
-    ctx.strokeStyle = isLight ? 'rgba(35,67,59,0.13)' : 'rgba(255,255,255,0.06)'
+    ctx.strokeStyle = isLight ? 'rgba(23,26,34,0.14)' : 'rgba(255,255,255,0.06)'
     ctx.lineWidth = 1
     for (let i = 0; i < 4; i += 1) {
       const y = height * (i + 1) / 5
@@ -108,7 +108,7 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
     }
     const xOf = (index: number) => values.length <= 1 ? width / 2 : index / (values.length - 1) * (width - 12) + 6
     const yOf = (value: number) => height - (Math.max(CURVE_MIN, Math.min(CURVE_MAX, value)) - CURVE_MIN) / (CURVE_MAX - CURVE_MIN) * (height - 16) - 8
-    ctx.strokeStyle = isLight ? '#08758b' : '#6fe0ff'
+    ctx.strokeStyle = isLight ? '#2453c7' : '#6fe0ff'
     ctx.lineWidth = 2
     ctx.beginPath()
     values.forEach((value, index) => {
@@ -118,7 +118,7 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
       else ctx.lineTo(x, y)
     })
     ctx.stroke()
-    ctx.fillStyle = isLight ? '#08758b' : '#6fe0ff'
+    ctx.fillStyle = isLight ? '#2453c7' : '#6fe0ff'
     values.forEach((value, index) => {
       ctx.beginPath()
       ctx.arc(xOf(index), yOf(value), 5, 0, Math.PI * 2)
@@ -127,7 +127,7 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
       ctx.lineWidth = 1.5
       ctx.stroke()
     })
-    ctx.fillStyle = isLight ? '#315d66' : 'rgba(111,224,255,0.85)'
+    ctx.fillStyle = isLight ? '#171a22' : 'rgba(111,224,255,0.85)'
     ctx.font = '10px sans-serif'
     ctx.textAlign = 'center'
     values.forEach((value, index) => {

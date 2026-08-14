@@ -10,6 +10,7 @@
  * written here is exactly what lands on screen.
  */
 
+import { LIGHT_TOKENS, mix } from '../../../lib/theme'
 import type { FieldMode } from './field'
 
 export type ThemeMode = 'dark' | 'light'
@@ -40,7 +41,7 @@ const POTENTIAL_RAMP: Record<ThemeMode, readonly RampStop[]> = {
   light: [
     { at: 0, color: '#062b7f' },
     { at: 0.15, color: '#1257ab' },
-    { at: 0.32, color: '#2b93bd' },
+    { at: 0.32, color: '#2b6fc4' },
     { at: 0.44, color: '#97a9ba' },
     { at: 0.5, color: '#aab6c2' },
     { at: 0.56, color: '#cbab93' },
@@ -63,7 +64,7 @@ const MAGNITUDE_RAMP: Record<ThemeMode, readonly RampStop[]> = {
   light: [
     { at: 0, color: '#dde5ec' },
     { at: 0.2, color: '#7aa9cd' },
-    { at: 0.42, color: '#2a8cb2' },
+    { at: 0.42, color: '#2b6fc4' },
     { at: 0.62, color: '#d79c2c' },
     { at: 0.82, color: '#c14f22' },
     { at: 1, color: '#75120a' },
@@ -183,20 +184,20 @@ export const SCENE_PALETTES: Record<ThemeMode, ScenePalette> = {
     additiveGlow: true,
   },
   light: {
-    floorGrid: '#3d6a90',
-    floorGridStrong: '#1d4c6c',
-    axisX: '#c0432a',
-    axisY: '#0f6f88',
-    surfaceGrid: '#123a4d',
-    surfaceGridStrong: '#05202c',
-    positive: '#cf3418',
-    negative: '#1361c0',
+    floorGrid: mix(LIGHT_TOKENS.blue, LIGHT_TOKENS.muted, 0.45),
+    floorGridStrong: LIGHT_TOKENS.blue,
+    axisX: LIGHT_TOKENS.positive,
+    axisY: LIGHT_TOKENS.blue,
+    surfaceGrid: LIGHT_TOKENS.accentStrong,
+    surfaceGridStrong: LIGHT_TOKENS.ink,
+    positive: LIGHT_TOKENS.positive,
+    negative: LIGHT_TOKENS.negative,
     positiveCore: '#ffe2d4',
-    negativeCore: '#dcecff',
-    stem: '#3c5a70',
-    ring: '#4a6c85',
-    ringSelected: '#0d2b3a',
-    label: '#254050',
+    negativeCore: '#e4e2f5',
+    stem: mix(LIGHT_TOKENS.blue, LIGHT_TOKENS.surface, 0.55),
+    ring: mix(LIGHT_TOKENS.blue, LIGHT_TOKENS.surface, 0.4),
+    ringSelected: LIGHT_TOKENS.ink,
+    label: '#3a4a66',
     ambient: 0.54,
     floorOpacity: 0.34,
     gridOpacity: 0.5,

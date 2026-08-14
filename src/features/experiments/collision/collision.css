@@ -712,21 +712,21 @@
 /* Light themes keep the collision track dark for spatial contrast, while the
    instrument shell, parameter panel and numerical results become true light UI. */
 html[data-color-mode='light'] .collision-lab {
-  --collision-ink: #202a34;
-  --collision-muted: #657383;
-  --collision-line: rgba(35, 52, 68, .14);
-  --collision-surface: rgba(255, 255, 255, .82);
-  --collision-surface-solid: #f7fafb;
-  --collision-accent: #157e70;
+  --collision-ink: #171a22;
+  --collision-muted: #606269;
+  --collision-line: rgba(23, 26, 34, .14);
+  --collision-surface: rgba(253, 253, 255, .84);
+  --collision-surface-solid: #fdfdfd;
+  --collision-accent: #2453c7;
   color: var(--collision-ink);
-  border-color: rgba(35, 52, 68, .15);
-  background: radial-gradient(circle at 11% -8%, rgba(57, 112, 174, .1), transparent 31%), radial-gradient(circle at 92% 4%, rgba(21, 126, 112, .07), transparent 27%), linear-gradient(145deg, #f8fafb, #e9eef1);
-  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(39, 51, 61, .11);
+  border-color: rgba(23, 26, 34, .15);
+  background: radial-gradient(circle at 11% -8%, rgba(49, 89, 184, .1), transparent 31%), radial-gradient(circle at 92% 4%, rgba(36, 83, 199, .07), transparent 27%), linear-gradient(145deg, #fdfdfd, #e8e9ec);
+  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(23, 26, 34, .11);
 }
 
 html[data-color-mode='light'] .collision-lab::before {
   opacity: .35;
-  background-image: linear-gradient(rgba(52, 79, 109, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 79, 109, .08) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(23, 26, 34, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 26, 34, .07) 1px, transparent 1px);
 }
 
 html[data-color-mode='light'] .collision-lab__law {
@@ -737,12 +737,12 @@ html[data-color-mode='light'] .collision-stage,
 html[data-color-mode='light'] .collision-panel,
 html[data-color-mode='light'] .collision-velocity-table,
 html[data-color-mode='light'] .collision-metric {
-  background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(241, 245, 247, .9));
-  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(43, 56, 66, .08);
+  background: linear-gradient(145deg, rgba(253, 253, 255, .96), rgba(232, 233, 236, .9));
+  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(23, 26, 34, .07);
 }
 
 html[data-color-mode='light'] .collision-status {
-  color: #4c5d6c;
+  color: #606269;
 }
 
 html[data-color-mode='light'] .collision-track {
@@ -765,67 +765,41 @@ html[data-color-mode='light'] .collision-control input:focus-visible {
 }
 
 html[data-color-mode='light'] .collision-transport .collision-transport__secondary {
-  color: #3d4d5c;
-  border-color: rgba(35, 52, 68, .16);
-  background: rgba(255, 255, 255, .72);
+  color: #5a5e68;
+  border-color: rgba(23, 26, 34, .16);
+  background: rgba(253, 253, 255, .72);
   box-shadow: inset 0 1px #fff;
 }
 
 html[data-color-mode='light'] .collision-transport .collision-transport__secondary:hover:not(:disabled) {
-  border-color: rgba(21, 126, 112, .36);
+  border-color: rgba(36, 83, 199, .36);
   background: #fff;
 }
 
 html[data-color-mode='light'] .collision-control__heading {
-  color: #485969;
+  color: #606269;
 }
 
 html[data-color-mode='light'] .collision-control input[type='range']::-webkit-slider-thumb,
 html[data-color-mode='light'] .collision-control input[type='range']::-moz-range-thumb {
   background: #fff;
+  box-shadow: 0 0 0 1px var(--collision-accent), 0 0 13px rgba(36, 83, 199, .35);
 }
 
 html[data-color-mode='light'] .collision-velocity-table .collision-velocity-table__head {
-  color: #788594;
+  color: #6a6f7a;
 }
 
 html[data-color-mode='light'] .collision-velocity-table strong {
-  color: #293744;
+  color: #171a22;
 }
 
 html[data-color-mode='light'] .collision-metric small {
-  color: #73808d;
+  color: #606269;
 }
 
 html[data-color-mode='light'] .collision-explanation p {
-  color: #445565;
-}
-
-html[data-theme='claude-light'] .collision-lab {
-  --collision-ink: #302925;
-  --collision-muted: #746a62;
-  --collision-line: rgba(66, 53, 44, .15);
-  --collision-surface: rgba(255, 252, 246, .86);
-  --collision-surface-solid: #fffaf3;
-  --collision-accent: #a95639;
-  background: radial-gradient(circle at 11% -8%, rgba(184, 107, 74, .12), transparent 31%), radial-gradient(circle at 92% 4%, rgba(109, 91, 76, .07), transparent 27%), linear-gradient(145deg, #fffdf8, #eee6db);
-  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(78, 58, 43, .11);
-}
-
-html[data-theme='claude-light'] .collision-stage,
-html[data-theme='claude-light'] .collision-panel,
-html[data-theme='claude-light'] .collision-velocity-table,
-html[data-theme='claude-light'] .collision-metric {
-  background: linear-gradient(145deg, rgba(255, 253, 248, .98), rgba(241, 233, 222, .92));
-  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(73, 56, 43, .08);
-}
-
-html[data-theme='claude-light'] .collision-transport button {
-  color: #fffaf5;
-}
-
-html[data-theme='claude-light'] .collision-transport .collision-transport__secondary {
-  color: #4b4038;
+  color: #4a4d55;
 }
 
 html[data-theme='claude-dark'] .collision-lab {
@@ -859,47 +833,68 @@ html[data-theme='claude-dark'] .collision-transport button {
 
 /* Full light viewport: the collision lane is part of the light instrument. */
 html[data-color-mode='light'] .collision-lab {
-  --collision-a: #177f97;
+  --collision-a: #2453c7;
   --collision-b: #bd6738;
-  background: #f3f6f7;
-  box-shadow: 0 14px 34px rgba(35, 52, 61, .08);
+  background: #f4f5f8;
+  box-shadow: 0 14px 34px rgba(23, 26, 34, .07);
 }
 html[data-color-mode='light'] .collision-lab::before { opacity: 0; }
-html[data-color-mode='light'] .collision-lab__law { background: #eaf2f1; }
+html[data-color-mode='light'] .collision-lab__law { background: #e3e9f8; }
 html[data-color-mode='light'] .collision-stage,
 html[data-color-mode='light'] .collision-panel,
 html[data-color-mode='light'] .collision-velocity-table,
 html[data-color-mode='light'] .collision-metric {
-  background: #fafcfc;
-  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+  background: #fdfdfd;
+  box-shadow: 0 10px 24px rgba(23, 26, 34, .06);
 }
 html[data-color-mode='light'] .collision-track {
-  border-color: rgba(47, 75, 86, .22);
-  background: #e7edee;
+  border-color: rgba(23, 26, 34, .18);
+  background: #e8eaef;
   box-shadow: none;
 }
 html[data-color-mode='light'] .collision-track__grid {
   opacity: .68;
-  background-image: linear-gradient(rgba(54, 91, 104, .1) 1px, transparent 1px), linear-gradient(90deg, rgba(54, 91, 104, .1) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(23, 26, 34, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 26, 34, .07) 1px, transparent 1px);
   mask-image: none;
 }
 html[data-color-mode='light'] .collision-track::after {
-  background: #91a7ad;
+  background: #8d96a8;
   box-shadow: none;
 }
-html[data-color-mode='light'] .collision-track__axis { color: #647b84; }
-html[data-color-mode='light'] .collision-track .collision-body__velocity { color: #233e49; }
-html[data-color-mode='light'] .collision-track .collision-body__mass { color: #607680; }
+html[data-color-mode='light'] .collision-track__axis { color: #6a6f7a; }
+html[data-color-mode='light'] .collision-track .collision-body__velocity { color: #171a22; }
+html[data-color-mode='light'] .collision-track .collision-body__mass { color: #606269; }
 html[data-color-mode='light'] .collision-body {
-  box-shadow: 0 5px 10px rgba(32, 50, 57, .2);
+  box-shadow: 0 5px 10px rgba(23, 26, 34, .18);
 }
 html[data-color-mode='light'] .collision-body::after { display: none; }
 html[data-color-mode='light'] .collision-body--a { background: var(--collision-a); }
 html[data-color-mode='light'] .collision-body--b { background: var(--collision-b); }
 html[data-color-mode='light'] .collision-impact {
   border-width: 2px;
-  border-color: rgba(21, 126, 112, .58);
+  border-color: rgba(36, 83, 199, .55);
   background: transparent;
 }
-html[data-color-mode='light'] .collision-transport button { box-shadow: none; }
-html[data-color-mode='light'] .collision-transport button:hover:not(:disabled) { background: #49a694; }
+html[data-color-mode='light'] .collision-transport button { color: #fffefa; box-shadow: none; }
+html[data-color-mode='light'] .collision-transport button:hover:not(:disabled) { background: #3a63d0; }
+html[data-color-mode='light'] .collision-status--running i {
+  box-shadow: 0 0 0 4px rgba(36, 83, 199, .12), 0 0 16px rgba(36, 83, 199, .42);
+}
+html[data-color-mode='light'] .collision-explanation {
+  border-color: rgba(36, 83, 199, .22);
+  background: linear-gradient(90deg, rgba(36, 83, 199, .07), rgba(36, 83, 199, .02));
+}
+html[data-color-mode='light'] .collision-explanation > span {
+  border-color: rgba(36, 83, 199, .36);
+  color: var(--collision-accent);
+  background: rgba(36, 83, 199, .08);
+}
+html[data-color-mode='light'] .collision-explanation--warning {
+  border-color: rgba(152, 100, 22, .28);
+  background: linear-gradient(90deg, rgba(152, 100, 22, .08), rgba(152, 100, 22, .02));
+}
+html[data-color-mode='light'] .collision-explanation--warning > span {
+  border-color: rgba(152, 100, 22, .42);
+  color: #986416;
+  background: rgba(152, 100, 22, .09);
+}

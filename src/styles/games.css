@@ -50,7 +50,7 @@
 html[data-color-mode='light'] .game-stage--turing,
 html[data-color-mode='light'] .game-stage--gomoku-3d,
 html[data-color-mode='light'] .game-stage--optical-defense {
-  background: #f7fafb;
+  background: var(--surface);
 }
 
 .game-stage--optical-defense {

@@ -179,13 +179,13 @@ function drawEmitter(ctx: CanvasRenderingContext2D, point: Point, velocity: Poin
   ctx.save(); ctx.translate(point.x, point.y); ctx.rotate(angle)
   const length = clamp(grid * .9, 25, 48); const height = clamp(grid * .42, 14, 24)
   const metal = ctx.createLinearGradient(-length, -height / 2, -length, height / 2)
-  metal.addColorStop(0, light ? '#f7fafb' : '#d9edf5'); metal.addColorStop(.22, light ? '#a5b4ba' : '#5f7887'); metal.addColorStop(.55, light ? '#607680' : '#172b37'); metal.addColorStop(.82, light ? '#a5b4ba' : '#6f8998'); metal.addColorStop(1, light ? '#f7fafb' : '#d4e6ed')
+  metal.addColorStop(0, light ? '#fdfdfd' : '#d9edf5'); metal.addColorStop(.22, light ? '#a5b4ba' : '#5f7887'); metal.addColorStop(.55, light ? '#607680' : '#172b37'); metal.addColorStop(.82, light ? '#a5b4ba' : '#6f8998'); metal.addColorStop(1, light ? '#fdfdfd' : '#d4e6ed')
   ctx.shadowColor = color; ctx.shadowBlur = light ? 0 : 12; ctx.fillStyle = metal; ctx.strokeStyle = light ? '#526a75' : 'rgba(220,244,255,.72)'; ctx.lineWidth = 1
   ctx.fillRect(-length, -height / 2, length * .72, height); ctx.strokeRect(-length, -height / 2, length * .72, height)
   ctx.shadowBlur = 0; ctx.fillStyle = light ? '#344b55' : '#0b1720'; ctx.fillRect(-length * .28, -height * .34, length * .32, height * .68)
   ctx.strokeStyle = light ? '#718790' : '#9cb8c5'; ctx.strokeRect(-length * .28, -height * .34, length * .32, height * .68)
   ctx.fillStyle = color; ctx.globalAlpha = .22; ctx.fillRect(-length * .22, -height * .2, length * .24, height * .4); ctx.globalAlpha = 1
-  for (let x = -length * .88; x < -length * .34; x += length * .15) { ctx.strokeStyle = light ? 'rgba(247,250,251,.65)' : 'rgba(224,245,255,.35)'; ctx.beginPath(); ctx.moveTo(x, -height / 2); ctx.lineTo(x, height / 2); ctx.stroke() }
+  for (let x = -length * .88; x < -length * .34; x += length * .15) { ctx.strokeStyle = light ? 'rgba(253,253,255,.7)' : 'rgba(224,245,255,.35)'; ctx.beginPath(); ctx.moveTo(x, -height / 2); ctx.lineTo(x, height / 2); ctx.stroke() }
   ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = light ? 0 : 14; ctx.beginPath(); ctx.arc(0, 0, clamp(grid * .09, 3, 6), 0, Math.PI * 2); ctx.fill()
   ctx.restore()
 }
@@ -363,8 +363,8 @@ export function ElectromagneticGuideGame({ mode = 'guide' }: ElectromagneticGuid
       const grid = view.scale
       ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0)
       ctx.clearRect(0, 0, view.rect.width, view.rect.height)
-      ctx.fillStyle = light ? '#edf4f3' : '#07101a'; ctx.fillRect(0, 0, view.rect.width, view.rect.height)
-      ctx.strokeStyle = light ? 'rgba(34, 88, 104, .14)' : 'rgba(115, 204, 229, .10)'; ctx.lineWidth = 1
+      ctx.fillStyle = light ? '#e9edf4' : '#07101a'; ctx.fillRect(0, 0, view.rect.width, view.rect.height)
+      ctx.strokeStyle = light ? 'rgba(36, 83, 199, .14)' : 'rgba(115, 204, 229, .10)'; ctx.lineWidth = 1
       const minX = isSandbox ? Math.floor((-view.origin.x) / grid) : 0
       const maxX = isSandbox ? Math.ceil((view.rect.width - view.origin.x) / grid) : world.width
       const minY = isSandbox ? Math.floor((-view.origin.y) / grid) : 0
@@ -373,7 +373,7 @@ export function ElectromagneticGuideGame({ mode = 'guide' }: ElectromagneticGuid
       for (let x = minX; x <= maxX; x++) { const sx = view.origin.x + x * grid; ctx.moveTo(sx, 0); ctx.lineTo(sx, view.rect.height) }
       for (let y = minY; y <= maxY; y++) { const sy = view.origin.y + y * grid; ctx.moveTo(0, sy); ctx.lineTo(view.rect.width, sy) }
       ctx.stroke()
-      if (!isSandbox) { ctx.strokeStyle = light ? 'rgba(34,88,104,.42)' : 'rgba(115,204,229,.35)'; ctx.strokeRect(view.origin.x, view.origin.y, world.width * grid, world.height * grid) }
+      if (!isSandbox) { ctx.strokeStyle = light ? 'rgba(36,83,199,.42)' : 'rgba(115,204,229,.35)'; ctx.strokeRect(view.origin.x, view.origin.y, world.width * grid, world.height * grid) }
 
       for (const obstacle of level.obstacles ?? []) {
         const p = toScreen(obstacle.position, view); ctx.save(); ctx.strokeStyle = light ? '#8f3540' : 'rgba(255, 145, 145, .86)'; ctx.lineWidth = 1.5; ctx.shadowColor = 'rgba(225,72,80,.55)'; ctx.shadowBlur = light ? 0 : 12
@@ -392,34 +392,34 @@ export function ElectromagneticGuideGame({ mode = 'guide' }: ElectromagneticGuid
       }
       for (const particle of level.particles ?? []) {
         const start = toScreen(particle.startPosition, view)
-        drawEmitter(ctx, start, particle.startVelocity, grid, particle.color ?? '#70e7ff')
+        drawEmitter(ctx, start, particle.startVelocity, grid, particle.color ?? (light ? '#2453c7' : '#70e7ff'))
       }
       for (const collector of level.collectors ?? []) {
         const p = toScreen(collector.position, view); const radius = collector.radius * grid
         ctx.save(); ctx.shadowColor = '#68f0b0'; ctx.shadowBlur = light ? 0 : 18; const glass = ctx.createRadialGradient(p.x - radius * .25, p.y - radius * .3, radius * .08, p.x, p.y, radius)
-        glass.addColorStop(0, 'rgba(190,255,222,.28)'); glass.addColorStop(.48, 'rgba(47,203,139,.12)'); glass.addColorStop(1, 'rgba(3,33,31,.72)'); ctx.fillStyle = light ? 'rgba(35,133,96,.14)' : glass; ctx.strokeStyle = light ? '#167552' : '#68f0b0'; ctx.lineWidth = 2.5
+        glass.addColorStop(0, 'rgba(190,255,222,.28)'); glass.addColorStop(.48, 'rgba(47,203,139,.12)'); glass.addColorStop(1, 'rgba(3,33,31,.72)'); ctx.fillStyle = light ? 'rgba(40,114,85,.14)' : glass; ctx.strokeStyle = light ? '#287255' : '#68f0b0'; ctx.lineWidth = 2.5
         ctx.beginPath(); ctx.arc(p.x, p.y, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0
-        ctx.strokeStyle = light ? 'rgba(23,121,85,.48)' : 'rgba(190,255,222,.42)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, radius * .72, 0, Math.PI * 2); ctx.stroke()
+        ctx.strokeStyle = light ? 'rgba(40,114,85,.48)' : 'rgba(190,255,222,.42)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, radius * .72, 0, Math.PI * 2); ctx.stroke()
         for (let tick = 0; tick < 12; tick++) { const angle = tick * Math.PI / 6; ctx.beginPath(); ctx.moveTo(p.x + Math.cos(angle) * radius * .82, p.y + Math.sin(angle) * radius * .82); ctx.lineTo(p.x + Math.cos(angle) * radius, p.y + Math.sin(angle) * radius); ctx.stroke() }
-        ctx.fillStyle = light ? '#0e5a41' : '#b9ffda'; ctx.font = '600 11px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText(collector.label ?? '收集器', p.x, p.y + 4); ctx.restore()
+        ctx.fillStyle = light ? '#1b5c44' : '#b9ffda'; ctx.font = '600 11px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText(collector.label ?? '收集器', p.x, p.y + 4); ctx.restore()
       }
       for (const item of allPlacements) {
         const p = toScreen(item.position, view); ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(item.rotation ?? 0)
         if (item.kind === 'positive-charge' || item.kind === 'negative-charge') {
           const positive = item.kind === 'positive-charge'; ctx.shadowColor = positive ? '#ffb25b' : '#62c8ff'; ctx.shadowBlur = light ? 0 : 14
-          ctx.fillStyle = positive ? (light ? '#d46e1e' : '#ef8d35') : (light ? '#1676a0' : '#258ac2'); ctx.beginPath(); ctx.arc(0, 0, clamp(grid * .25, 8, 15), 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0
+          ctx.fillStyle = positive ? (light ? '#d46e1e' : '#ef8d35') : (light ? '#3159b8' : '#258ac2'); ctx.beginPath(); ctx.arc(0, 0, clamp(grid * .25, 8, 15), 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0
           ctx.fillStyle = '#fff'; ctx.font = `700 ${clamp(grid * .3, 11, 17)}px Segoe UI`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(positive ? '+' : '−', 0, -1)
         } else {
           const size = item.size ?? { x: 3.2, y: 2.2 }; const w = size.x * grid; const h = size.y * grid
-          const color = item.kind === 'electric-field' ? (light ? '#a76a16' : '#ffc866') : item.kind === 'magnetic-field' ? (light ? '#356fbe' : '#75a7ff') : (light ? '#8052a8' : '#d58cff')
+          const color = item.kind === 'electric-field' ? (light ? '#986416' : '#ffc866') : item.kind === 'magnetic-field' ? (light ? '#3159b8' : '#75a7ff') : (light ? '#4e43a0' : '#d58cff')
           const fieldFill = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2); fieldFill.addColorStop(0, `${color}2b`); fieldFill.addColorStop(.5, `${color}12`); fieldFill.addColorStop(1, `${color}28`)
           ctx.fillStyle = light ? `${color}14` : fieldFill; ctx.strokeStyle = color; ctx.setLineDash([6, 4]); ctx.lineWidth = 1.5; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.strokeRect(-w / 2, -h / 2, w, h); ctx.setLineDash([])
           if (item.kind === 'magnetic-field') drawMagneticPattern(ctx, w, h, grid, color, item.direction ?? 1)
-          else if (item.kind === 'velocity-selector') { drawMagneticPattern(ctx, w, h, grid, color, item.direction ?? 1); drawElectricPattern(ctx, w, h, grid, light ? '#a76a16' : '#ffc866', item.direction ?? 1, true) }
+          else if (item.kind === 'velocity-selector') { drawMagneticPattern(ctx, w, h, grid, color, item.direction ?? 1); drawElectricPattern(ctx, w, h, grid, light ? '#986416' : '#ffc866', item.direction ?? 1, true) }
           else drawElectricPattern(ctx, w, h, grid, color, item.direction ?? 1)
         }
         if (item.id === selectedPlacementId) {
-          ctx.shadowBlur = 0; ctx.strokeStyle = light ? '#173f4c' : '#ffffff'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3])
+          ctx.shadowBlur = 0; ctx.strokeStyle = light ? '#2146a3' : '#ffffff'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3])
           if (item.kind === 'positive-charge' || item.kind === 'negative-charge') { ctx.beginPath(); ctx.arc(0, 0, clamp(grid * .36, 13, 21), 0, Math.PI * 2); ctx.stroke() }
           else { const size = item.size ?? { x: 3.2, y: 2.2 }; ctx.strokeRect(-size.x * grid / 2 - 4, -size.y * grid / 2 - 4, size.x * grid + 8, size.y * grid + 8) }
           ctx.setLineDash([])
@@ -480,7 +480,7 @@ export function ElectromagneticGuideGame({ mode = 'guide' }: ElectromagneticGuid
               const point = toScreen(frame.path[index], view)
               trailCtx.lineTo(point.x, point.y)
             }
-            trailCtx.strokeStyle = particle.color ?? (isLightCanvasMode() ? '#177d94' : '#fff'); trailCtx.lineWidth = 2.2
+            trailCtx.strokeStyle = particle.color ?? (isLightCanvasMode() ? '#2453c7' : '#fff'); trailCtx.lineWidth = 2.2
             trailCtx.shadowColor = particle.color ?? '#fff'; trailCtx.shadowBlur = isLightCanvasMode() ? 0 : 7; trailCtx.stroke(); trailCtx.shadowBlur = 0
             entry.drawnIndex = frame.completedIndex
             entry.path = frame.path
@@ -495,10 +495,10 @@ export function ElectromagneticGuideGame({ mode = 'guide' }: ElectromagneticGuid
           const start = toScreen(pathStart, view)
           const end = toScreen(frame.position, view)
           ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y)
-          ctx.strokeStyle = particle.color ?? (isLightCanvasMode() ? '#177d94' : '#fff'); ctx.lineWidth = 2.2; ctx.stroke()
+          ctx.strokeStyle = particle.color ?? (isLightCanvasMode() ? '#2453c7' : '#fff'); ctx.lineWidth = 2.2; ctx.stroke()
         }
         const p = toScreen(frame.position, view)
-        ctx.fillStyle = particle.color ?? (isLightCanvasMode() ? '#177d94' : '#fff'); ctx.shadowColor = particle.color ?? (isLightCanvasMode() ? '#177d94' : '#fff'); ctx.shadowBlur = isLightCanvasMode() ? 0 : 13
+        ctx.fillStyle = particle.color ?? (isLightCanvasMode() ? '#2453c7' : '#fff'); ctx.shadowColor = particle.color ?? (isLightCanvasMode() ? '#2453c7' : '#fff'); ctx.shadowBlur = isLightCanvasMode() ? 0 : 13
         ctx.beginPath(); ctx.arc(p.x, p.y, clamp((particle.radius ?? .14) * grid, 4, 9), 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0
         ctx.fillStyle = '#fff'; ctx.font = '700 9px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText(particle.charge > 0 ? '+' : particle.charge < 0 ? '−' : '0', p.x, p.y + 3)
       }

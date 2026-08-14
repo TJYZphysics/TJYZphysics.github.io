@@ -8,7 +8,7 @@ html[data-color-mode='light'] .experiment-switcher button {
   color: var(--ink);
   border-color: color-mix(in srgb, var(--ink) 14%, transparent);
   background: color-mix(in srgb, var(--panel) 92%, transparent);
-  box-shadow: inset 0 1px rgba(255, 255, 255, .9), 0 14px 34px rgba(42, 50, 59, .08);
+  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(23, 26, 34, .07);
 }
 
 html[data-color-mode='light'] .experiment-switcher button:hover {
@@ -31,7 +31,7 @@ html[data-color-mode='light'] .experiment-loading {
 html[data-color-mode='light'] .experiment-stage {
   border-color: color-mix(in srgb, var(--ink) 12%, transparent);
   background: color-mix(in srgb, var(--panel) 74%, transparent);
-  box-shadow: inset 0 1px #fff, 0 24px 60px rgba(50, 54, 58, .1);
+  box-shadow: inset 0 1px #fff, 0 24px 60px rgba(23, 26, 34, .09);
 }
 
 html[data-color-mode='light'] .experiment-stage::before {
@@ -41,25 +41,13 @@ html[data-color-mode='light'] .experiment-stage::before {
 html[data-color-mode='light'] .experiment-stage:has(.wave-lab),
 html[data-color-mode='light'] .experiment-stage:has(.projectile-lab),
 html[data-color-mode='light'] .experiment-stage:has(.potential-lab) {
-  background: #f7fafb;
+  background: var(--surface);
 }
 
 html[data-color-mode='light'] .experiment-stage:has(.wave-lab)::before,
 html[data-color-mode='light'] .experiment-stage:has(.projectile-lab)::before,
 html[data-color-mode='light'] .experiment-stage:has(.potential-lab)::before {
   display: none;
-}
-
-html[data-theme='claude-light'] .experiment-switcher button,
-html[data-theme='claude-light'] .experiment-stage {
-  border-color: rgba(58, 48, 41, .14);
-  box-shadow: inset 0 1px rgba(255, 255, 255, .85), 0 18px 42px rgba(64, 51, 40, .08);
-}
-
-html[data-theme='claude-light'] .experiment-switcher button.is-active {
-  border-color: rgba(190, 92, 57, .5);
-  background: linear-gradient(145deg, rgba(204, 119, 83, .13), rgba(255, 252, 246, .92));
-  box-shadow: inset 0 1px rgba(255, 255, 255, .9), 0 15px 34px rgba(176, 91, 57, .1);
 }
 
 html[data-theme='claude-dark'] .experiment-switcher button {

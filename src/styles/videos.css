@@ -123,7 +123,27 @@
 .video-empty h3 { margin: 17px 0 7px; font-size: 21px; }
 .video-empty p { margin: 0; color: var(--video-page-muted); font-size: 13px; }
 
-html[data-color-mode='light'] .videos-page { --video-red: #b63f34; background: radial-gradient(circle at 74% 8%, rgba(182, 63, 52, .09), transparent 28%), radial-gradient(circle at 15% 30%, var(--glow-secondary), transparent 27%), var(--bg); }
+html[data-color-mode='light'] .videos-page {
+  --video-red: #2453c7;
+  --video-paper: #f4f5f8;
+  background: radial-gradient(circle at 74% 8%, rgba(36, 83, 199, .1), transparent 28%), radial-gradient(circle at 15% 30%, var(--glow-secondary), transparent 27%), var(--bg);
+}
+html[data-color-mode='light'] .video-card__poster {
+  color: #171a22;
+  background: radial-gradient(circle at 72% 42%, rgba(36, 83, 199, .13), transparent 26%), linear-gradient(145deg, #fdfdfd, #e7ecf5 82%);
+}
+html[data-color-mode='light'] .video-card__poster::after { background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(36, 83, 199, .045) 3px 4px); }
+html[data-color-mode='light'] .video-card__frame { border-color: rgba(36, 83, 199, .2); }
+html[data-color-mode='light'] .video-card__code,
+html[data-color-mode='light'] .video-card__subtitle { color: #6c7684; }
+html[data-color-mode='light'] .video-card__poster > svg { stroke: rgba(36, 83, 199, .38); }
+html[data-color-mode='light'] .video-card__play {
+  border-color: rgba(23, 26, 34, .16);
+  color: #171a22;
+  background: rgba(255, 255, 255, .82);
+}
+html[data-color-mode='light'] .video-card:hover .video-card__play { color: #fffefa; }
+html[data-color-mode='light'] .video-card__tags span { background: color-mix(in srgb, var(--surface) 55%, transparent); }
 
 @media (max-width: 800px) {
   .videos-hero { min-height: 350px; grid-template-columns: 1fr; gap: 38px; padding-top: 20px; }

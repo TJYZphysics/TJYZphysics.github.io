@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject, type PointerEvent as ReactPointerEvent } from 'react'
 import { Aperture, Move3d, Pause, Play, RotateCcw, Waves } from 'lucide-react'
+import { LIGHT_TOKENS, mix, rgba } from '../../../lib/theme'
 import { createWaveField, sampleReceiverProfile, waveNumber, waveSpeed, type WaveExperimentMode, type WaveField, type WaveReceiverProfile } from './physics'
 import { renderWaveOverlay, renderWaveScene, type WaveCamera, type WaveColorTheme, type WaveDisplayMode } from './renderer'
 import { disposeWaveMeshWebGL, renderWaveMeshWebGL } from './webglRenderer'
@@ -70,9 +71,9 @@ function drawReceiverProfile(
     context.stroke()
   }
 
-  context.fillStyle = light ? '#eef5f6' : '#071329'
+  context.fillStyle = light ? mix(LIGHT_TOKENS.bg, LIGHT_TOKENS.section, 0.4) : '#071329'
   context.fillRect(0, 0, width, height)
-  context.strokeStyle = light ? 'rgba(39,85,102,.2)' : 'rgba(151,183,229,.16)'
+  context.strokeStyle = light ? rgba(LIGHT_TOKENS.blue, .18) : 'rgba(151,183,229,.16)'
   context.lineWidth = 1
   context.setLineDash([])
   context.beginPath()
@@ -81,14 +82,14 @@ function drawReceiverProfile(
   context.moveTo(padding.left + plotWidth / 2, padding.top)
   context.lineTo(padding.left + plotWidth / 2, height - padding.bottom)
   context.stroke()
-  strokeValues(profile.rmsEnvelope, light ? 'rgba(66,96,111,.56)' : 'rgba(130,160,203,.58)', true)
-  strokeValues(profile.rmsEnvelope, light ? 'rgba(66,96,111,.56)' : 'rgba(130,160,203,.58)', true, -1)
-  context.shadowColor = light ? 'rgba(8,125,121,.24)' : 'rgba(73,228,207,.42)'
+  strokeValues(profile.rmsEnvelope, light ? rgba(LIGHT_TOKENS.blue, .5) : 'rgba(130,160,203,.58)', true)
+  strokeValues(profile.rmsEnvelope, light ? rgba(LIGHT_TOKENS.blue, .5) : 'rgba(130,160,203,.58)', true, -1)
+  context.shadowColor = light ? rgba(LIGHT_TOKENS.accent, .3) : 'rgba(73,228,207,.42)'
   context.shadowBlur = 8
-  strokeValues(profile.instantaneous, light ? '#087d79' : '#49e4cf', false)
+  strokeValues(profile.instantaneous, light ? LIGHT_TOKENS.accent : '#49e4cf', false)
   context.shadowBlur = 0
   context.setLineDash([])
-  context.fillStyle = light ? 'rgba(47,76,89,.76)' : 'rgba(183,205,235,.68)'
+  context.fillStyle = light ? rgba(LIGHT_TOKENS.blue, .75) : 'rgba(183,205,235,.68)'
   context.font = '600 9px "SFMono-Regular", Consolas, monospace'
   context.fillText('+A', 7, padding.top + 8)
   context.fillText('−A', 7, height - padding.bottom)

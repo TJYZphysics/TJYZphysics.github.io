@@ -385,67 +385,107 @@
 }
 
 html[data-color-mode='light'] .projectile-lab {
-  --projectile-ink: #202a34;
-  --projectile-muted: #607080;
-  --projectile-line: rgba(36, 57, 74, .15);
-  --projectile-panel: rgba(255, 255, 255, .8);
-  --projectile-cyan: #087a8f;
-  --projectile-violet: #6757b5;
+  --projectile-ink: #171a22;
+  --projectile-muted: #606269;
+  --projectile-line: rgba(23, 26, 34, .15);
+  --projectile-panel: rgba(253, 253, 255, .84);
+  --projectile-cyan: #2453c7;
+  --projectile-violet: #4e43a0;
   --projectile-orange: #b95c36;
   color: var(--projectile-ink);
-  border-color: rgba(36, 57, 74, .15);
+  border-color: rgba(23, 26, 34, .15);
   background:
-    radial-gradient(circle at 7% -8%, rgba(49, 95, 168, .11), transparent 31%),
-    radial-gradient(circle at 96% 3%, rgba(103, 87, 181, .08), transparent 27%),
-    linear-gradient(145deg, #f8fafb, #e9eef1 70%, #f1f4f5);
-  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(39, 52, 60, .11);
+    radial-gradient(circle at 7% -8%, rgba(49, 89, 184, .11), transparent 31%),
+    radial-gradient(circle at 96% 3%, rgba(78, 67, 160, .08), transparent 27%),
+    linear-gradient(145deg, #fdfdfd, #e8e9ec 70%, #eef0f4);
+  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(23, 26, 34, .11);
 }
 html[data-color-mode='light'] .projectile-lab::before { opacity: .38; }
 html[data-color-mode='light'] .projectile-stage,
 html[data-color-mode='light'] .projectile-controls,
-html[data-color-mode='light'] .projectile-metrics { background:#fff; box-shadow:0 15px 32px rgba(39, 52, 60, .08); backdrop-filter:none; }
-html[data-color-mode='light'] .projectile-stage__viewport { border-color: rgba(32, 78, 99, .28); background: #07101f; box-shadow: inset 0 18px 48px rgba(0, 0, 0, .27), 0 10px 25px rgba(41, 53, 61, .12); }
-html[data-color-mode='light'] .projectile-status { color:#1d3443; font-weight:750; }
-html[data-color-mode='light'] .projectile-status--paused i { background:#c77a00; box-shadow:0 0 0 4px rgba(199,122,0,.14); }
-html[data-color-mode='light'] .projectile-stage__clock { color:#496273; font-weight:700; }
-html[data-color-mode='light'] .projectile-stage__clock strong { color:#0a4153; font-weight:800; }
+html[data-color-mode='light'] .projectile-metrics { background:#fdfdfd; box-shadow:0 15px 32px rgba(23, 26, 34, .07); backdrop-filter:none; }
+html[data-color-mode='light'] .projectile-stage__viewport { border-color: rgba(36, 83, 199, .28); background: #07101f; box-shadow: inset 0 18px 48px rgba(0, 0, 0, .27), 0 10px 25px rgba(23, 26, 34, .12); }
+html[data-color-mode='light'] .projectile-status { color:#171a22; font-weight:750; }
+html[data-color-mode='light'] .projectile-status--paused i { background:#986416; box-shadow:0 0 0 4px rgba(152,100,22,.14); }
+html[data-color-mode='light'] .projectile-stage__clock { color:#606269; font-weight:700; }
+html[data-color-mode='light'] .projectile-stage__clock strong { color:#171a22; font-weight:800; }
 html[data-color-mode='light'] .projectile-controls__heading span,
-html[data-color-mode='light'] .projectile-range b { color: #344552; }
+html[data-color-mode='light'] .projectile-range b { color: #171a22; }
 html[data-color-mode='light'] .projectile-controls__heading small,
 html[data-color-mode='light'] .projectile-range small,
 html[data-color-mode='light'] .projectile-projection-toggles > span,
 html[data-color-mode='light'] .projectile-projection-toggles small,
-html[data-color-mode='light'] .projectile-note p { color: #667887; }
+html[data-color-mode='light'] .projectile-note p { color: #606269; }
 html[data-color-mode='light'] .projectile-transport > button,
 html[data-color-mode='light'] .projectile-speed button,
-html[data-color-mode='light'] .projectile-projection-toggles button { color: #506270; border-color: rgba(36, 57, 74, .15); background: rgba(255, 255, 255, .7); }
-html[data-color-mode='light'] .projectile-transport > button:hover,
-html[data-color-mode='light'] .projectile-speed button:hover { color: #1d2c36; }
+html[data-color-mode='light'] .projectile-projection-toggles button { color: #4a4d55; border-color: rgba(23, 26, 34, .15); background: rgba(253, 253, 255, .7); }
+html[data-color-mode='light'] .projectile-transport > button:not(.projectile-transport__primary):hover,
+html[data-color-mode='light'] .projectile-speed button:not(.is-active):hover { color: #2453c7; border-color: rgba(36, 83, 199, .45); }
 html[data-color-mode='light'] .projectile-transport .projectile-transport__primary,
-html[data-color-mode='light'] .projectile-speed button.is-active { color: #fff; background: var(--projectile-cyan); }
-html[data-color-mode='light'] .projectile-projection-toggles button[aria-pressed='true'] { color: #263945; }
-html[data-color-mode='light'] .projectile-metrics > div { background: rgba(255, 255, 255, .66); }
-html[data-color-mode='light'] .projectile-metrics span { color: #667786; }
-html[data-color-mode='light'] .projectile-metrics strong { color: #263945; }
+html[data-color-mode='light'] .projectile-speed button.is-active { color: #fffefa; background: var(--projectile-cyan); box-shadow: 0 8px 20px rgba(36, 83, 199, .2); }
+html[data-color-mode='light'] .projectile-transport .projectile-transport__primary:hover { border-color: rgba(36, 83, 199, .6); }
+html[data-color-mode='light'] .projectile-projection-toggles button:hover { border-color: rgba(36, 83, 199, .35); }
+html[data-color-mode='light'] .projectile-projection-toggles button[aria-pressed='true'] {
+  color: #171a22;
+  border-color: rgba(36, 83, 199, .38);
+  background: rgba(36, 83, 199, .07);
+}
+html[data-color-mode='light'] .projectile-projection-toggles button:nth-of-type(2)[aria-pressed='true'] {
+  border-color: rgba(78, 67, 160, .4);
+  background: rgba(78, 67, 160, .07);
+}
+html[data-color-mode='light'] .projectile-metrics > div { background: rgba(253, 253, 255, .66); }
+html[data-color-mode='light'] .projectile-metrics span { color: #606269; }
+html[data-color-mode='light'] .projectile-metrics strong { color: #171a22; }
+html[data-color-mode='light'] .projectile-status--running i {
+  box-shadow: 0 0 0 4px rgba(36, 83, 199, .12), 0 0 16px rgba(36, 83, 199, .4);
+}
+html[data-color-mode='light'] .projectile-status--landed i {
+  box-shadow: 0 0 13px rgba(185, 92, 54, .35);
+}
+html[data-color-mode='light'] .projectile-speed > span { color: #606269; }
+html[data-color-mode='light'] .projectile-projection--horizontal line { stroke: rgba(36, 83, 199, .6); }
+html[data-color-mode='light'] .projectile-projection--vertical line { stroke: rgba(78, 67, 160, .6); }
+html[data-color-mode='light'] .projectile-progress i {
+  background: linear-gradient(90deg, #2453c7, #3159b8);
+}
+html[data-color-mode='light'] .projectile-range input[type='range']::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, rgba(36, 83, 199, .8), rgba(36, 83, 199, .18));
+}
+html[data-color-mode='light'] .projectile-range--gravity input[type='range']::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, rgba(78, 67, 160, .85), rgba(78, 67, 160, .2));
+}
+html[data-color-mode='light'] .projectile-range input[type='range']::-webkit-slider-thumb {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(36, 83, 199, .14), 0 0 12px rgba(36, 83, 199, .32);
+}
+html[data-color-mode='light'] .projectile-range--gravity input[type='range']::-webkit-slider-thumb {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(78, 67, 160, .14), 0 0 12px rgba(78, 67, 160, .3);
+}
+html[data-color-mode='light'] .projectile-range input[type='range']::-moz-range-track { background: rgba(36, 83, 199, .3); }
+html[data-color-mode='light'] .projectile-range--gravity input[type='range']::-moz-range-track { background: rgba(78, 67, 160, .3); }
+html[data-color-mode='light'] .projectile-range input[type='range']::-moz-range-thumb { border-color: #fff; }
+html[data-color-mode='light'] .projectile-range--gravity input[type='range']::-moz-range-thumb { border-color: #fff; }
 
 html[data-color-mode='light'] .projectile-stage__viewport {
-  border-color: rgba(32, 78, 99, .28);
-  background: #e6f2f3;
-  box-shadow: inset 0 18px 48px rgba(38, 80, 92, .1), 0 10px 25px rgba(41, 53, 61, .12);
+  border-color: rgba(36, 83, 199, .28);
+  background: #e8eaef;
+  box-shadow: inset 0 18px 48px rgba(23, 26, 34, .06), 0 10px 25px rgba(23, 26, 34, .1);
 }
 
-html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(1) { stop-color: #e0f1f4; }
-html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(2) { stop-color: #f3f8f5; }
-html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(3) { stop-color: #d6e6e6; }
-html[data-color-mode='light'] .projectile-grid-path { stroke: rgba(54, 103, 119, .18); }
+html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(1) { stop-color: #eaecf1; }
+html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(2) { stop-color: #f4f5f8; }
+html[data-color-mode='light'] .projectile-sky-gradient stop:nth-child(3) { stop-color: #e2e5ec; }
+html[data-color-mode='light'] .projectile-grid-path { stroke: rgba(23, 26, 34, .12); }
 
-html[data-color-mode='light'] .projectile-axis-label line { stroke: rgba(56, 89, 103, .46); }
+html[data-color-mode='light'] .projectile-axis-label line { stroke: rgba(23, 26, 34, .3); }
 html[data-color-mode='light'] .projectile-axis-label text,
-html[data-color-mode='light'] .projectile-axis-title { fill: #526b77; }
-html[data-color-mode='light'] .projectile-axis-title { fill: #355966; }
+html[data-color-mode='light'] .projectile-axis-title { fill: #6a6f7a; }
+html[data-color-mode='light'] .projectile-axis-title { fill: #4a4e58; }
 html[data-color-mode='light'] .projectile-ground {
-  stroke: #5c747c;
-  filter: drop-shadow(0 3px 6px rgba(47, 87, 98, .2));
+  stroke: #8d96a8;
+  filter: drop-shadow(0 3px 6px rgba(23, 26, 34, .12));
 }
 
 html[data-color-mode='light'] .projectile-trajectory {
@@ -454,39 +494,33 @@ html[data-color-mode='light'] .projectile-trajectory {
 }
 
 html[data-color-mode='light'] .projectile-ghost {
-  fill: #d97842;
-  stroke: rgba(123, 69, 39, .64);
+  fill: #bd6134;
+  stroke: rgba(141, 68, 40, .6);
   filter: drop-shadow(0 0 5px rgba(173, 82, 42, .28));
 }
 
 html[data-color-mode='light'] .projectile-ghost-group:hover .projectile-ghost,
 html[data-color-mode='light'] .projectile-ghost-group:focus-visible .projectile-ghost,
 html[data-color-mode='light'] .projectile-ghost-group.is-selected .projectile-ghost {
-  stroke: #88451f;
+  stroke: #7a3a1e;
   filter: drop-shadow(0 0 8px rgba(173, 82, 42, .42));
 }
 
-html[data-color-mode='light'] .projectile-ghost-readout line { stroke: rgba(173, 82, 42, .52); }
+html[data-color-mode='light'] .projectile-ghost-readout line { stroke: rgba(141, 68, 40, .5); }
 html[data-color-mode='light'] .projectile-ghost-readout rect {
-  fill: rgba(255, 255, 255, .95);
-  stroke: rgba(173, 82, 42, .55);
-  filter: drop-shadow(0 8px 16px rgba(44, 66, 74, .16));
+  fill: rgba(253, 253, 255, .96);
+  stroke: rgba(141, 68, 40, .5);
+  filter: drop-shadow(0 8px 16px rgba(23, 26, 34, .14));
 }
-html[data-color-mode='light'] .projectile-ghost-readout text { fill: #38515d; }
+html[data-color-mode='light'] .projectile-ghost-readout text { fill: #4a4d55; }
 
 html[data-color-mode='light'] .projectile-projection circle { fill: #fff; }
 html[data-color-mode='light'] .projectile-projection--vertical text { fill: var(--projectile-violet); }
 html[data-color-mode='light'] .projectile-main-ball__halo { fill: rgba(185, 92, 54, .16); }
 html[data-color-mode='light'] .projectile-main-ball__body { stroke: rgba(111, 56, 38, .72); }
-html[data-color-mode='light'] .projectile-launch-mark line { stroke: rgba(49, 82, 95, .22); }
-html[data-color-mode='light'] .projectile-launch-mark text { fill: #5c727c; }
+html[data-color-mode='light'] .projectile-launch-mark line { stroke: rgba(23, 26, 34, .2); }
+html[data-color-mode='light'] .projectile-launch-mark text { fill: #6a6f7a; }
 html[data-color-mode='light'] .projectile-range--gravity output { color: var(--projectile-violet); }
-
-html[data-theme='claude-light'] .projectile-lab {
-  --projectile-cyan: #a65336;
-  --projectile-violet: #79645a;
-  --projectile-orange: #ba653f;
-}
 
 html[data-theme='claude-dark'] .projectile-lab {
   --projectile-cyan: #df8f6c;
@@ -496,21 +530,21 @@ html[data-theme='claude-dark'] .projectile-lab {
 
 /* Flat light scene: uniform surfaces and solid motion colors. */
 html[data-color-mode='light'] .projectile-lab {
-  background: #f3f6f7;
-  box-shadow: 0 14px 34px rgba(35, 52, 61, .08);
+  background: #f4f5f8;
+  box-shadow: 0 14px 34px rgba(23, 26, 34, .07);
 }
 html[data-color-mode='light'] .projectile-lab::before { opacity: 0; }
 html[data-color-mode='light'] .projectile-stage,
 html[data-color-mode='light'] .projectile-controls,
 html[data-color-mode='light'] .projectile-metrics {
-  background: #fafcfc;
-  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+  background: #fdfdfd;
+  box-shadow: 0 10px 24px rgba(23, 26, 34, .06);
 }
 html[data-color-mode='light'] .projectile-stage__viewport {
-  background: #edf2f3;
+  background: #e8eaef;
   box-shadow: none;
 }
-html[data-color-mode='light'] .projectile-sky { fill: #edf2f3; }
+html[data-color-mode='light'] .projectile-sky { fill: #e8eaef; }
 html[data-color-mode='light'] .projectile-ground { filter: none; }
 html[data-color-mode='light'] .projectile-trajectory { opacity: .9; }
 html[data-color-mode='light'] .projectile-ghost,
@@ -520,11 +554,11 @@ html[data-color-mode='light'] .projectile-ghost-group.is-selected .projectile-gh
 html[data-color-mode='light'] .projectile-ghost-readout rect { filter: none; }
 html[data-color-mode='light'] .projectile-main-ball__halo { opacity: 0; }
 html[data-color-mode='light'] .projectile-main-ball__body {
-  fill: #c8643a;
+  fill: #bd6134;
   stroke: #8e4428;
 }
 html[data-color-mode='light'] .projectile-main-ball__highlight { opacity: .42; }
 html[data-color-mode='light'] .projectile-transport > button,
 html[data-color-mode='light'] .projectile-speed button,
-html[data-color-mode='light'] .projectile-projection-toggles button { background: #fff; }
-html[data-color-mode='light'] .projectile-metrics > div { background: #f5f8f8; }
+html[data-color-mode='light'] .projectile-projection-toggles button { background: #fdfdfd; }
+html[data-color-mode='light'] .projectile-metrics > div { background: #f4f5f8; }

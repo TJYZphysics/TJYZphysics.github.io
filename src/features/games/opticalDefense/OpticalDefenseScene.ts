@@ -43,11 +43,11 @@ const DEVICE_COLORS: Record<DeviceKind, number> = {
 }
 
 const LIGHT_DEVICE_COLORS: Record<DeviceKind, number> = {
-  'source-red': 0xc33d46, 'source-green': 0x197d52, 'source-blue': 0x2c70b2, mirror: 0x526f79,
-  splitter: 0x167b96, 'prism-splitter': 0x536b78, combiner: 0x9f680d, filter: 0x147b67, collector: 0x9b690f, bulb: 0xa66b08,
-  'laser-emitter': 0xb93e48, 'radiation-source': 0x8a46a7, 'frost-tower': 0x0e7894, brazier: 0xb85a1b,
-  accelerator: 0x98700d, shutter: 0x617184,
-  'photo-sensor': 0x197659, capacitor: 0xa36b0d,
+  'source-red': 0xb43c39, 'source-green': 0x287255, 'source-blue': 0x3159b8, mirror: 0x55667d,
+  splitter: 0x2b5cc0, 'prism-splitter': 0x3a6ad8, combiner: 0x986416, filter: 0x1f6f5f, collector: 0x986416, bulb: 0x9c6a12,
+  'laser-emitter': 0xc0473a, 'radiation-source': 0x7a46a8, 'frost-tower': 0x1f5d97, brazier: 0xb85a1b,
+  accelerator: 0x8a6a12, shutter: 0x617184,
+  'photo-sensor': 0x287255, capacitor: 0x986416,
 }
 
 const SCENE_PALETTES = {
@@ -63,22 +63,22 @@ const SCENE_PALETTES = {
     enemyBacking: 0x050708, healthTrack: 0x172226,
   },
   light: {
-    background: '#e8efed', board: 0xeaf1ef, grid: 0x526e66, gridAlpha: 0.2, frame: 0x607c75, frameAlpha: 0.62,
-    route: 0xded4bd, routeBorder: 0x8b682d, routeBorderAlpha: 0.36, routeLine: 0xa67827, routeLineAlpha: 0.5,
-    routeArrow: 0x8f681f, routeArrowAlpha: 0.68, entranceFill: 0x1d8a62, entranceLine: 0x14764f,
-    coreFill: 0xb1741d, coreLine: 0x95600f, emptyCell: 0xdce9e5, usedCell: 0xc9ddd7,
-    emptyCellBorder: 0x688a80, usedCellBorder: 0x4d7f73, emptyPlate: 0xe3ece9, usedPlate: 0xd1e3de,
-    emptyPlateBorder: 0x638a80, usedPlateBorder: 0x3e7a6c, emptySocket: 0xf8fbfa, usedSocket: 0xe9f2ef,
-    emptySocketBorder: 0x63877e, usedSocketBorder: 0x3d756a, recommended: 0x08758b, recommendedInner: 0x95600f,
-    beamCore: 0xfaffff, deviceBody: 0xf8fbfa, selected: 0x164d59, deviceLabel: '#193633', prismFill: 0x496873,
-    enemyBacking: 0xffffff, healthTrack: 0xb8c6c4,
+    background: '#f4f5f8', board: 0xfbfcfe, grid: 0xb9c2d2, gridAlpha: 0.5, frame: 0x9aa6b8, frameAlpha: 0.62,
+    route: 0xe3e7f0, routeBorder: 0x8b95a8, routeBorderAlpha: 0.5, routeLine: 0x7d8b9f, routeLineAlpha: 0.55,
+    routeArrow: 0x6e7f95, routeArrowAlpha: 0.7, entranceFill: 0x287255, entranceLine: 0x1f6b4c,
+    coreFill: 0x986416, coreLine: 0x7d540f, emptyCell: 0xeff1f6, usedCell: 0xe2e7f0,
+    emptyCellBorder: 0xb9c2d2, usedCellBorder: 0x9aa6b8, emptyPlate: 0xe8ecf3, usedPlate: 0xdfe5ee,
+    emptyPlateBorder: 0xafb8c6, usedPlateBorder: 0x8d9caf, emptySocket: 0xfdfdfd, usedSocket: 0xe4e9f2,
+    emptySocketBorder: 0xaeb7c6, usedSocketBorder: 0x8293a6, recommended: 0x2453c7, recommendedInner: 0x3159b8,
+    beamCore: 0xf5f8fd, deviceBody: 0xfdfdfd, selected: 0x2146a3, deviceLabel: '#171a22', prismFill: 0x40568a,
+    enemyBacking: 0xffffff, healthTrack: 0xccd3de,
   },
 } as const
 
 function powerColor(power: RgbPower, colorMode: OpticalColorMode) {
   const color = visibleColor(power)
   const colors = colorMode === 'light'
-    ? { red: 0xc72f3b, green: 0x168456, blue: 0x236fb9, yellow: 0xa66a05, orange: 0xbe5514, magenta: 0xaa359f, cyan: 0x007f96, white: 0x465a64, dark: 0x657580 }
+    ? { red: 0xb43c39, green: 0x287255, blue: 0x3159b8, yellow: 0x986416, orange: 0xb85a1b, magenta: 0x8a46a7, cyan: 0x2453c7, white: 0x3a444f, dark: 0x5c6673 }
     : { red: 0xff454f, green: 0x48ef8b, blue: 0x469dff, yellow: 0xffe36b, orange: 0xff9a3d, magenta: 0xff61e6, cyan: 0x54f2ff, white: 0xf5ffff, dark: 0x7d8a96 }
   return colors[color]
 }
@@ -492,7 +492,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillStyle(this.palette.prismFill, this.colorMode === 'light' ? 0.08 : 0.1)
       g.fillTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
       g.strokeTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
-      ;[0xff4f58, 0x3ee68d, 0x4ea7ff].forEach((beamColor, index) => {
+      ;[this.colorMode === 'light' ? 0xb43c39 : 0xff4f58, this.colorMode === 'light' ? 0x287255 : 0x3ee68d, this.colorMode === 'light' ? 0x3159b8 : 0x4ea7ff].forEach((beamColor, index) => {
         const beamAngle = angle + (index - 1) * 0.36
         g.lineStyle(2, beamColor, 0.9)
         g.lineBetween(Math.cos(beamAngle) * 5, Math.sin(beamAngle) * 5, Math.cos(beamAngle) * 22, Math.sin(beamAngle) * 22)
@@ -576,7 +576,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const path = level.paths?.[enemy.routeIndex ?? 0] ?? level.path
     const point = pointOnPath(path, enemy.progress)
     const color = this.colorMode === 'light'
-      ? enemy.kind === 'boss' ? 0xb92f4c : enemy.kind === 'armored' ? 0x667687 : enemy.kind === 'resistant' ? 0x8c45a4 : enemy.kind === 'fast' ? 0xa96b04 : 0x354b48
+      ? enemy.kind === 'boss' ? 0xb92f4c : enemy.kind === 'armored' ? 0x667687 : enemy.kind === 'resistant' ? 0x8c45a4 : enemy.kind === 'fast' ? 0xa96b04 : 0x3c4654
       : enemy.kind === 'boss' ? 0xff4967 : enemy.kind === 'armored' ? 0xa7b3c2 : enemy.kind === 'resistant' ? 0xd98bff : enemy.kind === 'fast' ? 0xffce59 : 0xf4f6f0
     const size = enemy.kind === 'boss' ? 22 : enemy.kind === 'armored' ? 17 : 13
     // 状态变化时才重建敌人图形（位置每帧 setPosition，血量按 5% 分档）。
@@ -604,7 +604,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     else if (enemy.kind === 'fast') g.fillTriangle(-size, -size * 0.75, size, 0, -size, size * 0.75)
     else g.fillCircle(0, 0, size)
     if (enemy.resistance) {
-      g.lineStyle(3, enemy.resistance === 'r' ? 0xff4f58 : enemy.resistance === 'g' ? 0x3ee68d : 0x4ea7ff, 1)
+      g.lineStyle(3, enemy.resistance === 'r' ? (this.colorMode === 'light' ? 0xb43c39 : 0xff4f58) : enemy.resistance === 'g' ? (this.colorMode === 'light' ? 0x287255 : 0x3ee68d) : (this.colorMode === 'light' ? 0x3159b8 : 0x4ea7ff), 1)
       g.strokeCircle(0, 0, size + 2)
     }
     g.fillStyle(this.palette.healthTrack, 1)
@@ -614,7 +614,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       : (this.colorMode === 'light' ? 0x21825d : 0x5df1a6), 1)
     g.fillRoundedRect(-18, size + 7, 36 * (enemy.health / enemy.maxHealth), 4, 2)
     if (enemy.status.freezeSeconds > 0) {
-      g.lineStyle(2, 0x69e9ff, 0.9)
+      g.lineStyle(2, this.colorMode === 'light' ? 0x2c5fd6 : 0x69e9ff, 0.9)
       g.strokeCircle(0, 0, size + 6)
     }
     if (enemy.status.burnSeconds > 0 || enemy.status.poisonSeconds > 0) {
@@ -622,20 +622,20 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillCircle(size * 0.6, -size * 0.7, 4)
     }
     if (enemy.status.shield > 0) {
-      g.lineStyle(2, 0x79b9ff, 0.9)
+      g.lineStyle(2, this.colorMode === 'light' ? 0x3159b8 : 0x79b9ff, 0.9)
       g.strokeCircle(0, 0, size + 9)
       const shieldFraction = Math.min(1, enemy.status.shield / Math.max(1, enemy.kind === 'boss' ? enemy.maxHealth * 0.15 : enemy.maxHealth * 0.12))
-      g.lineStyle(3, 0xd7f1ff, 0.9)
+      g.lineStyle(3, this.colorMode === 'light' ? 0x8fb4ea : 0xd7f1ff, 0.9)
       g.beginPath()
       g.arc(0, 0, size + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * shieldFraction)
       g.strokePath()
     }
     if (enemy.status.radiationStacks > 0) {
-      g.fillStyle(0xe875ff, 0.92)
+      g.fillStyle(this.colorMode === 'light' ? 0x8a46a7 : 0xe875ff, 0.92)
       for (let index = 0; index < Math.min(3, Math.ceil(enemy.status.radiationStacks)); index += 1) g.fillCircle(-6 + index * 6, -size - 10, 2.2)
     }
     if (enemy.status.armorBrokenSeconds > 0) {
-      g.lineStyle(2, 0xffd56a, 0.9)
+      g.lineStyle(2, this.colorMode === 'light' ? 0x986416 : 0xffd56a, 0.9)
       g.lineBetween(-size - 4, -size - 4, size + 4, size + 4)
       g.lineBetween(size + 4, -size - 4, -size - 4, size + 4)
     }
@@ -657,11 +657,11 @@ export class OpticalDefenseScene extends Phaser.Scene {
     snapshot.battle.events.filter((event) => event.id > this.handledEventId).forEach((event) => {
       this.handledEventId = Math.max(this.handledEventId, event.id)
       if (event.type === 'kill') {
-        const text = this.add.text(event.point.x, event.point.y - 20, `+${event.value}W`, { color: this.colorMode === 'light' ? '#167a55' : '#7bffc0', fontFamily: 'Arial', fontSize: '14px', fontStyle: 'bold' }).setOrigin(0.5)
+        const text = this.add.text(event.point.x, event.point.y - 20, `+${event.value}W`, { color: this.colorMode === 'light' ? '#1f6b4c' : '#7bffc0', fontFamily: 'Arial', fontSize: '14px', fontStyle: 'bold' }).setOrigin(0.5)
         this.tweens.add({ targets: text, y: text.y - 30, alpha: 0, duration: snapshot.reduceMotion ? 200 : 760, onComplete: () => text.destroy() })
       }
       if (event.type === 'explosion') {
-        const ring = this.add.circle(event.point.x, event.point.y, 24, 0xffd36a, 0.32).setStrokeStyle(4, this.palette.selected, 0.9)
+        const ring = this.add.circle(event.point.x, event.point.y, 24, this.colorMode === 'light' ? 0xc8891f : 0xffd36a, 0.32).setStrokeStyle(4, this.palette.selected, 0.9)
         const scale = event.radius / 24
         this.tweens.add({ targets: ring, scale, alpha: 0, duration: snapshot.reduceMotion ? 260 : 850, ease: 'Cubic.Out', onComplete: () => ring.destroy() })
         this.cameras.main.shake(snapshot.reduceMotion ? 50 : 260, snapshot.reduceMotion ? 0.001 : 0.008)

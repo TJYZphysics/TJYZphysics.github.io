@@ -152,6 +152,7 @@ export function PotentialFieldLab() {
         return
       }
       sceneRef.current = handle
+      handle.setTheme(document.documentElement.dataset.colorMode === 'light' ? 'light' : 'dark')
       handle.setCharges(chargesRef.current, selectedRef.current)
     }).catch(() => {
       if (!disposed) setUnsupported(true)

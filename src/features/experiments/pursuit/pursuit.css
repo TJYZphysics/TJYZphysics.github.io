@@ -862,48 +862,59 @@
 }
 
 html[data-color-mode="light"] .pursuit-lab {
-  --pursuit-ink: #202b36;
-  --pursuit-muted: #657585;
-  --pursuit-line: rgba(35, 52, 68, 0.14);
-  --pursuit-surface: rgba(255, 255, 255, 0.84);
-  --pursuit-surface-solid: #f7fafb;
-  --pursuit-accent: #147e70;
-  border-color: rgba(35, 52, 68, 0.15);
-  background: radial-gradient(circle at 8% -4%, rgba(57, 112, 174, 0.1), transparent 30%), radial-gradient(circle at 96% 9%, rgba(21, 126, 112, 0.07), transparent 26%), linear-gradient(145deg, #f8fafb, #e9eef1);
-  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(39, 51, 61, 0.11);
+  --pursuit-ink: #171a22;
+  --pursuit-muted: #606269;
+  --pursuit-line: rgba(23, 26, 34, 0.14);
+  --pursuit-surface: rgba(253, 253, 255, 0.86);
+  --pursuit-surface-solid: #fdfdfd;
+  --pursuit-accent: #2453c7;
+  border-color: rgba(23, 26, 34, 0.15);
+  background: radial-gradient(circle at 8% -4%, rgba(49, 89, 184, 0.1), transparent 30%), radial-gradient(circle at 96% 9%, rgba(36, 83, 199, 0.07), transparent 26%), linear-gradient(145deg, #fdfdfd, #e8e9ec);
+  box-shadow: inset 0 1px #fff, 0 25px 62px rgba(23, 26, 34, 0.11);
 }
 
 html[data-color-mode="light"] .pursuit-stage,
 html[data-color-mode="light"] .pursuit-controls,
 html[data-color-mode="light"] .pursuit-chart {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(241, 245, 247, 0.92));
-  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(43, 56, 66, 0.08);
+  background: linear-gradient(145deg, rgba(253, 253, 255, 0.97), rgba(232, 233, 236, 0.92));
+  box-shadow: inset 0 1px #fff, 0 14px 34px rgba(23, 26, 34, 0.07);
 }
 
 html[data-color-mode="light"] .pursuit-status,
 html[data-color-mode="light"] .pursuit-range__heading,
-html[data-color-mode="light"] .pursuit-direction > span { color: #4c5d6c; }
+html[data-color-mode="light"] .pursuit-direction > span { color: #606269; }
 
-html[data-color-mode="light"] .pursuit-readouts > div { background: rgba(255, 255, 255, 0.88); }
-html[data-color-mode="light"] .pursuit-readouts strong { color: #283744; }
-html[data-color-mode="light"] .pursuit-transport button { color: #3d4d5c; background: rgba(255, 255, 255, 0.72); }
+html[data-color-mode="light"] .pursuit-readouts > div { background: rgba(253, 253, 255, 0.88); }
+html[data-color-mode="light"] .pursuit-readouts strong { color: #171a22; }
+html[data-color-mode="light"] .pursuit-transport button { color: #4a4d55; border-color: rgba(23, 26, 34, 0.15); background: rgba(253, 253, 255, 0.72); }
 html[data-color-mode="light"] .pursuit-transport .pursuit-transport__primary,
-html[data-color-mode="light"] .pursuit-speed button.is-active { color: #fff; background: var(--pursuit-accent); }
-html[data-color-mode="light"] .pursuit-direction button.is-active { color: #fff; }
+html[data-color-mode="light"] .pursuit-speed button.is-active { color: #fffefa; background: var(--pursuit-accent); }
+html[data-color-mode="light"] .pursuit-direction button { color: #4a4d55; border-color: rgba(23, 26, 34, 0.15); background: rgba(253, 253, 255, 0.72); }
+html[data-color-mode="light"] .pursuit-direction button.is-active { color: #fffefa; }
 html[data-color-mode="light"] .pursuit-chart__grid-line text,
-html[data-color-mode="light"] .pursuit-chart__time-label { fill: #718191; }
+html[data-color-mode="light"] .pursuit-chart__time-label { fill: #6a6f7a; }
 html[data-color-mode="light"] .pursuit-transport button:focus-visible,
 html[data-color-mode="light"] .pursuit-direction button:focus-visible,
 html[data-color-mode="light"] .pursuit-range input:focus-visible { outline-color: var(--pursuit-accent); }
-
-html[data-theme="claude-light"] .pursuit-lab {
-  --pursuit-ink: #302925;
-  --pursuit-muted: #746a62;
-  --pursuit-line: rgba(66, 53, 44, 0.15);
-  --pursuit-surface: rgba(255, 252, 246, 0.86);
-  --pursuit-surface-solid: #fffaf3;
-  --pursuit-accent: #a95639;
-  background: radial-gradient(circle at 8% -4%, rgba(184, 107, 74, 0.12), transparent 30%), linear-gradient(145deg, #fffdf8, #eee6db);
+html[data-color-mode="light"] .pursuit-status--running i {
+  box-shadow: 0 0 0 4px rgba(36, 83, 199, 0.12), 0 0 17px rgba(36, 83, 199, 0.42);
+}
+html[data-color-mode="light"] .pursuit-transport .pursuit-transport__primary {
+  box-shadow: 0 9px 22px rgba(36, 83, 199, 0.2), inset 0 1px rgba(255, 255, 255, 0.4);
+}
+html[data-color-mode="light"] .pursuit-transport button:not(.pursuit-transport__primary):hover:not(:disabled),
+html[data-color-mode="light"] .pursuit-direction button:hover:not(:disabled) {
+  border-color: rgba(36, 83, 199, 0.38);
+  background: #fff;
+}
+html[data-color-mode="light"] .pursuit-transport .pursuit-transport__primary:hover:not(:disabled) { background: #3a63d0; }
+html[data-color-mode="light"] .pursuit-speed {
+  border-color: rgba(23, 26, 34, 0.14);
+  background: rgba(23, 26, 34, 0.05);
+}
+html[data-color-mode="light"] .pursuit-range input[type="range"]::-webkit-slider-thumb,
+html[data-color-mode="light"] .pursuit-range input[type="range"]::-moz-range-thumb {
+  background: #fff;
 }
 
 html[data-theme="claude-dark"] .pursuit-lab {
@@ -918,104 +929,116 @@ html[data-theme="claude-dark"] .pursuit-lab {
 }
 
 html[data-color-mode="light"] .pursuit-lab {
-  --pursuit-a: #137f99;
+  --pursuit-a: #2453c7;
   --pursuit-b: #b2612f;
 }
 
 html[data-color-mode="light"] .pursuit-track {
-  border-color: rgba(54, 83, 94, .24);
-  background: linear-gradient(180deg, #e1f3f5 0%, #eef5f2 46%, #d7e0e1 46%, #c5d0d2 100%);
-  box-shadow: inset 0 18px 45px rgba(47, 88, 102, .1), 0 12px 28px rgba(36, 57, 66, .08);
+  border-color: rgba(23, 26, 34, .18);
+  background: linear-gradient(180deg, #e8eaef 0%, #f1f2f5 46%, #dfe1e7 46%, #d4d6de 100%);
+  box-shadow: inset 0 18px 45px rgba(23, 26, 34, .05), 0 12px 28px rgba(23, 26, 34, .06);
 }
 
 html[data-color-mode="light"] .pursuit-track__sky {
   opacity: .88;
   background:
-    radial-gradient(circle at 22% 28%, rgba(39, 154, 181, .17), transparent 22%),
-    linear-gradient(rgba(53, 109, 127, .1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(53, 109, 127, .1) 1px, transparent 1px);
+    radial-gradient(circle at 22% 28%, rgba(36, 83, 199, .12), transparent 22%),
+    linear-gradient(rgba(23, 26, 34, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 26, 34, .07) 1px, transparent 1px);
 }
 
 html[data-color-mode="light"] .pursuit-track__road {
-  border-color: rgba(37, 58, 67, .32);
+  border-color: rgba(23, 26, 34, .26);
   background:
-    linear-gradient(90deg, rgba(239, 247, 246, .72) 0 8%, transparent 8% 15%) center / 92px 2px repeat-x,
-    linear-gradient(180deg, #66787f, #4f6269);
-  box-shadow: inset 0 10px 18px rgba(20, 44, 52, .18), 0 9px 18px rgba(35, 56, 64, .14);
+    linear-gradient(90deg, rgba(253, 253, 255, .7) 0 8%, transparent 8% 15%) center / 92px 2px repeat-x,
+    linear-gradient(180deg, #6b7282, #52596b);
+  box-shadow: inset 0 10px 18px rgba(23, 26, 34, .12), 0 9px 18px rgba(23, 26, 34, .1);
 }
 
 html[data-color-mode="light"] .pursuit-track__distance {
-  border-color: rgba(47, 78, 90, .46);
-  color: #3e5a66;
+  border-color: rgba(23, 26, 34, .3);
+  color: #4a4e58;
 }
 
 html[data-color-mode="light"] .pursuit-track__distance span {
-  color: #31505d;
-  background: rgba(255, 255, 255, .9);
-  box-shadow: 0 2px 8px rgba(35, 57, 65, .08);
+  color: #4a4e58;
+  background: rgba(253, 253, 255, .92);
+  box-shadow: 0 2px 8px rgba(23, 26, 34, .07);
 }
 
 html[data-color-mode="light"] .pursuit-track__meeting {
-  border-left-color: rgba(20, 126, 112, .58);
+  border-left-color: rgba(36, 83, 199, .55);
 }
 
 html[data-color-mode="light"] .pursuit-track__meeting::before {
   background: #fff;
-  box-shadow: 0 0 12px rgba(20, 126, 112, .3);
+  box-shadow: 0 0 12px rgba(36, 83, 199, .3);
 }
 
 html[data-color-mode="light"] .pursuit-car__readout {
-  color: #294651;
+  color: #171a22;
   padding: 3px 5px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, .78);
-  box-shadow: 0 3px 9px rgba(34, 56, 65, .08);
+  background: rgba(253, 253, 255, .86);
+  box-shadow: 0 3px 9px rgba(23, 26, 34, .07);
 }
 
-html[data-color-mode="light"] .pursuit-track__scale { color: rgba(42, 69, 80, .7); }
-html[data-color-mode="light"] .pursuit-readouts { border-color: rgba(56, 82, 94, .17); background: rgba(56, 82, 94, .12); }
-html[data-color-mode="light"] .pursuit-readouts small { color: #607582; }
+html[data-color-mode="light"] .pursuit-track__scale { color: rgba(23, 26, 34, .55); }
+html[data-color-mode="light"] .pursuit-readouts { border-color: rgba(23, 26, 34, .14); background: rgba(23, 26, 34, .1); }
+html[data-color-mode="light"] .pursuit-readouts small { color: #6a6f7a; }
 
-html[data-color-mode="light"] .pursuit-chart__grid-line line { stroke: rgba(58, 91, 106, .18); }
+html[data-color-mode="light"] .pursuit-chart__grid-line line { stroke: rgba(23, 26, 34, .1); }
 html[data-color-mode="light"] .pursuit-chart__grid-line text,
-html[data-color-mode="light"] .pursuit-chart__time-label { fill: #596f7b; }
-html[data-color-mode="light"] .pursuit-chart__zero { stroke: rgba(42, 70, 82, .32); }
+html[data-color-mode="light"] .pursuit-chart__time-label { fill: #6a6f7a; }
+html[data-color-mode="light"] .pursuit-chart__zero { stroke: rgba(23, 26, 34, .3); }
 html[data-color-mode="light"] .pursuit-chart__future { opacity: .38; }
-html[data-color-mode="light"] .pursuit-chart__scan-gradient stop { stop-color: #147e70; }
-html[data-color-mode="light"] .pursuit-chart__scan { filter: drop-shadow(0 0 5px rgba(20, 126, 112, .3)); }
+html[data-color-mode="light"] .pursuit-chart__scan-gradient stop { stop-color: #2453c7; }
+html[data-color-mode="light"] .pursuit-chart__scan { filter: drop-shadow(0 0 5px rgba(36, 83, 199, .3)); }
 html[data-color-mode="light"] .pursuit-chart__point { stroke: #fff; }
+html[data-color-mode="light"] .pursuit-prediction {
+  border-color: rgba(36, 83, 199, .22);
+  background: linear-gradient(120deg, rgba(36, 83, 199, .07), rgba(36, 83, 199, .02));
+}
+html[data-color-mode="light"] .pursuit-prediction small { color: #6a6f7a; }
+html[data-color-mode="light"] .pursuit-prediction--none {
+  border-color: rgba(152, 100, 22, .28);
+  background: linear-gradient(120deg, rgba(152, 100, 22, .08), rgba(152, 100, 22, .02));
+}
+html[data-color-mode="light"] .pursuit-prediction--none strong { color: #986416; }
+html[data-color-mode="light"] .pursuit-car--a .pursuit-car__body b { color: rgba(255, 255, 255, .92); }
+html[data-color-mode="light"] .pursuit-car--b .pursuit-car__body b { color: rgba(23, 26, 34, .78); }
 
 /* Flat light scene: crisp geometry replaces atmospheric glow. */
 html[data-color-mode="light"] .pursuit-lab {
-  background: #f3f6f7;
-  box-shadow: 0 14px 34px rgba(35, 52, 61, .08);
+  background: #f4f5f8;
+  box-shadow: 0 14px 34px rgba(23, 26, 34, .07);
 }
 html[data-color-mode="light"] .pursuit-stage,
 html[data-color-mode="light"] .pursuit-controls,
 html[data-color-mode="light"] .pursuit-chart {
-  background: #fafcfc;
-  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+  background: #fdfdfd;
+  box-shadow: 0 10px 24px rgba(23, 26, 34, .06);
 }
 html[data-color-mode="light"] .pursuit-track {
-  background: #e5ecee;
+  background: #e8eaef;
   box-shadow: none;
 }
 html[data-color-mode="light"] .pursuit-track__sky {
   opacity: .72;
-  background: linear-gradient(rgba(53, 91, 104, .1) 1px, transparent 1px), linear-gradient(90deg, rgba(53, 91, 104, .1) 1px, transparent 1px);
+  background: linear-gradient(rgba(23, 26, 34, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 26, 34, .07) 1px, transparent 1px);
   background-size: 30px 30px;
   mask-image: none;
 }
 html[data-color-mode="light"] .pursuit-track__road {
-  background: linear-gradient(90deg, rgba(239, 244, 244, .78) 0 8%, transparent 8% 15%) center / 92px 2px repeat-x, #596b72;
+  background: linear-gradient(90deg, rgba(253, 253, 255, .75) 0 8%, transparent 8% 15%) center / 92px 2px repeat-x, #5f6674;
   box-shadow: none;
 }
 html[data-color-mode="light"] .pursuit-track__meeting::before,
 html[data-color-mode="light"] .pursuit-car__readout { box-shadow: none; }
 html[data-color-mode="light"] .pursuit-car__body {
-  box-shadow: 0 4px 8px rgba(30, 48, 55, .18);
+  box-shadow: 0 4px 8px rgba(23, 26, 34, .16);
 }
-html[data-color-mode="light"] .pursuit-car--a .pursuit-car__body { background: #167f99; }
+html[data-color-mode="light"] .pursuit-car--a .pursuit-car__body { background: #2453c7; }
 html[data-color-mode="light"] .pursuit-car--b .pursuit-car__body { background: #bd6735; }
 html[data-color-mode="light"] .pursuit-car__body i { opacity: .3; }
 html[data-color-mode="light"] .pursuit-chart__scan { filter: none; }

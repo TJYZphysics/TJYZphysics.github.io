@@ -12,6 +12,7 @@ test-results/
 .playwright-mcp/
 .claude/
 scripts/.chrome-tmp/
+scripts/.light-chrome-tmp/
 .vite-*.log
 PROGRESS.md
 BLOCKED.md
@@ -21,6 +22,7 @@ GITHUB_OPERATIONS_SKILL.md
 数值设计.md
 规则手册.md
 预期效果.md
+light-theme-demo.html
 src/features/games/opticalDefense/iteration.tools.test.ts
 docs/
 publish-level25-fix.ps1

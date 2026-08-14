@@ -113,55 +113,58 @@
 .wave-lab__readouts strong { overflow: hidden; color: #d7e5f8; font: 650 10px "SFMono-Regular", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
 .wave-lab__footnote { margin: 0 4px; color: #65728b; font-size: 10px; line-height: 1.5; }
 
-html[data-color-mode='light'] .wave-lab { --wave-text:#142936; --wave-muted:#40586a; --wave-cyan:#006e82; --wave-line:#c8d5dd; }
+html[data-color-mode='light'] .wave-lab { --wave-text:#171a22; --wave-muted:#606269; --wave-cyan:#2453c7; --wave-line:#cdd1db; }
 html[data-color-mode='light'] .wave-lab__console,
 html[data-color-mode='light'] .wave-lab__toolbar,
 html[data-color-mode='light'] .wave-lab__receiver,
 html[data-color-mode='light'] .wave-lab__transport,
-html[data-color-mode='light'] .wave-lab__readouts { border-color:#c8d5dd; background:#fff; box-shadow:0 12px 30px rgba(38,52,63,.08); }
+html[data-color-mode='light'] .wave-lab__readouts { border-color:#cdd1db; background:#fdfdfd; box-shadow:0 12px 30px rgba(23,26,34,.08); }
 html[data-color-mode='light'] .wave-lab__mode,
-html[data-color-mode='light'] .wave-lab__speed { border-color:#cdd9e0; background:#eef4f7; }
+html[data-color-mode='light'] .wave-lab__speed { border-color:#cdd1db; background:#e8e9ec; }
 html[data-color-mode='light'] .wave-lab__mode button,
 html[data-color-mode='light'] .wave-lab__toolbar button,
 html[data-color-mode='light'] .wave-lab__speed button,
-html[data-color-mode='light'] .wave-lab__actions button { color:#4b5c6c; }
+html[data-color-mode='light'] .wave-lab__actions button { color:#606269; }
 html[data-color-mode='light'] .wave-lab__mode button:hover,
 html[data-color-mode='light'] .wave-lab__toolbar button:hover,
 html[data-color-mode='light'] .wave-lab__speed button:hover,
-html[data-color-mode='light'] .wave-lab__actions button:hover { color:#1d2c37; background:rgba(20,117,138,.08); }
+html[data-color-mode='light'] .wave-lab__actions button:hover { color:#171a22; background:rgba(36,83,199,.08); }
 html[data-color-mode='light'] .wave-lab__mode button.is-active,
 html[data-color-mode='light'] .wave-lab__toolbar button.is-active,
 html[data-color-mode='light'] .wave-lab__speed button.is-active,
-html[data-color-mode='light'] .wave-lab__actions .wave-lab__primary { color:#fff; background:linear-gradient(135deg,#16879e,#397bb7); }
+html[data-color-mode='light'] .wave-lab__actions .wave-lab__primary { color:#fffefa; background:#2453c7; }
 html[data-color-mode='light'] .wave-lab__range > span,
-html[data-color-mode='light'] .wave-lab__group legend { color:#263d4c; }
+html[data-color-mode='light'] .wave-lab__group legend { color:#171a22; }
 html[data-color-mode='light'] .wave-lab__mode-note,
 html[data-color-mode='light'] .wave-lab__receiver-heading p,
 html[data-color-mode='light'] .wave-lab__receiver-readouts span,
-html[data-color-mode='light'] .wave-lab__footnote { color:#40586a; }
-html[data-color-mode='light'] .wave-lab__heading h2 { color:#102633; font-weight:750; }
-html[data-color-mode='light'] .wave-lab__heading p { color:#40586a; }
-html[data-color-mode='light'] .wave-lab__range > span i { color:#607383; }
-html[data-color-mode='light'] .wave-lab__range output { color:#006e82; }
-html[data-color-mode='light'] .wave-lab__derived { border-color:#bad8df; background:#edf8fa; }
-html[data-color-mode='light'] .wave-lab__derived span { color:#40586a; }
-html[data-color-mode='light'] .wave-lab__derived strong { color:#00687b; }
-html[data-color-mode='light'] .wave-lab__receiver { color:#142936; border-color:#b8cad4; }
-html[data-color-mode='light'] .wave-lab__receiver-heading { border-color:#c8d5dd; }
-html[data-color-mode='light'] .wave-lab__receiver-heading strong { color:#102633; }
+html[data-color-mode='light'] .wave-lab__footnote { color:#606269; }
+html[data-color-mode='light'] .wave-lab__heading h2 { color:#171a22; font-weight:750; }
+html[data-color-mode='light'] .wave-lab__heading p { color:#606269; }
+html[data-color-mode='light'] .wave-lab__range > span i { color:#7a8090; }
+html[data-color-mode='light'] .wave-lab__range output { color:#2453c7; }
+html[data-color-mode='light'] .wave-lab__derived { border-color:#cdd1db; background:#e3e9f8; }
+html[data-color-mode='light'] .wave-lab__derived span { color:#606269; }
+html[data-color-mode='light'] .wave-lab__derived strong { color:#2146a3; }
+html[data-color-mode='light'] .wave-lab__receiver { color:#171a22; border-color:#cdd1db; }
+html[data-color-mode='light'] .wave-lab__receiver-heading { border-color:#cdd1db; }
+html[data-color-mode='light'] .wave-lab__receiver-heading strong { color:#171a22; }
 html[data-color-mode='light'] .wave-lab__receiver-heading p { font-size:10px; }
-html[data-color-mode='light'] .wave-lab__canvas-frame { background:radial-gradient(circle at 48% 35%,#f8fbfc 0,#e8f1f4 48%,#d9e6ea 100%); box-shadow:inset 0 1px #fff,0 14px 30px rgba(38,52,63,.1); }
-html[data-color-mode='light'] .wave-lab__canvas-frame::after { border-color:rgba(35,82,99,.15); }
-html[data-color-mode='light'] .wave-lab__canvas-tag { color:#345869; border-color:rgba(35,82,99,.18); background:rgba(247,251,252,.88); }
+html[data-color-mode='light'] .wave-lab__canvas-frame { background:radial-gradient(circle at 48% 35%,#fdfdfd 0,#eef0f5 48%,#e2e6ee 100%); box-shadow:inset 0 1px #fff,0 14px 30px rgba(23,26,34,.1); }
+html[data-color-mode='light'] .wave-lab__canvas-frame::after { border-color:rgba(49,89,184,.18); }
+html[data-color-mode='light'] .wave-lab__canvas-tag { color:#3f506e; border-color:rgba(49,89,184,.2); background:rgba(253,253,255,.9); }
 html[data-color-mode='light'] .wave-lab__camera-hint,
-html[data-color-mode='light'] .wave-lab__legend { color:rgba(42,72,87,.76); }
-html[data-color-mode='light'] .wave-lab__receiver-chart { border-color:#aebfc9; background:#eef5f6; box-shadow:inset 0 1px rgba(255,255,255,.72); }
-html[data-color-mode='light'] .wave-lab__receiver-readouts > div { border-color:#d2dde3; }
-html[data-color-mode='light'] .wave-lab__receiver-readouts span { color:#334b5c; font-size:10px; font-weight:600; }
-html[data-color-mode='light'] .wave-lab__receiver-readouts strong { color:#092b38; font-size:10px; font-weight:750; }
-html[data-color-mode='light'] .wave-lab__readouts > div { background:#fff; }
-html[data-color-mode='light'] .wave-lab__readouts span { color:#40586a; }
-html[data-color-mode='light'] .wave-lab__readouts strong { color:#203744; }
+html[data-color-mode='light'] .wave-lab__legend { color:rgba(49,89,184,.72); }
+html[data-color-mode='light'] .wave-lab__legend i { background:linear-gradient(90deg,#2146a3,#78849e,#c0473a); }
+html[data-color-mode='light'] .wave-lab__legend--thermal i { background:linear-gradient(90deg,#30436e,#3159b8,#9f7631,#9b4040); }
+html[data-color-mode='light'] .wave-lab__legend--mono i { background:linear-gradient(90deg,#383e44,#a8aeb4); }
+html[data-color-mode='light'] .wave-lab__receiver-chart { border-color:#cdd1db; background:#eef0f5; box-shadow:inset 0 1px rgba(255,255,255,.8); }
+html[data-color-mode='light'] .wave-lab__receiver-readouts > div { border-color:#dcdfe6; }
+html[data-color-mode='light'] .wave-lab__receiver-readouts span { color:#606269; font-size:10px; font-weight:600; }
+html[data-color-mode='light'] .wave-lab__receiver-readouts strong { color:#171a22; font-size:10px; font-weight:750; }
+html[data-color-mode='light'] .wave-lab__readouts > div { background:#fdfdfd; }
+html[data-color-mode='light'] .wave-lab__readouts span { color:#606269; }
+html[data-color-mode='light'] .wave-lab__readouts strong { color:#171a22; }
 
 @media (max-width: 930px) {
   .wave-lab { grid-template-columns: 1fr; }
@@ -225,36 +228,36 @@ html[data-color-mode='light'] .wave-lab__toolbar,
 html[data-color-mode='light'] .wave-lab__receiver,
 html[data-color-mode='light'] .wave-lab__transport,
 html[data-color-mode='light'] .wave-lab__readouts {
-  background: #fafcfc;
-  box-shadow: 0 10px 24px rgba(35, 52, 61, .07);
+  background: #fdfdfd;
+  box-shadow: 0 10px 24px rgba(23, 26, 34, .06);
 }
 html[data-color-mode='light'] .wave-lab__canvas-frame {
-  background: #e9eff0;
-  box-shadow: 0 10px 24px rgba(35, 52, 61, .08);
+  background: #eef0f5;
+  box-shadow: 0 10px 24px rgba(23, 26, 34, .08);
 }
-html[data-color-mode='light'] .wave-lab__canvas-frame::after { border-color: rgba(35, 76, 89, .18); }
+html[data-color-mode='light'] .wave-lab__canvas-frame::after { border-color: rgba(49, 89, 184, .16); }
 html[data-color-mode='light'] .wave-lab__canvas-tag {
-  background: #f7fafa;
+  background: #fdfdfd;
   box-shadow: none;
   backdrop-filter: none;
 }
 html[data-color-mode='light'] .wave-lab__mode,
-html[data-color-mode='light'] .wave-lab__speed { background: #eef3f4; }
+html[data-color-mode='light'] .wave-lab__speed { background: #e8e9ec; }
 html[data-color-mode='light'] .wave-lab__mode button.is-active,
 html[data-color-mode='light'] .wave-lab__toolbar button.is-active,
 html[data-color-mode='light'] .wave-lab__speed button.is-active,
 html[data-color-mode='light'] .wave-lab__actions .wave-lab__primary {
-  background: #197b90;
+  background: #2453c7;
   box-shadow: none;
 }
 html[data-color-mode='light'] .wave-lab__range input::-webkit-slider-runnable-track,
-html[data-color-mode='light'] .wave-lab__range input::-moz-range-track { background: #bfd5da; }
+html[data-color-mode='light'] .wave-lab__range input::-moz-range-track { background: linear-gradient(90deg, rgba(36, 83, 199, .55), rgba(49, 89, 184, .2)); }
 html[data-color-mode='light'] .wave-lab__range input::-webkit-slider-thumb,
 html[data-color-mode='light'] .wave-lab__range input::-moz-range-thumb {
   border-color: #fff;
-  background: #25899c;
-  box-shadow: 0 0 0 1px rgba(25, 93, 107, .2);
+  background: #2453c7;
+  box-shadow: 0 0 0 1px rgba(36, 83, 199, .25);
 }
-html[data-color-mode='light'] .wave-lab__derived { background: #edf4f5; }
-html[data-color-mode='light'] .wave-lab__receiver-chart { background: #eef3f4; }
-html[data-color-mode='light'] .wave-lab__readouts > div { background: #f5f8f8; }
+html[data-color-mode='light'] .wave-lab__derived { background: #e3e9f8; }
+html[data-color-mode='light'] .wave-lab__receiver-chart { background: #eef0f5; }
+html[data-color-mode='light'] .wave-lab__readouts > div { background: #f7f8fa; }
