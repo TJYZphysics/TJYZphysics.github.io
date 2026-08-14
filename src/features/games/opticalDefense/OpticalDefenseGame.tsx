@@ -27,6 +27,7 @@ import type { CustomLevelConfig } from './customLevel'
 import { CustomLevelBuilder } from './CustomLevelBuilder'
 import { CustomLevelConsole } from './CustomLevelConsole'
 import { useOpticalColorMode } from './colorMode'
+import type { OpticalColorMode } from './colorMode'
 import type { DeviceKind, DevicePlacement, Point, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
 
 type ToolDefinition = {
@@ -58,6 +59,19 @@ const TOOLS: ToolDefinition[] = [
   { kind: 'photo-sensor', name: '光电传感器', shortName: '传感器', role: '控制', icon: ScanLine },
   { kind: 'capacitor', name: '储能电容', shortName: '电容', role: '爆破', icon: BatteryCharging },
 ]
+
+// 亮色模式的仪器强调色（与 OpticalDefenseScene 的 LIGHT_DEVICE_COLORS 一致），
+// 用在仪器仓按钮、检查器图标与场景仪器环上，保证界面与画布同族同色。
+const LIGHT_ACCENTS: Partial<Record<DeviceKind, string>> = {
+  'source-red': '#dd2f3a', 'source-green': '#0f9d57', 'source-blue': '#1f6feb', mirror: '#3a6bcf',
+  splitter: '#0ba5cd', 'prism-splitter': '#5b43cf', combiner: '#d08b0c', filter: '#0f9d8b', collector: '#d9930a', bulb: '#d98610',
+  'laser-emitter': '#e3383e', 'radiation-source': '#9b47d6', 'frost-tower': '#2f7fd6', brazier: '#e0631f',
+  accelerator: '#c79b10', shutter: '#38445a', 'photo-sensor': '#1f9d6a', capacitor: '#cf8608',
+}
+
+function toolAccent(kind: DeviceKind, colorMode: OpticalColorMode): string | undefined {
+  return colorMode === 'light' ? LIGHT_ACCENTS[kind] ?? TOOLS.find((tool) => tool.kind === kind)?.color : TOOLS.find((tool) => tool.kind === kind)?.color
+}
 
 const TARGET_OPTIONS: Array<{ value: TargetStrategy; label: string }> = [
   { value: 'first', label: '最前' }, { value: 'last', label: '最后' }, { value: 'highest-health', label: '最高血量' },
@@ -696,11 +710,12 @@ export function OpticalDefenseGame() {
             return <section key={group.label}><h3>{group.label}</h3><div>
               {available.map(({ kind, shortName, name, role, icon: Icon, color }) => {
                 const sourcePower = kind.startsWith('source-') ? SOURCE_POWER_W[kind as keyof typeof SOURCE_POWER_W] : null
+                const accent = toolAccent(kind, colorMode)
                 return <button
                   key={kind}
                   type="button"
                   className={selectedTool === kind ? 'is-active' : ''}
-                  style={color ? { '--tool-color': color } as React.CSSProperties : undefined}
+                  style={accent ? { '--tool-color': accent } as React.CSSProperties : undefined}
                   onClick={() => { setSelectedTool(kind); setSelectedId(null); setMessage(`${name} 已进入安装位。`) }}
                   aria-pressed={selectedTool === kind}
                   title={`${name} · ${sourcePower ? `${sourcePower}W` : `${DEVICE_COSTS[kind]} 金币`}`}
@@ -744,6 +759,7 @@ export function OpticalDefenseGame() {
             placement={selectedPlacement}
             phase={battle.phase}
             placements={battle.placements}
+            colorMode={colorMode}
             inputPower={network.deviceInputs.get(selectedPlacement.id)}
             recoveredPower={network.collectorInputs.get(selectedPlacement.id)}
             sensorTriggered={network.sensorTriggeredIds.has(selectedPlacement.id)}
@@ -946,7 +962,7 @@ function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }: {
 }
 
 function DeviceInspector({
-  placement, placements, phase, inputPower, recoveredPower, sensorTriggered, shutterOpen,
+  placement, placements, phase, inputPower, recoveredPower, sensorTriggered, shutterOpen, colorMode,
   onRotate, onSetRotation, onUpgrade, onSell, onPatch, onDetonate, snappingOutput, onSnap,
 }: {
   placement: DevicePlacement
@@ -956,6 +972,7 @@ function DeviceInspector({
   recoveredPower?: RgbPower
   sensorTriggered: boolean
   shutterOpen?: boolean
+  colorMode: OpticalColorMode
   onRotate: (amount: number) => void
   onSetRotation: (rotation: number) => void
   onUpgrade: () => void
@@ -992,7 +1009,7 @@ function DeviceInspector({
     onPatch({ splitRatios: sum > 1 ? next.map((ratio) => ratio / sum) : next })
   }
   return <div className="optical-defense__device" data-testid="selected-device">
-    <div className="optical-defense__device-title"><i style={{ '--tool-color': tool.color } as React.CSSProperties}><Icon /></i><span><strong>{tool.name}</strong><small>{tool.role} · {placement.holeId.toUpperCase()} · LV.{deviceLevel(placement)}</small></span></div>
+    <div className="optical-defense__device-title"><i style={{ '--tool-color': toolAccent(placement.kind, colorMode) ?? tool.color } as React.CSSProperties}><Icon /></i><span><strong>{tool.name}</strong><small>{tool.role} · {placement.holeId.toUpperCase()} · LV.{deviceLevel(placement)}</small></span></div>
     <dl>
       <div><dt>实际输入</dt><dd>{Math.round(totalPower(input))}W</dd></div>
       <div><dt>光谱 RGB</dt><dd>{Math.round(input.r)} / {Math.round(input.g)} / {Math.round(input.b)}</dd></div>

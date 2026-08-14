@@ -2258,25 +2258,29 @@
   filter: brightness(1.08);
 }
 
-/* Light theme: preserve the optical-console character with inked controls and a bright lab bench. */
+/* ============================================================
+   亮色模式 · 光学实验台
+   银白机柜 + 钴蓝主键 + 黄铜能量点缀；仪器图标用画布同款高饱和强调色。
+   画布本身（SCENE_PALETTES.light）是「米白台面 + 黑色阳极氧化仪器」。
+   ============================================================ */
 html[data-color-mode='light'] .optical-defense {
-  --optical-bg: #f4f5f8;
-  --optical-panel: #fdfdfd;
-  --optical-panel-2: #e8e9ec;
-  --optical-line: #cdd1db;
+  --optical-bg: #eef0f4;
+  --optical-panel: #fbfbfd;
+  --optical-panel-2: #e7e9ee;
+  --optical-line: rgba(23, 26, 34, 0.13);
   --optical-text: #171a22;
-  --optical-muted: #606269;
+  --optical-muted: #5d6773;
   --optical-mint: #2453c7;
-  --optical-yellow: #986416;
-  --optical-red: #b43c39;
+  --optical-yellow: #b0760c;
+  --optical-red: #c0352f;
   color-scheme: light;
-  border-color: #cdd1db;
+  border-color: rgba(23, 26, 34, 0.16);
   background: var(--optical-bg);
   box-shadow: 0 24px 60px rgba(23, 26, 34, 0.12), inset 0 1px #fff;
 }
 
 html[data-color-mode='light'] .optical-defense__topbar {
-  background: #fdfdfd;
+  background: #fbfbfd;
 }
 
 html[data-color-mode='light'] .optical-defense__level-button:hover,
@@ -2291,7 +2295,7 @@ html[data-color-mode='light'] .optical-defense__capacitor button:hover:not(:disa
 }
 
 html[data-color-mode='light'] .optical-defense__speed {
-  background: #e8e9ec;
+  background: #e7e9ee;
 }
 
 html[data-color-mode='light'] .optical-defense__top-actions button,
@@ -2300,12 +2304,12 @@ html[data-color-mode='light'] .optical-defense__modal header button {
 }
 
 html[data-color-mode='light'] .optical-defense__top-actions .optical-defense__speed button {
-  color: #606269;
+  color: #5d6773;
   background: transparent;
 }
 
 html[data-color-mode='light'] .optical-defense__top-actions .optical-defense__speed button.is-active {
-  color: #fff;
+  color: #fffefa;
   background: var(--optical-yellow);
 }
 
@@ -2314,20 +2318,25 @@ html[data-color-mode='light'] .optical-defense__result .is-primary,
 html[data-color-mode='light'] .optical-defense__builder-start {
   color: #fffefa;
   background: var(--optical-mint);
+  box-shadow: 0 8px 20px rgba(36, 83, 199, 0.18);
 }
 
 html[data-color-mode='light'] .optical-defense__mission {
-  background: #f1f3f7;
+  background: linear-gradient(180deg, #f3eddf, #eef0f4);
+}
+
+html[data-color-mode='light'] .optical-defense__mission > i {
+  background: var(--optical-yellow);
 }
 
 html[data-color-mode='light'] .optical-defense__tutorial {
   border-bottom-color: rgba(36, 83, 199, 0.28);
-  background: #e3e9f8;
+  background: #e7edf9;
 }
 
 html[data-color-mode='light'] .optical-defense__tutorial li {
   color: #3a4553;
-  background: #fdfdfd;
+  background: #fff;
 }
 
 html[data-color-mode='light'] .optical-defense__tutorial li svg {
@@ -2337,13 +2346,13 @@ html[data-color-mode='light'] .optical-defense__tutorial li svg {
 html[data-color-mode='light'] .optical-defense__tutorial li.is-complete {
   border-color: rgba(36, 83, 199, 0.34);
   color: #2146a3;
-  background: #e8eefb;
+  background: #eaf0fc;
 }
 
 html[data-color-mode='light'] .optical-defense__tutorial-actions button,
 html[data-color-mode='light'] .optical-defense__manual-footer button {
   color: #2146a3;
-  background: #e3e9f8;
+  background: #e7edf9;
 }
 
 html[data-color-mode='light'] .optical-defense__threats span {
@@ -2351,17 +2360,17 @@ html[data-color-mode='light'] .optical-defense__threats span {
   background: rgba(255, 255, 255, 0.62);
 }
 
-html[data-color-mode='light'] .optical-defense__threats .is-armored { color: #526576; }
-html[data-color-mode='light'] .optical-defense__threats .is-resistant { color: #854399; }
+html[data-color-mode='light'] .optical-defense__threats .is-armored { color: #42576e; }
+html[data-color-mode='light'] .optical-defense__threats .is-resistant { color: #7c3ba8; }
 
 html[data-color-mode='light'] .optical-defense__palette button {
-  border-color: #cdd1db;
-  background: #fdfdfd;
+  border-color: #d3d9e3;
+  background: #fff;
 }
 
 html[data-color-mode='light'] .optical-defense__palette button svg,
 html[data-color-mode='light'] .optical-defense__device-title i {
-  color: color-mix(in srgb, var(--tool-color) 70%, #171a22);
+  color: var(--tool-color);
 }
 
 html[data-color-mode='light'] .optical-defense__palette button:hover,
@@ -2371,18 +2380,18 @@ html[data-color-mode='light'] .optical-defense__palette button.is-active {
 
 html[data-color-mode='light'] .optical-defense__field,
 html[data-color-mode='light'] .optical-defense__builder {
-  background: #e8e9ec;
+  background: #e7e9ee;
 }
 
 html[data-color-mode='light'] .optical-defense__canvas-shell,
 html[data-color-mode='light'] .optical-defense__builder-canvas-shell {
-  border-color: #cdd1db;
-  background: #eceef3;
-  box-shadow: inset 0 0 32px rgba(23, 26, 34, 0.07);
+  border-color: #d3d9e3;
+  background: #e6e9ef;
+  box-shadow: inset 0 0 24px rgba(23, 26, 34, 0.06);
 }
 
 html[data-color-mode='light'] .optical-defense__field-status {
-  background: #f1f3f7;
+  background: #f3f4f7;
 }
 
 html[data-color-mode='light'] .optical-defense__field-status > span {
@@ -2390,7 +2399,7 @@ html[data-color-mode='light'] .optical-defense__field-status > span {
 }
 
 html[data-color-mode='light'] .optical-defense__field-status > span.is-running {
-  border-color: rgba(152, 100, 22, 0.45);
+  border-color: rgba(176, 118, 12, 0.45);
 }
 
 html[data-color-mode='light'] .optical-defense__empty-inspector dl div,
@@ -2400,7 +2409,7 @@ html[data-color-mode='light'] .optical-defense__result dl div {
 }
 
 html[data-color-mode='light'] .optical-defense__device-title i {
-  background: color-mix(in srgb, var(--tool-color) 7%, #fff);
+  background: color-mix(in srgb, var(--tool-color) 8%, #fff);
 }
 
 html[data-color-mode='light'] .optical-defense__device select,
@@ -2409,7 +2418,7 @@ html[data-color-mode='light'] .optical-defense__angle-control input,
 html[data-color-mode='light'] .optical-defense__number-field input,
 html[data-color-mode='light'] .optical-defense__builder-size input {
   color: var(--optical-text);
-  border-color: #cdd1db;
+  border-color: #d3d9e3;
   background: #fff;
 }
 
@@ -2427,7 +2436,7 @@ html[data-color-mode='light'] .optical-defense__segments button.is-active {
 html[data-color-mode='light'] .optical-defense__sensor-state.is-triggered,
 html[data-color-mode='light'] .optical-defense__snap-action.is-active,
 html[data-color-mode='light'] .optical-defense__console-tabs button.is-active {
-  color: #fff;
+  color: #fffefa;
 }
 
 html[data-color-mode='light'] .optical-defense__device-actions button,
@@ -2447,17 +2456,17 @@ html[data-color-mode='light'] .optical-defense__snap-action.is-active {
 }
 
 html[data-color-mode='light'] .optical-defense__capacitor {
-  border-color: rgba(152, 100, 22, 0.3);
-  background: rgba(152, 100, 22, 0.07);
+  border-color: rgba(176, 118, 12, 0.3);
+  background: rgba(176, 118, 12, 0.07);
 }
 
 html[data-color-mode='light'] .optical-defense__capacitor > i {
-  background: #cdd1db;
+  background: #d3d9e3;
 }
 
 html[data-color-mode='light'] .optical-defense__collector {
-  border-color: rgba(152, 100, 22, 0.32);
-  background: rgba(152, 100, 22, 0.07);
+  border-color: rgba(217, 147, 10, 0.32);
+  background: rgba(217, 147, 10, 0.07);
 }
 
 html[data-color-mode='light'] .optical-defense__overlay {
@@ -2466,13 +2475,13 @@ html[data-color-mode='light'] .optical-defense__overlay {
 
 html[data-color-mode='light'] .optical-defense__modal,
 html[data-color-mode='light'] .optical-defense__reset-menu {
-  border-color: #cdd1db;
+  border-color: #d3d9e3;
   background: #fff;
   box-shadow: 0 24px 72px rgba(23, 26, 34, 0.24), inset 0 1px #fff;
 }
 
 html[data-color-mode='light'] .optical-defense__level-grid button {
-  background: #fdfdfd;
+  background: #fff;
 }
 
 html[data-color-mode='light'] .optical-defense__level-grid button:hover,
@@ -2481,7 +2490,7 @@ html[data-color-mode='light'] .optical-defense__level-grid button:focus-visible 
 }
 
 html[data-color-mode='light'] .optical-defense__level-grid button.is-current {
-  background: #e3e9f8;
+  background: #e7edf9;
 }
 
 html[data-color-mode='light'] .optical-defense__keyboard-grid button {
@@ -2508,29 +2517,29 @@ html[data-color-mode='light'] .optical-defense__manual-tabs button.is-active {
 html[data-color-mode='light'] .optical-defense__builder-head,
 html[data-color-mode='light'] .optical-defense__console-section,
 html[data-color-mode='light'] .optical-defense__defeat-custom .optical-defense__defeat-options button {
-  background: #fdfdfd;
+  background: #fbfbfd;
 }
 
 html[data-color-mode='light'] .optical-defense__builder-size button,
 html[data-color-mode='light'] .optical-defense__console-reset,
 html[data-color-mode='light'] .optical-defense__confirm-actions button {
-  background: #e8e9ec;
+  background: #e7e9ee;
 }
 
 html[data-color-mode='light'] .optical-defense__builder-hint {
   padding: 5px 7px;
-  border: 1px solid #cdd1db;
+  border: 1px solid #d3d9e3;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.82);
 }
 
-html[data-color-mode='light'] .optical-defense__builder-hint .is-road i { background: #e2e6ef; }
-html[data-color-mode='light'] .optical-defense__builder-hint .is-entrance i { background: #287255; }
-html[data-color-mode='light'] .optical-defense__builder-hint .is-core i { background: #986416; }
-html[data-color-mode='light'] .optical-defense__builder-hint .is-hole i { background: #eef1f6; border-color: rgba(122, 132, 152, 0.55); }
+html[data-color-mode='light'] .optical-defense__builder-hint .is-road i { background: #e9e1cb; border-color: rgba(183, 162, 122, 0.55); }
+html[data-color-mode='light'] .optical-defense__builder-hint .is-entrance i { background: #1e8f5a; }
+html[data-color-mode='light'] .optical-defense__builder-hint .is-core i { background: #c98a06; }
+html[data-color-mode='light'] .optical-defense__builder-hint .is-hole i { background: #f0f2f7; border-color: rgba(140, 150, 168, 0.55); }
 
 html[data-color-mode='light'] .optical-defense__builder-tools button {
-  border-color: #cdd1db;
+  border-color: #d3d9e3;
   background: #fff;
 }
 
@@ -2540,7 +2549,7 @@ html[data-color-mode='light'] .optical-defense__builder-tools button.is-active {
 }
 
 html[data-color-mode='light'] .optical-defense__builder-error {
-  background: rgba(180, 60, 57, 0.08);
+  background: rgba(192, 53, 47, 0.08);
 }
 
 html[data-color-mode='light'] .optical-defense__builder-error.is-valid {

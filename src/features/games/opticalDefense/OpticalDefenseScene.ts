@@ -42,12 +42,15 @@ const DEVICE_COLORS: Record<DeviceKind, number> = {
   'photo-sensor': 0x6df6b8, capacitor: 0xffca62,
 }
 
+// 亮色模式：黑色阳极氧化机身的「光学实验台」，每台仪器用一枚高饱和的
+// 功能色环标识。色相取暗色版的同族（冷色光具 + 暖色能量终端），浓度与
+// 明度调高，让亮色底上的范围圈呈现干净明快的浅色晕染。
 const LIGHT_DEVICE_COLORS: Record<DeviceKind, number> = {
-  'source-red': 0xb43c39, 'source-green': 0x287255, 'source-blue': 0x3159b8, mirror: 0x55667d,
-  splitter: 0x2b5cc0, 'prism-splitter': 0x3a6ad8, combiner: 0x986416, filter: 0x1f6f5f, collector: 0x986416, bulb: 0x9c6a12,
-  'laser-emitter': 0xc0473a, 'radiation-source': 0x7a46a8, 'frost-tower': 0x1f5d97, brazier: 0xb85a1b,
-  accelerator: 0x8a6a12, shutter: 0x617184,
-  'photo-sensor': 0x287255, capacitor: 0x986416,
+  'source-red': 0xdd2f3a, 'source-green': 0x0f9d57, 'source-blue': 0x1f6feb, mirror: 0x3a6bcf,
+  splitter: 0x0ba5cd, 'prism-splitter': 0x5b43cf, combiner: 0xd08b0c, filter: 0x0f9d8b, collector: 0xd9930a, bulb: 0xd98610,
+  'laser-emitter': 0xe3383e, 'radiation-source': 0x9b47d6, 'frost-tower': 0x2f7fd6, brazier: 0xe0631f,
+  accelerator: 0xc79b10, shutter: 0x38445a,
+  'photo-sensor': 0x1f9d6a, capacitor: 0xcf8608,
 }
 
 const SCENE_PALETTES = {
@@ -63,22 +66,23 @@ const SCENE_PALETTES = {
     enemyBacking: 0x050708, healthTrack: 0x172226,
   },
   light: {
-    background: '#f4f5f8', board: 0xfbfcfe, grid: 0xb9c2d2, gridAlpha: 0.5, frame: 0x9aa6b8, frameAlpha: 0.62,
-    route: 0xe3e7f0, routeBorder: 0x8b95a8, routeBorderAlpha: 0.5, routeLine: 0x7d8b9f, routeLineAlpha: 0.55,
-    routeArrow: 0x6e7f95, routeArrowAlpha: 0.7, entranceFill: 0x287255, entranceLine: 0x1f6b4c,
-    coreFill: 0x986416, coreLine: 0x7d540f, emptyCell: 0xeff1f6, usedCell: 0xe2e7f0,
-    emptyCellBorder: 0xb9c2d2, usedCellBorder: 0x9aa6b8, emptyPlate: 0xe8ecf3, usedPlate: 0xdfe5ee,
-    emptyPlateBorder: 0xafb8c6, usedPlateBorder: 0x8d9caf, emptySocket: 0xfdfdfd, usedSocket: 0xe4e9f2,
-    emptySocketBorder: 0xaeb7c6, usedSocketBorder: 0x8293a6, recommended: 0x2453c7, recommendedInner: 0x3159b8,
-    beamCore: 0xf5f8fd, deviceBody: 0xfdfdfd, selected: 0x2146a3, deviceLabel: '#171a22', prismFill: 0x40568a,
-    enemyBacking: 0xffffff, healthTrack: 0xccd3de,
+    background: '#e4e7ed', board: 0xf7f8fb, grid: 0xb9c2d0, gridAlpha: 0.45, frame: 0x8b97a8, frameAlpha: 0.58,
+    route: 0xe9e1cb, routeBorder: 0xb7a27a, routeBorderAlpha: 0.5, routeLine: 0xa18a5c, routeLineAlpha: 0.55,
+    routeArrow: 0x8f7747, routeArrowAlpha: 0.65, entranceFill: 0x1e8f5a, entranceLine: 0x157a48,
+    coreFill: 0xc98a06, coreLine: 0xa97404, emptyCell: 0xf0f2f7, usedCell: 0xe7eaf1,
+    emptyCellBorder: 0xc3cad6, usedCellBorder: 0x9aa5b5, emptyPlate: 0xf1f4f8, usedPlate: 0xe7ebf2,
+    emptyPlateBorder: 0xc6ccd9, usedPlateBorder: 0x96a2b4, emptySocket: 0xffffff, usedSocket: 0xffffff,
+    emptySocketBorder: 0xb0b8c7, usedSocketBorder: 0x7e8ba0, recommended: 0x2453c7, recommendedInner: 0x5871c9,
+    beamCore: 0xffffff, deviceBody: 0x232a35, selected: 0x1d3fa8, deviceLabel: '#f3f6fb', prismFill: 0x1b2530,
+    enemyBacking: 0xffffff, healthTrack: 0xd2d8e2,
   },
 } as const
 
 function powerColor(power: RgbPower, colorMode: OpticalColorMode) {
   const color = visibleColor(power)
   const colors = colorMode === 'light'
-    ? { red: 0xb43c39, green: 0x287255, blue: 0x3159b8, yellow: 0x986416, orange: 0xb85a1b, magenta: 0x8a46a7, cyan: 0x2453c7, white: 0x3a444f, dark: 0x5c6673 }
+    // 亮色底上需要高饱和中明度，颜色才不被「洗白」；白光/暗光用墨灰层次表达亮暗。
+    ? { red: 0xdd2f3a, green: 0x0f9d57, blue: 0x1f6feb, yellow: 0xd08b0c, orange: 0xd95f1e, magenta: 0xc03bb6, cyan: 0x0b9cb8, white: 0x5a6473, dark: 0x8e97a8 }
     : { red: 0xff454f, green: 0x48ef8b, blue: 0x469dff, yellow: 0xffe36b, orange: 0xff9a3d, magenta: 0xff61e6, cyan: 0x54f2ff, white: 0xf5ffff, dark: 0x7d8a96 }
   return colors[color]
 }
@@ -118,6 +122,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private handledEventId = 0
   private colorMode: OpticalColorMode = 'dark'
   private palette: (typeof SCENE_PALETTES)[OpticalColorMode] = SCENE_PALETTES.dark
+  private beamPulse: Phaser.Tweens.Tween | null = null
+  private attackPulse: Phaser.Tweens.Tween | null = null
 
   constructor(callbacks: OpticalSceneCallbacks) {
     super({ key: 'optical-defense' })
@@ -142,10 +148,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
     this.add.existing(this.beamGraphics)
     this.add.existing(this.attackGraphics)
     this.add.existing(this.entityLayer)
-    this.beamGraphics.setBlendMode(Phaser.BlendModes.ADD)
-    this.attackGraphics.setBlendMode(Phaser.BlendModes.ADD)
-    this.tweens.add({ targets: this.beamGraphics, alpha: { from: 0.72, to: 1 }, duration: 760, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
-    this.tweens.add({ targets: this.attackGraphics, alpha: { from: 0.45, to: 0.92 }, duration: 360, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
+    this.applyBlendModes()
+    this.applyPulseMode()
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       const bounds = this.game.canvas.getBoundingClientRect()
       const nativeEvent = pointer.event as PointerEvent & { changedTouches?: TouchList }
@@ -164,6 +168,35 @@ export class OpticalDefenseScene extends Phaser.Scene {
   setSnapshot(snapshot: SceneSnapshot) {
     this.snapshot = snapshot
     if (this.sys.isActive()) this.drawSnapshot()
+  }
+
+  /**
+   * 光束与攻击特效的混合模式随配色切换：
+   * 暗色用 ADD 叠加出辉光；亮色底上 ADD 会把颜色压成白色（亮上加亮恒为白），
+   * 必须改用 NORMAL 才能保住光束本身的饱和色。
+   */
+  private applyBlendModes() {
+    const blend = this.colorMode === 'light' ? Phaser.BlendModes.NORMAL : Phaser.BlendModes.ADD
+    this.beamGraphics.setBlendMode(blend)
+    this.attackGraphics.setBlendMode(blend)
+  }
+
+  /**
+   * 光束/攻击层的整体透明度脉动只属于暗色辉光。亮色下用 NORMAL 混合时，
+   * 整体 alpha<1 会让光束变成半透明粉色（亮底压不住），必须保持全不透明。
+   */
+  private applyPulseMode() {
+    this.beamPulse?.remove()
+    this.attackPulse?.remove()
+    this.beamPulse = null
+    this.attackPulse = null
+    if (this.colorMode === 'light') {
+      this.beamGraphics.setAlpha(1)
+      this.attackGraphics.setAlpha(1)
+    } else {
+      this.beamPulse = this.tweens.add({ targets: this.beamGraphics, alpha: { from: 0.72, to: 1 }, duration: 760, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
+      this.attackPulse = this.tweens.add({ targets: this.attackGraphics, alpha: { from: 0.45, to: 0.92 }, duration: 360, yoyo: true, repeat: -1, ease: 'Sine.InOut' })
+    }
   }
 
   private handlePointer(x: number, y: number) {
@@ -340,20 +373,29 @@ export class OpticalDefenseScene extends Phaser.Scene {
 
   private drawBeams(snapshot: SceneSnapshot, network: OpticalNetwork) {
     const g = this.beamGraphics
+    const light = this.colorMode === 'light'
     g.clear()
     network.segments.forEach((segment) => {
       const color = powerColor(segment.power, this.colorMode)
       const width = Math.max(1.2, Math.min(8, totalPower(segment.power) / 22))
       if (snapshot.beamGlow) {
-        g.lineStyle(width + 12, color, 0.08)
+        g.lineStyle(width + (light ? 9 : 12), color, light ? 0.12 : 0.08)
         g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
-        g.lineStyle(width + 5, color, 0.18)
+        g.lineStyle(width + (light ? 4 : 5), color, light ? 0.24 : 0.18)
         g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
       }
-      g.lineStyle(width, color, 0.92)
+      g.lineStyle(width, color, light ? 1 : 0.92)
       g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
-      g.lineStyle(1, this.palette.beamCore, this.colorMode === 'light' ? 0.72 : 0.85)
-      g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
+      if (light) {
+        // 亮色模式：不再用白色光芯（会把颜色洗成白色），只给粗光束一条细白高光。
+        if (width > 2.6) {
+          g.lineStyle(0.9, this.palette.beamCore, 0.32)
+          g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
+        }
+      } else {
+        g.lineStyle(1, this.palette.beamCore, 0.85)
+        g.lineBetween(segment.start.x, segment.start.y, segment.end.x, segment.end.y)
+      }
     })
   }
 
@@ -373,18 +415,24 @@ export class OpticalDefenseScene extends Phaser.Scene {
     if (rangeSignature !== this.lastRangeSignature) {
       this.lastRangeSignature = rangeSignature
       ranges.clear()
+      const light = this.colorMode === 'light'
       snapshot.battle.placements.forEach((placement) => {
         const radius = terminalAttackRange(placement)
         if (!radius) return
         const point = pointFor(snapshot.level, placement)
         const color = deviceColor(placement.kind, this.colorMode)
         const selected = placement.id === snapshot.selectedId
-        ranges.fillStyle(color, selected ? 0.055 : 0.022)
+        ranges.fillStyle(color, selected ? (light ? 0.07 : 0.055) : (light ? 0.045 : 0.022))
         ranges.fillCircle(point.x, point.y, radius)
-        ranges.lineStyle(selected ? 2.2 : 1.2, color, selected ? 0.55 : 0.25)
+        ranges.lineStyle(selected ? 2.2 : 1.2, color, selected ? (light ? 0.6 : 0.55) : (light ? 0.32 : 0.25))
         ranges.strokeCircle(point.x, point.y, radius)
-        ranges.lineStyle(1, color, 0.18)
+        ranges.lineStyle(1, color, light ? 0.22 : 0.18)
         ranges.strokeCircle(point.x, point.y, radius * 0.5)
+        if (light) {
+          // 亮色底上补一圈细白描边，让浅色晕染范围更有「实验室图纸」的干净边缘。
+          ranges.lineStyle(1.2, this.palette.beamCore, 0.85)
+          ranges.strokeCircle(point.x, point.y, radius)
+        }
       })
     }
 
@@ -492,7 +540,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillStyle(this.palette.prismFill, this.colorMode === 'light' ? 0.08 : 0.1)
       g.fillTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
       g.strokeTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
-      ;[this.colorMode === 'light' ? 0xb43c39 : 0xff4f58, this.colorMode === 'light' ? 0x287255 : 0x3ee68d, this.colorMode === 'light' ? 0x3159b8 : 0x4ea7ff].forEach((beamColor, index) => {
+      ;[this.colorMode === 'light' ? 0xdd2f3a : 0xff4f58, this.colorMode === 'light' ? 0x0f9d57 : 0x3ee68d, this.colorMode === 'light' ? 0x1f6feb : 0x4ea7ff].forEach((beamColor, index) => {
         const beamAngle = angle + (index - 1) * 0.36
         g.lineStyle(2, beamColor, 0.9)
         g.lineBetween(Math.cos(beamAngle) * 5, Math.sin(beamAngle) * 5, Math.cos(beamAngle) * 22, Math.sin(beamAngle) * 22)
@@ -515,7 +563,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillRect(-10, 8 - fraction * 16, 20, fraction * 16)
     } else if (placement.kind === 'bulb') {
       g.strokeCircle(0, 0, 13)
-      g.fillStyle(color, 0.4)
+      g.fillStyle(color, this.colorMode === 'light' ? 0.55 : 0.4)
       g.fillCircle(0, 0, 8)
       for (let index = 0; index < 8; index += 1) {
         const angle = index * Math.PI / 4
@@ -576,7 +624,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const path = level.paths?.[enemy.routeIndex ?? 0] ?? level.path
     const point = pointOnPath(path, enemy.progress)
     const color = this.colorMode === 'light'
-      ? enemy.kind === 'boss' ? 0xb92f4c : enemy.kind === 'armored' ? 0x667687 : enemy.kind === 'resistant' ? 0x8c45a4 : enemy.kind === 'fast' ? 0xa96b04 : 0x3c4654
+      ? enemy.kind === 'boss' ? 0xc92f52 : enemy.kind === 'armored' ? 0x455b73 : enemy.kind === 'resistant' ? 0x8d3dbf : enemy.kind === 'fast' ? 0xd0890a : 0x3a4658
       : enemy.kind === 'boss' ? 0xff4967 : enemy.kind === 'armored' ? 0xa7b3c2 : enemy.kind === 'resistant' ? 0xd98bff : enemy.kind === 'fast' ? 0xffce59 : 0xf4f6f0
     const size = enemy.kind === 'boss' ? 22 : enemy.kind === 'armored' ? 17 : 13
     // 状态变化时才重建敌人图形（位置每帧 setPosition，血量按 5% 分档）。
@@ -599,43 +647,48 @@ export class OpticalDefenseScene extends Phaser.Scene {
     g.clear()
     g.fillStyle(this.palette.enemyBacking, this.colorMode === 'light' ? 0.96 : 0.88)
     g.fillCircle(0, 0, size + 4)
+    if (this.colorMode === 'light') {
+      // 亮色底上补一圈浅灰描边，避免敌人融进米白跑道。
+      g.lineStyle(1.2, 0x8b96a8, 0.6)
+      g.strokeCircle(0, 0, size + 4)
+    }
     g.fillStyle(color, 1)
     if (enemy.kind === 'armored') g.fillRoundedRect(-size, -size, size * 2, size * 2, 5)
     else if (enemy.kind === 'fast') g.fillTriangle(-size, -size * 0.75, size, 0, -size, size * 0.75)
     else g.fillCircle(0, 0, size)
     if (enemy.resistance) {
-      g.lineStyle(3, enemy.resistance === 'r' ? (this.colorMode === 'light' ? 0xb43c39 : 0xff4f58) : enemy.resistance === 'g' ? (this.colorMode === 'light' ? 0x287255 : 0x3ee68d) : (this.colorMode === 'light' ? 0x3159b8 : 0x4ea7ff), 1)
+      g.lineStyle(3, enemy.resistance === 'r' ? (this.colorMode === 'light' ? 0xdd2f3a : 0xff4f58) : enemy.resistance === 'g' ? (this.colorMode === 'light' ? 0x0f9d57 : 0x3ee68d) : (this.colorMode === 'light' ? 0x1f6feb : 0x4ea7ff), 1)
       g.strokeCircle(0, 0, size + 2)
     }
     g.fillStyle(this.palette.healthTrack, 1)
     g.fillRoundedRect(-18, size + 7, 36, 4, 2)
     g.fillStyle(enemy.health / enemy.maxHealth < 0.3
-      ? (this.colorMode === 'light' ? 0xc83d4a : 0xff5e67)
-      : (this.colorMode === 'light' ? 0x21825d : 0x5df1a6), 1)
+      ? (this.colorMode === 'light' ? 0xcf3243 : 0xff5e67)
+      : (this.colorMode === 'light' ? 0x1e8f5a : 0x5df1a6), 1)
     g.fillRoundedRect(-18, size + 7, 36 * (enemy.health / enemy.maxHealth), 4, 2)
     if (enemy.status.freezeSeconds > 0) {
-      g.lineStyle(2, this.colorMode === 'light' ? 0x2c5fd6 : 0x69e9ff, 0.9)
+      g.lineStyle(2, this.colorMode === 'light' ? 0x2f7fd6 : 0x69e9ff, 0.9)
       g.strokeCircle(0, 0, size + 6)
     }
     if (enemy.status.burnSeconds > 0 || enemy.status.poisonSeconds > 0) {
-      g.fillStyle(enemy.status.burnSeconds > 0 ? 0xff983d : 0x56ed87, 0.9)
+      g.fillStyle(enemy.status.burnSeconds > 0 ? (this.colorMode === 'light' ? 0xe0631f : 0xff983d) : (this.colorMode === 'light' ? 0x1f9d6a : 0x56ed87), 0.9)
       g.fillCircle(size * 0.6, -size * 0.7, 4)
     }
     if (enemy.status.shield > 0) {
-      g.lineStyle(2, this.colorMode === 'light' ? 0x3159b8 : 0x79b9ff, 0.9)
+      g.lineStyle(2, this.colorMode === 'light' ? 0x1f6feb : 0x79b9ff, 0.9)
       g.strokeCircle(0, 0, size + 9)
       const shieldFraction = Math.min(1, enemy.status.shield / Math.max(1, enemy.kind === 'boss' ? enemy.maxHealth * 0.15 : enemy.maxHealth * 0.12))
-      g.lineStyle(3, this.colorMode === 'light' ? 0x8fb4ea : 0xd7f1ff, 0.9)
+      g.lineStyle(3, this.colorMode === 'light' ? 0x86a8ea : 0xd7f1ff, 0.9)
       g.beginPath()
       g.arc(0, 0, size + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * shieldFraction)
       g.strokePath()
     }
     if (enemy.status.radiationStacks > 0) {
-      g.fillStyle(this.colorMode === 'light' ? 0x8a46a7 : 0xe875ff, 0.92)
+      g.fillStyle(this.colorMode === 'light' ? 0x8d3dbf : 0xe875ff, 0.92)
       for (let index = 0; index < Math.min(3, Math.ceil(enemy.status.radiationStacks)); index += 1) g.fillCircle(-6 + index * 6, -size - 10, 2.2)
     }
     if (enemy.status.armorBrokenSeconds > 0) {
-      g.lineStyle(2, this.colorMode === 'light' ? 0x986416 : 0xffd56a, 0.9)
+      g.lineStyle(2, this.colorMode === 'light' ? 0xc98a06 : 0xffd56a, 0.9)
       g.lineBetween(-size - 4, -size - 4, size + 4, size + 4)
       g.lineBetween(size + 4, -size - 4, -size - 4, size + 4)
     }
@@ -657,11 +710,11 @@ export class OpticalDefenseScene extends Phaser.Scene {
     snapshot.battle.events.filter((event) => event.id > this.handledEventId).forEach((event) => {
       this.handledEventId = Math.max(this.handledEventId, event.id)
       if (event.type === 'kill') {
-        const text = this.add.text(event.point.x, event.point.y - 20, `+${event.value}W`, { color: this.colorMode === 'light' ? '#1f6b4c' : '#7bffc0', fontFamily: 'Arial', fontSize: '14px', fontStyle: 'bold' }).setOrigin(0.5)
+        const text = this.add.text(event.point.x, event.point.y - 20, `+${event.value}W`, { color: this.colorMode === 'light' ? '#18754a' : '#7bffc0', fontFamily: 'Arial', fontSize: '14px', fontStyle: 'bold' }).setOrigin(0.5)
         this.tweens.add({ targets: text, y: text.y - 30, alpha: 0, duration: snapshot.reduceMotion ? 200 : 760, onComplete: () => text.destroy() })
       }
       if (event.type === 'explosion') {
-        const ring = this.add.circle(event.point.x, event.point.y, 24, this.colorMode === 'light' ? 0xc8891f : 0xffd36a, 0.32).setStrokeStyle(4, this.palette.selected, 0.9)
+        const ring = this.add.circle(event.point.x, event.point.y, 24, this.colorMode === 'light' ? 0xc98a06 : 0xffd36a, 0.32).setStrokeStyle(4, this.palette.selected, 0.9)
         const scale = event.radius / 24
         this.tweens.add({ targets: ring, scale, alpha: 0, duration: snapshot.reduceMotion ? 260 : 850, ease: 'Cubic.Out', onComplete: () => ring.destroy() })
         this.cameras.main.shake(snapshot.reduceMotion ? 50 : 260, snapshot.reduceMotion ? 0.001 : 0.008)
@@ -677,6 +730,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
       this.colorMode = snapshot.colorMode
       this.palette = SCENE_PALETTES[this.colorMode]
       this.cameras.main.setBackgroundColor(this.palette.background)
+      this.applyBlendModes()
+      this.applyPulseMode()
     }
     if (this.lastLevelId !== snapshot.level.id || colorModeChanged) {
       this.drawBoard(snapshot.level)
