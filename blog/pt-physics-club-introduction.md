@@ -3,7 +3,6 @@ title: PT物理社详细介绍
 date: 2026-08-08
 summary: 从 CYPT 开放性物理研究出发，了解 PT 物理社的比赛、科研训练、社团活动与历年成绩。
 tags: [物理社, 社团札记, PT]
-cover: /blog/pt-physics-club/cypt-2026-team.jpg
 pinned: true
 featured: true
 ---
@@ -11,8 +10,6 @@ featured: true
 # PT物理社详细介绍
 
 ## CYPT 比赛
-
-![天津一中参赛队员在 2026 CYPT 学术交流会现场合影](/blog/pt-physics-club/cypt-2026-team.jpg)
 
 ### 基本介绍
 
