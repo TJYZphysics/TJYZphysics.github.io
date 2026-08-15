@@ -130,6 +130,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private lastLevelId = -1
   private lastHoleSignature = '\u0000'
   private handledEventId = 0
+  private lastBattleElapsedSeconds = 0
+  private lastBattleEntityId = 0
   private colorMode: OpticalColorMode = 'dark'
   private palette: (typeof SCENE_PALETTES)[OpticalColorMode] = SCENE_PALETTES.dark
   private beamPulse: Phaser.Tweens.Tween | null = null
@@ -519,7 +521,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
           attacks.strokeCircle(muzzleX, muzzleY, 8 + burst * 6)
         }
         return
-      } else if (placement.kind === 'laser-emitter' && !network.poweredDeviceIds.has(placement.id)) {
+      } else if (placement.kind === 'laser-emitter' && placement.id === snapshot.selectedId && !network.poweredDeviceIds.has(placement.id)) {
         const angle = placement.rotationDeg * Math.PI / 180
         attacks.lineStyle(2, color, 0.32)
         attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
@@ -892,7 +894,8 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const signature = [
       enemy.kind, enemy.resistance ?? '', healthBucket, shieldBucket,
       enemy.status.freezeSeconds > 0 ? 1 : 0,
-      enemy.status.burnSeconds > 0 || enemy.status.poisonSeconds > 0 ? 1 : 0,
+      enemy.status.burnSeconds > 0 ? 1 : 0,
+      enemy.status.poisonSeconds > 0 ? 1 : 0,
       Math.ceil(enemy.status.radiationStacks),
       enemy.status.armorBrokenSeconds > 0 ? 1 : 0,
       enemy.status.vulnerableSeconds > 0 ? 1 : 0,
@@ -902,12 +905,16 @@ export class OpticalDefenseScene extends Phaser.Scene {
     g.setPosition(point.x, point.y)
     if (cached && cached.signature === signature) return
     g.clear()
-    g.fillStyle(this.palette.enemyBacking, this.colorMode === 'light' ? 0.96 : 0.88)
-    g.fillCircle(0, 0, size + 4)
+    const backingHull = [
+      { x: size + 6, y: 0 }, { x: size * 0.42, y: -size - 4 }, { x: -size * 0.62, y: -size - 3 },
+      { x: -size - 5, y: 0 }, { x: -size * 0.62, y: size + 3 }, { x: size * 0.42, y: size + 4 },
+    ]
+    g.fillStyle(this.palette.enemyBacking, this.colorMode === 'light' ? 0.76 : 0.72)
+    g.fillPoints(backingHull, true, true)
     if (this.colorMode === 'light') {
-      // 亮色底上补一圈浅灰描边，避免敌人融进米白跑道。
+      // A hull-shaped shadow keeps ships legible without reading as circular UI tokens.
       g.lineStyle(1.2, 0x8b96a8, 0.6)
-      g.strokeCircle(0, 0, size + 4)
+      g.strokePoints(backingHull, true, true)
     }
     g.fillStyle(color, 1)
     // Each class is a different spacecraft silhouette rather than a generic
@@ -1010,18 +1017,19 @@ export class OpticalDefenseScene extends Phaser.Scene {
         g.lineBetween(Math.cos(angle) * outer, Math.sin(angle) * outer, Math.cos(angle + 0.12) * (outer - 3), Math.sin(angle + 0.12) * (outer - 3))
       }
     }
-    if (enemy.status.burnSeconds > 0 || enemy.status.poisonSeconds > 0) {
-      const statusColor = enemy.status.burnSeconds > 0 ? (this.colorMode === 'light' ? 0xe0631f : 0xff983d) : (this.colorMode === 'light' ? 0x1f9d6a : 0x56ed87)
-      g.fillStyle(statusColor, 0.9)
-      if (enemy.status.burnSeconds > 0) {
-        g.fillTriangle(size * 0.32, -size * 0.55, size * 0.75, -size * 0.9, size * 0.82, -size * 0.2)
-        g.fillTriangle(-size * 0.15, -size * 0.75, size * 0.1, -size * 1.15, size * 0.38, -size * 0.55)
-      } else {
-        g.fillCircle(size * 0.65, -size * 0.65, 4)
-        g.fillCircle(size * 0.18, -size * 0.95, 2.6)
-        g.lineStyle(1.4, statusColor, 0.8)
-        g.lineBetween(-size * 0.7, size * 0.82, -size * 0.3, size * 1.15)
-      }
+    if (enemy.status.burnSeconds > 0) {
+      const burnColor = this.colorMode === 'light' ? 0xe0631f : 0xff983d
+      g.fillStyle(burnColor, 0.9)
+      g.fillTriangle(size * 0.32, -size * 0.55, size * 0.75, -size * 0.9, size * 0.82, -size * 0.2)
+      g.fillTriangle(-size * 0.15, -size * 0.75, size * 0.1, -size * 1.15, size * 0.38, -size * 0.55)
+    }
+    if (enemy.status.poisonSeconds > 0) {
+      const poisonColor = this.colorMode === 'light' ? 0x1f9d6a : 0x56ed87
+      g.fillStyle(poisonColor, 0.9)
+      g.fillCircle(size * 0.65, -size * 0.65, 4)
+      g.fillCircle(size * 0.18, -size * 0.95, 2.6)
+      g.lineStyle(1.4, poisonColor, 0.8)
+      g.lineBetween(-size * 0.7, size * 0.82, -size * 0.3, size * 1.15)
     }
     if (enemy.status.shield > 0) {
       g.lineStyle(2, this.colorMode === 'light' ? 0x1f6feb : 0x79b9ff, 0.9)
@@ -1095,6 +1103,11 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private drawSnapshot() {
     const snapshot = this.snapshot
     if (!snapshot) return
+    const battleRestarted = snapshot.battle.elapsedSeconds + 1e-6 < this.lastBattleElapsedSeconds
+      || snapshot.battle.nextEntityId < this.lastBattleEntityId
+    if (battleRestarted) this.handledEventId = 0
+    this.lastBattleElapsedSeconds = snapshot.battle.elapsedSeconds
+    this.lastBattleEntityId = snapshot.battle.nextEntityId
     const colorModeChanged = this.colorMode !== snapshot.colorMode
     if (colorModeChanged) {
       this.colorMode = snapshot.colorMode
@@ -1108,6 +1121,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
       this.lastLevelId = snapshot.level.id
       this.lastHoleSignature = '\u0000'
       this.lastRangeSignature = null
+      this.handledEventId = 0
       this.deviceObjects.forEach(({ graphics, label }) => { graphics.destroy(true); label.destroy(true) })
       this.enemyObjects.forEach(({ graphics }) => graphics.destroy(true))
       this.deviceObjects.clear()
