@@ -26,3 +26,6 @@ light-theme-demo.html
 src/features/games/opticalDefense/iteration.tools.test.ts
 docs/
 publish-level25-fix.ps1
+# 本地截图/审计产物，仅保留本地不上传
+blog-post-after-removal.png
+website-audit-report.html
