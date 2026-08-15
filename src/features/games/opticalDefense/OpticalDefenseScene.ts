@@ -91,6 +91,16 @@ function deviceColor(kind: DeviceKind, colorMode: OpticalColorMode) {
   return colorMode === 'light' ? LIGHT_DEVICE_COLORS[kind] : DEVICE_COLORS[kind]
 }
 
+/** Terminal housings inherit the spectrum that actually reaches their input.
+ * Keep the catalog accent as a fallback so an unpowered terminal still has a
+ * readable identity while the player is wiring the optical network.
+ */
+function terminalVisualColor(placement: DevicePlacement, network: OpticalNetwork, colorMode: OpticalColorMode) {
+  if (!['bulb', 'laser-emitter', 'radiation-source'].includes(placement.kind)) return deviceColor(placement.kind, colorMode)
+  const input = network.deviceInputs.get(placement.id)
+  return input && totalPower(input) > 0.01 ? powerColor(input, colorMode) : deviceColor(placement.kind, colorMode)
+}
+
 function pointFor(level: LevelConfig, placement: DevicePlacement) {
   return level.holes[Number(placement.holeId.replace('h-', ''))] ?? { x: 0, y: 0 }
 }
@@ -404,24 +414,59 @@ export class OpticalDefenseScene extends Phaser.Scene {
   private drawAttackRanges(snapshot: SceneSnapshot, network: OpticalNetwork) {
     const ranges = this.rangeGraphics
     const attacks = this.attackGraphics
+    // Attack radius is contextual information. Keep the board calm until a
+    // terminal is selected (newly placed terminals are selected by the UI).
+    const selectedTerminal = snapshot.battle.placements.find((placement) =>
+      placement.id === snapshot.selectedId && terminalAttackRange(placement) > 0,
+    )
+    if (!selectedTerminal) {
+      if (this.lastRangeSignature !== '') {
+        ranges.clear()
+        this.lastRangeSignature = ''
+      }
+    }
     const alive = snapshot.battle.enemies.filter((enemy) => !enemy.dead && !enemy.escaped).sort((left, right) => right.progress - left.progress)
 
     // 静态范围圈：仅当设备构成/升级/选中态变化时重绘。避免每帧重建大半径圆
     // （30 台终端 × 大圆会产生大量 WebGL 顶点，是大地图卡顿的主因）。
-    const rangeSignature = snapshot.battle.placements.map((placement) => {
+    const rangeSignature = selectedTerminal ? snapshot.battle.placements.filter((placement) => placement.id === selectedTerminal.id).map((placement) => {
       if (!terminalAttackRange(placement)) return ''
-      return `${placement.holeId}:${placement.kind}:${placement.upgradeLevel ?? 1}:${placement.id === snapshot.selectedId}`
-    }).join('|')
+      const terminalTint = ['bulb', 'laser-emitter', 'radiation-source'].includes(placement.kind)
+        ? terminalVisualColor(placement, snapshot.network, this.colorMode)
+        : ''
+      return `${placement.holeId}:${placement.kind}:${placement.upgradeLevel ?? 1}:${placement.rotationDeg.toFixed(2)}:${placement.id === snapshot.selectedId}:${terminalTint}`
+    }).join('|') : ''
     if (rangeSignature !== this.lastRangeSignature) {
       this.lastRangeSignature = rangeSignature
       ranges.clear()
       const light = this.colorMode === 'light'
-      snapshot.battle.placements.forEach((placement) => {
+      selectedTerminal && snapshot.battle.placements.filter((placement) => placement.id === selectedTerminal.id).forEach((placement) => {
         const radius = terminalAttackRange(placement)
         if (!radius) return
         const point = pointFor(snapshot.level, placement)
-        const color = deviceColor(placement.kind, this.colorMode)
+        const color = terminalVisualColor(placement, snapshot.network, this.colorMode)
         const selected = placement.id === snapshot.selectedId
+        if (placement.kind === 'accelerator') {
+          // Accelerators have no circular attack area. Their only preview is a
+          // clear firing vector, matching the one-shot particle discharge.
+          const angle = placement.rotationDeg * Math.PI / 180
+          const direction = { x: Math.cos(angle), y: Math.sin(angle) }
+          const perpendicular = { x: -direction.y, y: direction.x }
+          const end = { x: point.x + direction.x * radius, y: point.y + direction.y * radius }
+          ranges.lineStyle(4, color, 0.82)
+          ranges.lineBetween(point.x, point.y, end.x, end.y)
+          ranges.lineStyle(1, this.palette.beamCore, 0.84)
+          ranges.lineBetween(point.x, point.y, end.x, end.y)
+          ranges.fillStyle(color, 0.95)
+          ranges.fillTriangle(
+            end.x, end.y,
+            end.x - direction.x * 18 + perpendicular.x * 8,
+            end.y - direction.y * 18 + perpendicular.y * 8,
+            end.x - direction.x * 18 - perpendicular.x * 8,
+            end.y - direction.y * 18 - perpendicular.y * 8,
+          )
+          return
+        }
         ranges.fillStyle(color, selected ? (light ? 0.07 : 0.055) : (light ? 0.045 : 0.022))
         ranges.fillCircle(point.x, point.y, radius)
         ranges.lineStyle(selected ? 2.2 : 1.2, color, selected ? (light ? 0.6 : 0.55) : (light ? 0.32 : 0.25))
@@ -437,18 +482,43 @@ export class OpticalDefenseScene extends Phaser.Scene {
     }
 
     attacks.clear()
+    const pulseTime = this.time.now * 0.001
     snapshot.battle.placements.forEach((placement) => {
       const radius = terminalAttackRange(placement)
       if (!radius) return
       const point = pointFor(snapshot.level, placement)
-      const color = deviceColor(placement.kind, this.colorMode)
+      const color = terminalVisualColor(placement, snapshot.network, this.colorMode)
       if (placement.kind === 'accelerator') {
-        const angle = placement.rotationDeg * Math.PI / 180
-        const chargeFraction = Math.min(1, (placement.acceleratorChargeJ ?? 0) / 360)
-        attacks.lineStyle(2 + chargeFraction * 4, color, network.poweredDeviceIds.has(placement.id) ? 0.42 : 0.22)
-        attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
-        attacks.lineStyle(1, this.palette.beamCore, 0.26 + chargeFraction * 0.32)
-        attacks.lineBetween(point.x, point.y, point.x + Math.cos(angle) * radius, point.y + Math.sin(angle) * radius)
+        const phase = placement.acceleratorPhase ?? 'idle'
+        if (phase === 'cooldown') {
+          // The simulation enters cooldown exactly once after a full charge is
+          // discharged. Render a dense, short-lived salvo rather than a beam.
+          const maxCooldown = Math.max(1.4, 2.4 - ((placement.upgradeLevel ?? 1) - 1) * 0.35)
+          const elapsed = maxCooldown - Math.max(0, placement.acceleratorCooldownS ?? maxCooldown)
+          const burst = Math.max(0, Math.min(1, elapsed / 0.62))
+          const angle = placement.rotationDeg * Math.PI / 180
+          const perpendicular = { x: -Math.sin(angle), y: Math.cos(angle) }
+          const packetCount = 34
+          attacks.fillStyle(color, 0.2 * (1 - burst * 0.35))
+          attacks.fillCircle(point.x, point.y, 12 + burst * 10)
+          for (let index = 0; index < packetCount; index += 1) {
+            const jitter = ((index * 17) % packetCount) / packetCount - 0.5
+            const travel = Math.min(1, burst * 1.12 + (index % 5) * 0.008)
+            const distance = radius * travel
+            const spread = jitter * (5 + travel * 12)
+            const px = point.x + Math.cos(angle) * distance + perpendicular.x * spread
+            const py = point.y + Math.sin(angle) * distance + perpendicular.y * spread
+            attacks.fillStyle(this.palette.beamCore, 0.92 * (1 - travel * 0.24))
+            attacks.fillCircle(px, py, 1.6 + (index % 3) * 0.7)
+            attacks.fillStyle(color, 0.78 * (1 - travel * 0.3))
+            attacks.fillCircle(px, py, 3.2 + (index % 2) * 1.1)
+          }
+          const muzzleX = point.x + Math.cos(angle) * 22
+          const muzzleY = point.y + Math.sin(angle) * 22
+          attacks.lineStyle(3, this.palette.beamCore, 0.9 * (1 - burst * 0.3))
+          attacks.strokeCircle(muzzleX, muzzleY, 8 + burst * 6)
+        }
+        return
       } else if (placement.kind === 'laser-emitter' && !network.poweredDeviceIds.has(placement.id)) {
         const angle = placement.rotationDeg * Math.PI / 180
         attacks.lineStyle(2, color, 0.32)
@@ -460,25 +530,42 @@ export class OpticalDefenseScene extends Phaser.Scene {
         return Math.hypot(enemyPoint.x - point.x, enemyPoint.y - point.y) <= radius
       })
       if (!network.poweredDeviceIds.has(placement.id) || !candidates.length) return
-      if (placement.kind === 'accelerator') {
-        if ((placement.acceleratorPhase ?? 'idle') !== 'cooldown') return
-        const angle = placement.rotationDeg * Math.PI / 180
-        const end = { x: point.x + Math.cos(angle) * radius, y: point.y + Math.sin(angle) * radius }
-        attacks.lineStyle(11, color, 0.24)
-        attacks.lineBetween(point.x, point.y, end.x, end.y)
-        attacks.lineStyle(2, this.palette.beamCore, 0.95)
-        attacks.lineBetween(point.x, point.y, end.x, end.y)
-        return
-      }
       if (placement.kind === 'frost-tower' || placement.kind === 'brazier') {
         const basePeriod = placement.kind === 'frost-tower' ? 1.25 : 1.1
         const period = basePeriod * [1, 0.86, 0.74][(placement.upgradeLevel ?? 1) - 1]
         const pulseProgress = 1 - Math.min(1, (placement.areaCooldownS ?? 0) / period)
         const pulseRadius = Math.max(20, radius * pulseProgress)
-        attacks.lineStyle(4 - pulseProgress * 2, color, 0.72 * (1 - pulseProgress * 0.75))
-        attacks.strokeCircle(point.x, point.y, pulseRadius)
-        attacks.lineStyle(1, this.palette.beamCore, 0.36 * (1 - pulseProgress))
-        attacks.strokeCircle(point.x, point.y, Math.max(14, pulseRadius - 8))
+        if (placement.kind === 'frost-tower') {
+          attacks.lineStyle(4 - pulseProgress * 2, color, 0.72 * (1 - pulseProgress * 0.75))
+          attacks.strokeCircle(point.x, point.y, pulseRadius)
+          attacks.lineStyle(1.5, this.palette.beamCore, 0.5 * (1 - pulseProgress))
+          attacks.strokeCircle(point.x, point.y, Math.max(14, pulseRadius - 8))
+          // Six crystal shards radiate from the cryogenic emitter.
+          for (let index = 0; index < 6; index += 1) {
+            const angle = index * Math.PI / 3 + pulseProgress * 0.2
+            const inner = Math.max(8, pulseRadius - 18)
+            attacks.fillStyle(color, 0.74 * (1 - pulseProgress * 0.45))
+            attacks.fillTriangle(
+              point.x + Math.cos(angle) * inner,
+              point.y + Math.sin(angle) * inner,
+              point.x + Math.cos(angle - 0.14) * pulseRadius,
+              point.y + Math.sin(angle - 0.14) * pulseRadius,
+              point.x + Math.cos(angle + 0.14) * pulseRadius,
+              point.y + Math.sin(angle + 0.14) * pulseRadius,
+            )
+          }
+        } else {
+          // Flame terminals use stacked rising tongues instead of a generic ring.
+          attacks.lineStyle(3, color, 0.48 * (1 - pulseProgress * 0.65))
+          attacks.strokeCircle(point.x, point.y, pulseRadius)
+          const flameScale = Math.max(0.35, 1 - pulseProgress * 0.55)
+          for (let index = 0; index < 5; index += 1) {
+            const baseX = point.x + (index - 2) * 5
+            const baseY = point.y + pulseRadius * 0.38
+            attacks.fillStyle(index % 2 ? this.palette.beamCore : color, 0.76 * flameScale)
+            attacks.fillTriangle(baseX - 4, baseY + 8, baseX + 4, baseY + 8, baseX + Math.sin(pulseTime * 3 + index) * 4, baseY - 17 * flameScale)
+          }
+        }
         return
       }
       const target = visualTarget(candidates, placement.targetStrategy)
@@ -486,28 +573,64 @@ export class OpticalDefenseScene extends Phaser.Scene {
       const targetPath = snapshot.level.paths?.[target.routeIndex ?? 0] ?? snapshot.level.path
       const targetPoint = pointOnPath(targetPath, target.progress)
       if (placement.kind === 'laser-emitter') {
-        attacks.lineStyle(4, color, 0.28)
+        const dx = targetPoint.x - point.x
+        const dy = targetPoint.y - point.y
+        const length = Math.hypot(dx, dy) || 1
+        const nx = -dy / length
+        const ny = dx / length
+        attacks.lineStyle(10, color, 0.16)
         attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
-        attacks.lineStyle(1.5, this.palette.beamCore, 0.9)
+        attacks.lineStyle(3.5, color, 0.78)
         attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
-        attacks.fillStyle(this.palette.beamCore, 0.95)
-        attacks.fillCircle(targetPoint.x, targetPoint.y, 5)
-      } else {
-        const burstRadius = placement.kind === 'radiation-source' ? 52 : 36
-        attacks.lineStyle(3, color, 0.72)
-        attacks.strokeCircle(point.x, point.y, Math.min(radius, burstRadius))
-        attacks.lineStyle(1, color, 0.36)
+        attacks.lineStyle(1.2, this.palette.beamCore, 0.96)
+        attacks.lineBetween(point.x, point.y, targetPoint.x, targetPoint.y)
+        // Fine split rails sell the laser's coherence and keep the impact readable.
+        attacks.lineStyle(1, this.palette.beamCore, 0.46)
+        attacks.lineBetween(point.x + nx * 3, point.y + ny * 3, targetPoint.x + nx * 3, targetPoint.y + ny * 3)
+        attacks.lineBetween(point.x - nx * 3, point.y - ny * 3, targetPoint.x - nx * 3, targetPoint.y - ny * 3)
+        attacks.lineStyle(2, color, 0.95)
+        attacks.strokeCircle(targetPoint.x, targetPoint.y, 9 + Math.sin(pulseTime * 5) * 2)
+        attacks.lineBetween(targetPoint.x - 13, targetPoint.y, targetPoint.x + 13, targetPoint.y)
+        attacks.lineBetween(targetPoint.x, targetPoint.y - 13, targetPoint.x, targetPoint.y + 13)
+      } else if (placement.kind === 'radiation-source') {
+        const burstRadius = 52
+        const wave = Math.min(radius, burstRadius) * (0.82 + Math.sin(pulseTime * 4) * 0.12)
+        attacks.lineStyle(3, color, 0.78)
+        attacks.strokeCircle(point.x, point.y, wave)
+        attacks.lineStyle(1.2, color, 0.42)
         attacks.strokeCircle(point.x, point.y, Math.min(radius, burstRadius * 1.55))
+        for (let index = 0; index < 8; index += 1) {
+          const angle = index * Math.PI / 4 + pulseTime * 0.22
+          const inner = 14 + Math.sin(pulseTime * 3 + index) * 4
+          attacks.lineStyle(2, color, 0.7)
+          attacks.lineBetween(point.x + Math.cos(angle) * inner, point.y + Math.sin(angle) * inner, point.x + Math.cos(angle) * (wave + 12), point.y + Math.sin(angle) * (wave + 12))
+        }
+        attacks.fillStyle(color, 0.9)
+        attacks.fillCircle(point.x, point.y, 7 + Math.sin(pulseTime * 6) * 1.5)
+      } else if (placement.kind === 'bulb') {
+        const pulse = 1 + Math.sin(pulseTime * 5) * 0.08
+        attacks.lineStyle(2, color, 0.58)
+        attacks.strokeCircle(point.x, point.y, 24 * pulse)
+        attacks.lineStyle(1, color, 0.34)
+        attacks.strokeCircle(point.x, point.y, 34 * pulse)
+        for (let index = 0; index < 12; index += 1) {
+          const angle = index * Math.PI / 6 + pulseTime * 0.05
+          attacks.lineBetween(point.x + Math.cos(angle) * 22, point.y + Math.sin(angle) * 22, point.x + Math.cos(angle) * 30, point.y + Math.sin(angle) * 30)
+        }
       }
     })
   }
 
-  private drawDevice(level: LevelConfig, placement: DevicePlacement, selectedId: string | null) {
+  private drawDevice(level: LevelConfig, placement: DevicePlacement, selectedId: string | null, network: OpticalNetwork) {
     const point = pointFor(level, placement)
+    const input = network.deviceInputs.get(placement.id)
+    const inputTint = ['bulb', 'laser-emitter', 'radiation-source'].includes(placement.kind) && input && totalPower(input) > 0.01
+      ? powerColor(input, this.colorMode)
+      : ''
     const signature = [
       placement.kind, placement.rotationDeg.toFixed(2), Math.round(placement.chargeJ ?? 0),
       Math.round(placement.acceleratorChargeJ ?? 0), placement.acceleratorPhase ?? '', placement.enabled,
-      placement.upgradeLevel ?? 1, placement.id === selectedId,
+      placement.upgradeLevel ?? 1, placement.id === selectedId, inputTint,
     ].join(':')
     const existing = this.deviceObjects.get(placement.id)
     if (existing?.signature === signature) {
@@ -517,7 +640,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     }
     existing?.graphics.destroy(true)
     existing?.label.destroy(true)
-    const color = deviceColor(placement.kind, this.colorMode)
+    const color = terminalVisualColor(placement, network, this.colorMode)
     const g = this.add.graphics()
     if (placement.id === selectedId) {
       g.lineStyle(2, this.palette.selected, 0.9)
@@ -530,9 +653,43 @@ export class OpticalDefenseScene extends Phaser.Scene {
     g.lineStyle(2.4, color, 0.95)
     if (placement.kind === 'mirror') {
       const angle = placement.rotationDeg * Math.PI / 180
-      g.lineBetween(-Math.cos(angle) * 20, -Math.sin(angle) * 20, Math.cos(angle) * 20, Math.sin(angle) * 20)
-      g.lineStyle(5, color, 0.18)
-      g.lineBetween(-Math.cos(angle) * 20, -Math.sin(angle) * 20, Math.cos(angle) * 20, Math.sin(angle) * 20)
+      const ux = Math.cos(angle)
+      const uy = Math.sin(angle)
+      const vx = -uy
+      const vy = ux
+      g.lineStyle(6, color, 0.18)
+      g.lineBetween(-ux * 19, -uy * 19, ux * 19, uy * 19)
+      g.lineStyle(2.6, color, 0.98)
+      g.lineBetween(-ux * 19, -uy * 19, ux * 19, uy * 19)
+      g.lineStyle(1, this.palette.beamCore, 0.9)
+      g.lineBetween(-ux * 16 + vx * 3, -uy * 16 + vy * 3, ux * 16 + vx * 3, uy * 16 + vy * 3)
+      g.fillStyle(this.palette.deviceBody, 1)
+      g.fillRect(-ux * 21 - 3, -uy * 21 - 3, 6, 6)
+      g.fillRect(ux * 21 - 3, uy * 21 - 3, 6, 6)
+      g.fillStyle(color, 0.92)
+      g.fillTriangle(ux * 23, uy * 23, ux * 14 + vx * 5, uy * 14 + vy * 5, ux * 14 - vx * 5, uy * 14 - vy * 5)
+      g.fillTriangle(-ux * 23, -uy * 23, -ux * 14 + vx * 5, -uy * 14 + vy * 5, -ux * 14 - vx * 5, -uy * 14 - vy * 5)
+    } else if (placement.kind === 'splitter') {
+      // A three-port optical manifold: one rear input, three unmistakable
+      // forward output arrows, and a central prism hub.
+      const angle = placement.rotationDeg * Math.PI / 180
+      const forward = { x: Math.cos(angle), y: Math.sin(angle) }
+      const side = { x: -forward.y, y: forward.x }
+      g.strokeCircle(0, 0, 14)
+      g.fillStyle(color, 0.72)
+      g.fillCircle(0, 0, 5)
+      g.lineStyle(2.2, color, 0.92)
+      g.lineBetween(-forward.x * 21, -forward.y * 21, -forward.x * 4, -forward.y * 4)
+      ;[-0.34, 0, 0.34].forEach((spread) => {
+        const direction = {
+          x: forward.x * Math.cos(spread) - side.x * Math.sin(spread),
+          y: forward.y * Math.cos(spread) - side.y * Math.sin(spread),
+        }
+        const end = { x: direction.x * 23, y: direction.y * 23 }
+        g.lineBetween(direction.x * 4, direction.y * 4, end.x, end.y)
+        g.fillStyle(this.palette.beamCore, 0.88)
+        g.fillTriangle(end.x, end.y, end.x - direction.x * 9 + side.x * 4, end.y - direction.y * 9 + side.y * 4, end.x - direction.x * 9 - side.x * 4, end.y - direction.y * 9 - side.y * 4)
+      })
     } else if (placement.kind === 'prism-splitter') {
       const angle = placement.rotationDeg * Math.PI / 180
       const forward = { x: Math.cos(angle), y: Math.sin(angle) }
@@ -540,11 +697,40 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.fillStyle(this.palette.prismFill, this.colorMode === 'light' ? 0.08 : 0.1)
       g.fillTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
       g.strokeTriangle(forward.x * 18, forward.y * 18, -forward.x * 10 + side.x * 16, -forward.y * 10 + side.y * 16, -forward.x * 10 - side.x * 16, -forward.y * 10 - side.y * 16)
+      g.lineStyle(1, this.palette.beamCore, 0.7)
+      g.lineBetween(-forward.x * 10 + side.x * 7, -forward.y * 10 + side.y * 7, forward.x * 17, forward.y * 17)
+      g.lineBetween(-forward.x * 10 - side.x * 7, -forward.y * 10 - side.y * 7, forward.x * 17, forward.y * 17)
       ;[this.colorMode === 'light' ? 0xdd2f3a : 0xff4f58, this.colorMode === 'light' ? 0x0f9d57 : 0x3ee68d, this.colorMode === 'light' ? 0x1f6feb : 0x4ea7ff].forEach((beamColor, index) => {
         const beamAngle = angle + (index - 1) * 0.36
         g.lineStyle(2, beamColor, 0.9)
         g.lineBetween(Math.cos(beamAngle) * 5, Math.sin(beamAngle) * 5, Math.cos(beamAngle) * 22, Math.sin(beamAngle) * 22)
       })
+      g.fillStyle(this.palette.beamCore, 0.9)
+      g.fillTriangle(forward.x * 24, forward.y * 24, forward.x * 13 + side.x * 5, forward.y * 13 + side.y * 5, forward.x * 13 - side.x * 5, forward.y * 13 - side.y * 5)
+    } else if (placement.kind === 'filter') {
+      const angle = placement.rotationDeg * Math.PI / 180
+      const forward = { x: Math.cos(angle), y: Math.sin(angle) }
+      const side = { x: -forward.y, y: forward.x }
+      g.fillStyle(color, 0.22)
+      g.fillTriangle(
+        forward.x * 16 + side.x * 11, forward.y * 16 + side.y * 11,
+        forward.x * 16 - side.x * 11, forward.y * 16 - side.y * 11,
+        -forward.x * 16, -forward.y * 16,
+      )
+      g.lineStyle(2.2, color, 0.95)
+      g.lineBetween(side.x * 15, side.y * 15, -side.x * 15, -side.y * 15)
+      g.fillStyle(this.palette.beamCore, 0.92)
+      g.fillTriangle(forward.x * 23, forward.y * 23, forward.x * 13 + side.x * 5, forward.y * 13 + side.y * 5, forward.x * 13 - side.x * 5, forward.y * 13 - side.y * 5)
+    } else if (placement.kind === 'shutter') {
+      const angle = placement.rotationDeg * Math.PI / 180
+      const forward = { x: Math.cos(angle), y: Math.sin(angle) }
+      const side = { x: -forward.y, y: forward.x }
+      g.lineStyle(2.4, color, 0.95)
+      g.lineBetween(side.x * 15, side.y * 15, -side.x * 15, -side.y * 15)
+      g.lineStyle(1.2, this.palette.beamCore, 0.8)
+      g.lineBetween(side.x * 10 + forward.x * 4, side.y * 10 + forward.y * 4, -side.x * 10 + forward.x * 4, -side.y * 10 + forward.y * 4)
+      g.fillStyle(this.palette.beamCore, 0.9)
+      g.fillTriangle(forward.x * 23, forward.y * 23, forward.x * 13 + side.x * 5, forward.y * 13 + side.y * 5, forward.x * 13 - side.x * 5, forward.y * 13 - side.y * 5)
     } else if (placement.kind === 'combiner') {
       const angle = placement.rotationDeg * Math.PI / 180
       const directionX = Math.cos(angle)
@@ -556,54 +742,125 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.lineBetween(directionX * 8, directionY * 8, directionX * 23, directionY * 23)
       g.lineBetween(directionX * 23, directionY * 23, directionX * 16 + perpendicularX * 5, directionY * 16 + perpendicularY * 5)
       g.lineBetween(directionX * 23, directionY * 23, directionX * 16 - perpendicularX * 5, directionY * 16 - perpendicularY * 5)
+      g.lineStyle(1.6, color, 0.62)
+      g.lineBetween(-directionX * 10 + perpendicularX * 7, -directionY * 10 + perpendicularY * 7, -directionX * 20 + perpendicularX * 13, -directionY * 20 + perpendicularY * 13)
+      g.lineBetween(-directionX * 10 - perpendicularX * 7, -directionY * 10 - perpendicularY * 7, -directionX * 20 - perpendicularX * 13, -directionY * 20 - perpendicularY * 13)
+      g.fillStyle(this.palette.beamCore, 0.9)
+      g.fillCircle(directionX * 12, directionY * 12, 2.5)
+      g.fillTriangle(directionX * 24, directionY * 24, directionX * 14 + perpendicularX * 5, directionY * 14 + perpendicularY * 5, directionX * 14 - perpendicularX * 5, directionY * 14 - perpendicularY * 5)
     } else if (placement.kind === 'capacitor') {
-      g.strokeRoundedRect(-14, -12, 28, 24, 4)
+      g.strokeRoundedRect(-15, -13, 30, 26, 5)
+      g.lineStyle(1.2, color, 0.55)
+      g.lineBetween(-11, -9, -11, 9)
+      g.lineBetween(11, -9, 11, 9)
       const fraction = Math.min(1, (placement.chargeJ ?? 0) / 450)
       g.fillStyle(color, 0.82)
-      g.fillRect(-10, 8 - fraction * 16, 20, fraction * 16)
+      g.fillRoundedRect(-10, 9 - fraction * 18, 20, fraction * 18, 2)
+      g.lineStyle(2, this.palette.beamCore, 0.78)
+      g.lineBetween(-4, -18, -4, -12)
+      g.lineBetween(4, 12, 4, 18)
     } else if (placement.kind === 'bulb') {
-      g.strokeCircle(0, 0, 13)
-      g.fillStyle(color, this.colorMode === 'light' ? 0.55 : 0.4)
-      g.fillCircle(0, 0, 8)
+      // A sealed xenon capsule with an explicit filament and contact base.
+      g.strokeRoundedRect(-11, -14, 22, 25, 8)
+      g.fillStyle(color, this.colorMode === 'light' ? 0.62 : 0.48)
+      g.fillCircle(0, -2, 8)
+      g.lineStyle(1.4, this.palette.beamCore, 0.9)
+      g.lineBetween(-4, -2, -2, 4)
+      g.lineBetween(4, -2, 2, 4)
+      g.lineBetween(-2, 4, 2, 4)
+      g.fillStyle(this.palette.deviceBody, 1)
+      g.fillRoundedRect(-7, 9, 14, 7, 2)
+      g.lineStyle(1.4, color, 0.95)
+      g.lineBetween(-5, 12, 5, 12)
       for (let index = 0; index < 8; index += 1) {
         const angle = index * Math.PI / 4
-        g.lineBetween(Math.cos(angle) * 15, Math.sin(angle) * 15, Math.cos(angle) * 20, Math.sin(angle) * 20)
+        g.lineBetween(Math.cos(angle) * 17, Math.sin(angle) * 17, Math.cos(angle) * 23, Math.sin(angle) * 23)
       }
     } else if (placement.kind === 'laser-emitter') {
-      g.strokeRoundedRect(-15, -8, 25, 16, 3)
-      g.lineStyle(4, color, 0.9)
-      g.lineBetween(8, 0, 22, 0)
+      // Armored coherent-light chassis, rotated to match the optical output.
+      g.strokeRoundedRect(-17, -10, 29, 20, 4)
+      g.fillStyle(color, 0.18)
+      g.fillRoundedRect(-12, -6, 17, 12, 2)
+      g.lineStyle(1.2, this.palette.beamCore, 0.55)
+      g.lineBetween(-9, -4, -9, 4)
+      g.lineBetween(-4, -4, -4, 4)
+      g.lineStyle(3, color, 0.95)
+      g.lineBetween(10, 0, 22, 0)
+      g.lineStyle(1.2, this.palette.beamCore, 0.92)
+      g.strokeCircle(20, 0, 6)
+      g.fillStyle(this.palette.beamCore, 0.92)
+      g.fillTriangle(27, 0, 18, -5, 18, 5)
+      g.lineStyle(1, color, 0.7)
+      g.lineBetween(-13, -13, 1, -13)
+      g.lineBetween(-13, 13, 1, 13)
+      g.setRotation(placement.rotationDeg * Math.PI / 180)
     } else if (placement.kind === 'radiation-source') {
-      g.strokeCircle(0, 0, 16)
+      // Three-lobed containment reactor, visually distinct from the laser.
+      g.strokeCircle(0, 0, 17)
+      g.strokeCircle(0, 0, 8)
       for (let index = 0; index < 3; index += 1) {
         const angle = index * Math.PI * 2 / 3
-        g.fillStyle(color, 0.55)
-        g.fillTriangle(Math.cos(angle) * 4, Math.sin(angle) * 4, Math.cos(angle - 0.35) * 15, Math.sin(angle - 0.35) * 15, Math.cos(angle + 0.35) * 15, Math.sin(angle + 0.35) * 15)
+        g.fillStyle(color, 0.62)
+        g.fillTriangle(Math.cos(angle) * 4, Math.sin(angle) * 4, Math.cos(angle - 0.34) * 16, Math.sin(angle - 0.34) * 16, Math.cos(angle + 0.34) * 16, Math.sin(angle + 0.34) * 16)
+        g.lineStyle(1.2, this.palette.beamCore, 0.6)
+        g.lineBetween(Math.cos(angle) * 8, Math.sin(angle) * 8, Math.cos(angle) * 18, Math.sin(angle) * 18)
       }
+      g.fillStyle(color, 0.94)
+      g.fillCircle(0, 0, 4)
     } else if (placement.kind === 'collector') {
       g.strokeCircle(0, 0, 16)
       g.strokeCircle(0, 0, 9)
+      g.lineStyle(1.2, this.palette.beamCore, 0.7)
+      g.strokeCircle(0, 0, 5)
       g.lineBetween(-20, -13, -13, -6)
       g.lineBetween(-20, 13, -13, 6)
       g.lineBetween(13, 0, 23, 0)
     } else if (placement.kind === 'frost-tower') {
+      g.fillStyle(color, 0.16)
+      const frostHex = [{ x: 0, y: -19 }, { x: 16, y: -9 }, { x: 16, y: 9 }, { x: 0, y: 19 }, { x: -16, y: 9 }, { x: -16, y: -9 }]
+      g.fillPoints(frostHex, true, true)
+      g.lineStyle(1.7, color, 0.98)
+      g.strokePoints(frostHex, true, true)
       for (let index = 0; index < 3; index += 1) {
         const angle = index * Math.PI / 3
-        g.lineBetween(-Math.cos(angle) * 16, -Math.sin(angle) * 16, Math.cos(angle) * 16, Math.sin(angle) * 16)
+        g.lineBetween(-Math.cos(angle) * 15, -Math.sin(angle) * 15, Math.cos(angle) * 15, Math.sin(angle) * 15)
       }
+      g.fillStyle(this.palette.beamCore, 0.92)
+      g.fillCircle(0, 0, 3)
     } else if (placement.kind === 'brazier') {
-      g.strokeRoundedRect(-14, 7, 28, 10, 3)
+      g.strokeRoundedRect(-15, 7, 30, 11, 3)
       g.fillStyle(color, 0.55)
-      g.fillTriangle(-11, 7, 0, -18, 11, 7)
+      g.fillTriangle(-12, 7, 0, -19, 12, 7)
+      g.fillStyle(this.palette.beamCore, 0.88)
+      g.fillTriangle(-5, 6, 0, -11, 5, 6)
+      g.lineStyle(1.3, color, 0.9)
+      g.lineBetween(-11, 13, 11, 13)
+      g.lineBetween(-8, 19, -4, 22)
+      g.lineBetween(8, 19, 4, 22)
     } else if (placement.kind === 'accelerator') {
-      g.strokeCircle(0, 0, 16)
-      g.strokeCircle(0, 0, 9)
+      // Compact cyclotron: nested ring, injector coil and a directional muzzle.
+      g.strokeCircle(0, 0, 17)
+      g.strokeCircle(0, 0, 10)
+      g.lineStyle(1.2, color, 0.55)
+      for (let index = 0; index < 8; index += 1) {
+        const angle = index * Math.PI / 4
+        g.lineBetween(Math.cos(angle) * 12, Math.sin(angle) * 12, Math.cos(angle) * 17, Math.sin(angle) * 17)
+      }
       g.lineStyle(3, color, 0.9)
       g.lineBetween(9, 0, 23, 0)
+      g.lineStyle(1.3, this.palette.beamCore, 0.92)
+      g.strokeCircle(22, 0, 5)
+      g.fillStyle(this.palette.beamCore, 0.92)
+      g.fillTriangle(29, 0, 20, -5, 20, 5)
+      g.setRotation(placement.rotationDeg * Math.PI / 180)
     } else {
-      g.strokeCircle(0, 0, 16)
+      g.strokeCircle(0, 0, 17)
+      g.strokeCircle(0, 0, 11)
       g.fillStyle(color, 0.32)
       g.fillCircle(0, 0, placement.kind.startsWith('source-') ? 10 : 7)
+      g.lineStyle(1.2, color, 0.72)
+      g.lineBetween(-21, 0, -15, 0)
+      g.lineBetween(15, 0, 21, 0)
     }
     const label = this.add.text(0, placement.kind === 'mirror' ? 11 : 0, DEVICE_LABELS[placement.kind], {
       fontFamily: 'Arial, sans-serif', fontSize: placement.kind === 'mirror' ? '8px' : '7px', color: this.palette.deviceLabel, fontStyle: 'bold',
@@ -653,9 +910,84 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.strokeCircle(0, 0, size + 4)
     }
     g.fillStyle(color, 1)
-    if (enemy.kind === 'armored') g.fillRoundedRect(-size, -size, size * 2, size * 2, 5)
-    else if (enemy.kind === 'fast') g.fillTriangle(-size, -size * 0.75, size, 0, -size, size * 0.75)
-    else g.fillCircle(0, 0, size)
+    // Each class is a different spacecraft silhouette rather than a generic
+    // marker: scout, interceptor, frigate, drone and command cruiser.
+    if (enemy.kind === 'fast') {
+      g.fillPoints([
+        { x: size * 1.35, y: 0 }, { x: size * 0.15, y: -size * 0.42 },
+        { x: -size * 0.86, y: -size * 0.92 }, { x: -size * 0.62, y: -size * 0.14 },
+        { x: -size * 0.62, y: size * 0.14 }, { x: -size * 0.86, y: size * 0.92 },
+        { x: size * 0.15, y: size * 0.42 },
+      ], true, true)
+      g.lineStyle(1.4, this.palette.beamCore, 0.9)
+      g.strokePoints([{ x: size * 1.35, y: 0 }, { x: size * 0.15, y: -size * 0.42 }, { x: -size * 0.86, y: -size * 0.92 }, { x: -size * 0.62, y: -size * 0.14 }, { x: -size * 0.62, y: size * 0.14 }, { x: -size * 0.86, y: size * 0.92 }, { x: size * 0.15, y: size * 0.42 }], true, true)
+      g.fillStyle(this.palette.beamCore, 0.92)
+      g.fillCircle(size * 0.38, 0, Math.max(2.5, size * 0.2))
+      g.fillStyle(this.palette.enemyBacking, 0.65)
+      g.fillCircle(-size * 0.58, -size * 0.48, Math.max(1.5, size * 0.12))
+      g.fillCircle(-size * 0.58, size * 0.48, Math.max(1.5, size * 0.12))
+    } else if (enemy.kind === 'armored') {
+      const hull = [
+        { x: -size * 0.9, y: -size * 0.7 }, { x: -size * 0.35, y: -size },
+        { x: size * 0.82, y: -size * 0.78 }, { x: size * 1.02, y: 0 },
+        { x: size * 0.82, y: size * 0.78 }, { x: -size * 0.35, y: size },
+        { x: -size * 0.9, y: size * 0.7 }, { x: -size * 0.7, y: 0 },
+      ]
+      g.fillPoints(hull, true, true)
+      g.lineStyle(1.8, this.palette.beamCore, 0.74)
+      g.strokePoints(hull, true, true)
+      g.lineStyle(1.5, color, 0.9)
+      g.lineBetween(-size * 0.58, -size * 0.58, size * 0.58, -size * 0.58)
+      g.lineBetween(-size * 0.58, size * 0.58, size * 0.58, size * 0.58)
+      g.fillStyle(this.palette.beamCore, 0.86)
+      g.fillCircle(size * 0.45, 0, Math.max(3, size * 0.2))
+    } else if (enemy.kind === 'resistant') {
+      const drone = [
+        { x: size * 1.05, y: 0 }, { x: size * 0.52, y: -size * 0.78 },
+        { x: -size * 0.44, y: -size * 0.78 }, { x: -size * 0.98, y: 0 },
+        { x: -size * 0.44, y: size * 0.78 }, { x: size * 0.52, y: size * 0.78 },
+      ]
+      g.fillPoints(drone, true, true)
+      g.lineStyle(1.5, this.palette.beamCore, 0.78)
+      g.strokePoints(drone, true, true)
+      g.lineStyle(1.2, color, 0.9)
+      g.lineBetween(-size * 0.3, -size * 0.7, size * 0.3, size * 0.7)
+      g.lineBetween(-size * 0.3, size * 0.7, size * 0.3, -size * 0.7)
+      g.fillStyle(this.palette.beamCore, 0.9)
+      g.fillCircle(0, 0, Math.max(3, size * 0.22))
+    } else if (enemy.kind === 'boss') {
+      const cruiser = [
+        { x: size * 1.28, y: 0 }, { x: size * 0.4, y: -size * 0.65 },
+        { x: size * 0.1, y: -size * 1.12 }, { x: -size * 0.48, y: -size * 0.78 },
+        { x: -size * 1.02, y: -size * 0.9 }, { x: -size * 0.72, y: 0 },
+        { x: -size * 1.02, y: size * 0.9 }, { x: -size * 0.48, y: size * 0.78 },
+        { x: size * 0.1, y: size * 1.12 }, { x: size * 0.4, y: size * 0.65 },
+      ]
+      g.fillPoints(cruiser, true, true)
+      g.lineStyle(2.2, this.palette.beamCore, 0.9)
+      g.strokePoints(cruiser, true, true)
+      g.lineStyle(2, color, 0.9)
+      g.lineBetween(-size * 0.78, -size * 0.62, size * 0.72, -size * 0.2)
+      g.lineBetween(-size * 0.78, size * 0.62, size * 0.72, size * 0.2)
+      g.fillStyle(this.palette.beamCore, 0.95)
+      g.fillCircle(size * 0.36, 0, Math.max(4, size * 0.22))
+      g.fillStyle(color, 0.8)
+      g.fillCircle(-size * 0.42, -size * 0.34, 2.2)
+      g.fillCircle(-size * 0.42, size * 0.34, 2.2)
+    } else {
+      const scout = [
+        { x: size * 1.05, y: 0 }, { x: size * 0.05, y: -size * 0.72 },
+        { x: -size * 0.94, y: -size * 0.48 }, { x: -size * 0.58, y: 0 },
+        { x: -size * 0.94, y: size * 0.48 }, { x: size * 0.05, y: size * 0.72 },
+      ]
+      g.fillPoints(scout, true, true)
+      g.lineStyle(1.3, this.palette.beamCore, 0.82)
+      g.strokePoints(scout, true, true)
+      g.fillStyle(this.palette.beamCore, 0.9)
+      g.fillCircle(size * 0.3, 0, Math.max(2.5, size * 0.2))
+      g.lineStyle(1.5, color, 0.85)
+      g.lineBetween(-size * 0.8, -size * 0.32, -size * 0.8, size * 0.32)
+    }
     if (enemy.resistance) {
       g.lineStyle(3, enemy.resistance === 'r' ? (this.colorMode === 'light' ? 0xdd2f3a : 0xff4f58) : enemy.resistance === 'g' ? (this.colorMode === 'light' ? 0x0f9d57 : 0x3ee68d) : (this.colorMode === 'light' ? 0x1f6feb : 0x4ea7ff), 1)
       g.strokeCircle(0, 0, size + 2)
@@ -669,10 +1001,27 @@ export class OpticalDefenseScene extends Phaser.Scene {
     if (enemy.status.freezeSeconds > 0) {
       g.lineStyle(2, this.colorMode === 'light' ? 0x2f7fd6 : 0x69e9ff, 0.9)
       g.strokeCircle(0, 0, size + 6)
+      g.lineStyle(1.6, this.colorMode === 'light' ? 0x2f7fd6 : 0x9af3ff, 0.85)
+      for (let index = 0; index < 6; index += 1) {
+        const angle = index * Math.PI / 3
+        const inner = size + 4
+        const outer = size + 11
+        g.lineBetween(Math.cos(angle) * inner, Math.sin(angle) * inner, Math.cos(angle) * outer, Math.sin(angle) * outer)
+        g.lineBetween(Math.cos(angle) * outer, Math.sin(angle) * outer, Math.cos(angle + 0.12) * (outer - 3), Math.sin(angle + 0.12) * (outer - 3))
+      }
     }
     if (enemy.status.burnSeconds > 0 || enemy.status.poisonSeconds > 0) {
-      g.fillStyle(enemy.status.burnSeconds > 0 ? (this.colorMode === 'light' ? 0xe0631f : 0xff983d) : (this.colorMode === 'light' ? 0x1f9d6a : 0x56ed87), 0.9)
-      g.fillCircle(size * 0.6, -size * 0.7, 4)
+      const statusColor = enemy.status.burnSeconds > 0 ? (this.colorMode === 'light' ? 0xe0631f : 0xff983d) : (this.colorMode === 'light' ? 0x1f9d6a : 0x56ed87)
+      g.fillStyle(statusColor, 0.9)
+      if (enemy.status.burnSeconds > 0) {
+        g.fillTriangle(size * 0.32, -size * 0.55, size * 0.75, -size * 0.9, size * 0.82, -size * 0.2)
+        g.fillTriangle(-size * 0.15, -size * 0.75, size * 0.1, -size * 1.15, size * 0.38, -size * 0.55)
+      } else {
+        g.fillCircle(size * 0.65, -size * 0.65, 4)
+        g.fillCircle(size * 0.18, -size * 0.95, 2.6)
+        g.lineStyle(1.4, statusColor, 0.8)
+        g.lineBetween(-size * 0.7, size * 0.82, -size * 0.3, size * 1.15)
+      }
     }
     if (enemy.status.shield > 0) {
       g.lineStyle(2, this.colorMode === 'light' ? 0x1f6feb : 0x79b9ff, 0.9)
@@ -684,8 +1033,17 @@ export class OpticalDefenseScene extends Phaser.Scene {
       g.strokePath()
     }
     if (enemy.status.radiationStacks > 0) {
-      g.fillStyle(this.colorMode === 'light' ? 0x8d3dbf : 0xe875ff, 0.92)
-      for (let index = 0; index < Math.min(3, Math.ceil(enemy.status.radiationStacks)); index += 1) g.fillCircle(-6 + index * 6, -size - 10, 2.2)
+      const radiationColor = this.colorMode === 'light' ? 0x8d3dbf : 0xe875ff
+      g.fillStyle(radiationColor, 0.92)
+      const stacks = Math.min(3, Math.ceil(enemy.status.radiationStacks))
+      for (let index = 0; index < stacks; index += 1) {
+        const angle = index * Math.PI * 2 / 3 - Math.PI / 2
+        const cx = Math.cos(angle) * (size + 9)
+        const cy = Math.sin(angle) * (size + 9)
+        g.fillTriangle(cx, cy - 4, cx - 3.4, cy + 3, cx + 3.4, cy + 3)
+      }
+      g.lineStyle(1.4, radiationColor, 0.85)
+      g.strokeCircle(0, 0, size + 14)
     }
     if (enemy.status.armorBrokenSeconds > 0) {
       g.lineStyle(2, this.colorMode === 'light' ? 0xc98a06 : 0xffd56a, 0.9)
@@ -714,9 +1072,21 @@ export class OpticalDefenseScene extends Phaser.Scene {
         this.tweens.add({ targets: text, y: text.y - 30, alpha: 0, duration: snapshot.reduceMotion ? 200 : 760, onComplete: () => text.destroy() })
       }
       if (event.type === 'explosion') {
-        const ring = this.add.circle(event.point.x, event.point.y, 24, this.colorMode === 'light' ? 0xc98a06 : 0xffd36a, 0.32).setStrokeStyle(4, this.palette.selected, 0.9)
+        // Use one self-contained graphics burst so capacitor detonations are
+        // visible even when the attack layer is being redrawn for a new tick.
+        const burstColor = this.colorMode === 'light' ? 0xc98a06 : 0xffd36a
+        const burst = this.add.graphics().setPosition(event.point.x, event.point.y)
+        burst.fillStyle(burstColor, 0.18)
+        burst.fillCircle(0, 0, 16)
+        burst.lineStyle(4, this.palette.selected, 0.92)
+        burst.strokeCircle(0, 0, 24)
+        burst.lineStyle(1.6, burstColor, 0.88)
+        for (let index = 0; index < 12; index += 1) {
+          const angle = index * Math.PI / 6
+          burst.lineBetween(Math.cos(angle) * 27, Math.sin(angle) * 27, Math.cos(angle) * 40, Math.sin(angle) * 40)
+        }
         const scale = event.radius / 24
-        this.tweens.add({ targets: ring, scale, alpha: 0, duration: snapshot.reduceMotion ? 260 : 850, ease: 'Cubic.Out', onComplete: () => ring.destroy() })
+        this.tweens.add({ targets: burst, scale, alpha: 0, duration: snapshot.reduceMotion ? 260 : 850, ease: 'Cubic.Out', onComplete: () => burst.destroy() })
         this.cameras.main.shake(snapshot.reduceMotion ? 50 : 260, snapshot.reduceMotion ? 0.001 : 0.008)
       }
     })
@@ -754,7 +1124,7 @@ export class OpticalDefenseScene extends Phaser.Scene {
     const network = snapshot.network
     this.drawAttackRanges(snapshot, network)
     this.drawBeams(snapshot, network)
-    snapshot.battle.placements.forEach((placement) => this.drawDevice(snapshot.level, placement, snapshot.selectedId))
+    snapshot.battle.placements.forEach((placement) => this.drawDevice(snapshot.level, placement, snapshot.selectedId, network))
     snapshot.battle.enemies.forEach((enemy) => this.drawEnemy(snapshot.level, enemy))
     const placementIds = new Set(snapshot.battle.placements.map((placement) => placement.id))
     this.deviceObjects.forEach(({ graphics, label }, id) => {
