@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tjyzphysics.github.io/sitemap.xml

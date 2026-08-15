@@ -2,9 +2,15 @@ import { ArrowUpRight, Film, Play, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { htmlVideos } from '../data/videos'
+import { usePageMeta } from '../lib/seo'
 import '../styles/videos.css'
 
 export default function VideosPage() {
+  usePageMeta({
+    title: '视频 · 天津一中物理社 | TJYZ Physics',
+    description: '交互式物理网页影片：IYPT 比赛介绍与 IYPT 2027 赛题，用滚动与自动播放推进。',
+    path: '/videos/',
+  })
   const [params, setParams] = useSearchParams()
   const searchRef = useRef<HTMLInputElement>(null)
   const query = params.get('q') ?? ''

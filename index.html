@@ -3,10 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 主题与视口 -->
     <meta name="theme-color" content="#080b1a" />
-    <meta name="description" content="TJYZ Physics 物理社官网，记录探索、实验与思考。" />
+    <meta name="applicable-device" content="pc,mobile" />
+    <meta name="renderer" content="webkit" />
+
+    <!-- SEO 基础 -->
+    <title>天津一中物理社 · 天津市第一中学物理社官网 | TJYZ Physics</title>
+    <meta name="description" content="天津一中物理社（天津市第一中学物理社 / PT 物理社）官方网站，分享 CYPT 开放性物理研究、互动物理实验与游戏、社团活动及历年获奖记录。" />
+    <meta name="keywords" content="天津一中,天津市第一中学,天津一中物理社,天津市第一中学物理社,天津一中物理,天津一中社团,天津一中学生,天津一中PT,天津一中PT物理社,CYPT,IYPT,物理社" />
+    <meta name="robots" content="index,follow" />
+    <meta name="author" content="天津一中物理社" />
+    <link rel="canonical" href="https://tjyzphysics.github.io/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="天津一中物理社 · TJYZ Physics" />
+    <meta property="og:title" content="天津一中物理社 · 天津市第一中学物理社官网" />
+    <meta property="og:description" content="天津一中物理社（PT 物理社）官方网站，CYPT 开放性物理研究、互动物理实验与游戏、社团活动及历年获奖记录。" />
+    <meta property="og:url" content="https://tjyzphysics.github.io/" />
+    <meta property="og:image" content="https://tjyzphysics.github.io/about/team-mark.jpg" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="天津一中物理社 · 天津市第一中学物理社官网" />
+    <meta name="twitter:description" content="天津一中物理社（PT 物理社）官方网站，CYPT 开放性物理研究、互动物理实验与游戏、社团活动及历年获奖记录。" />
+    <meta name="twitter:image" content="https://tjyzphysics.github.io/about/team-mark.jpg" />
+
+    <!-- 结构化数据：Organization + WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://tjyzphysics.github.io/#organization",
+          "name": "天津一中物理社",
+          "alternateName": ["天津市第一中学物理社", "TJYZ Physics", "PT物理社"],
+          "url": "https://tjyzphysics.github.io/",
+          "description": "天津市第一中学学生物理社团，围绕 CYPT 开放性物理研究、实验探究与科普分享展开活动。",
+          "logo": "https://tjyzphysics.github.io/about/team-mark.jpg",
+          "parentOrganization": {
+            "@type": "EducationalOrganization",
+            "name": "天津市第一中学"
+          },
+          "knowsAbout": ["物理学", "CYPT", "IYPT", "物理实验", "物理竞赛"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://tjyzphysics.github.io/#website",
+          "name": "天津一中物理社官网",
+          "alternateName": "TJYZ Physics",
+          "url": "https://tjyzphysics.github.io/",
+          "inLanguage": "zh-CN",
+          "publisher": { "@id": "https://tjyzphysics.github.io/#organization" }
+        }
+      ]
+    }
+    </script>
+
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080b1a'/%3E%3Cpath d='M4 12c4-7 8 7 12 0s8 7 12 0M4 20c4-7 8 7 12 0s8 7 12 0' fill='none' stroke='%2363e7ff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E" />
-    <title>TJYZ Physics</title>
+
+    <!-- 无 JS 时的站内回退样式（仅作用于此 <noscript> 块，不影响 SPA） -->
+    <style>
+      .seo-fallback{max-width:60rem;margin:0 auto;padding:3rem 1.5rem 5rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;color:#e6edf7;line-height:1.75}
+      .seo-fallback h1{font-size:1.9rem;margin:0 0 .5rem;color:#ffffff;line-height:1.3}
+      .seo-fallback .brand{color:#63e7ff;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 .75rem}
+      .seo-fallback .lead{font-size:1.05rem;color:#c7d3e4;margin:0 0 2rem;max-width:40rem}
+      .seo-fallback nav{display:flex;flex-wrap:wrap;gap:.6rem;margin:0 0 2.5rem}
+      .seo-fallback nav a{color:#63e7ff;text-decoration:none;border:1px solid #22304d;border-radius:.5rem;padding:.45rem .9rem;font-size:.92rem}
+      .seo-fallback nav a:hover{background:#0e1730}
+      .seo-fallback section{border-top:1px solid #1a2438;padding-top:1.5rem}
+      .seo-fallback h2{font-size:1.15rem;color:#ffffff;margin:1.25rem 0 .4rem}
+      .seo-fallback p{margin:0 0 .75rem;color:#b9c6d9}
+    </style>
+
     <script>
       const redirect = sessionStorage.getItem('tjyzphysics:redirect')
       if (redirect) {
@@ -17,6 +90,32 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <noscript>
+      <main class="seo-fallback">
+        <p class="brand">TJYZ PHYSICS CLUB</p>
+        <h1>天津一中物理社 · 天津市第一中学物理社</h1>
+        <p class="lead">天津一中物理社（PT 物理社 / TJYZ Physics）是天津市第一中学的学生物理社团。我们观察现象、搭建实验、记录误差，用程序模拟无法轻易在教室中呈现的尺度与过程，让每一个好问题拥有被认真对待的机会。</p>
+        <nav>
+          <a href="/about/">关于我们</a>
+          <a href="/blog/">物理笔记</a>
+          <a href="/blog/pt-physics-club-introduction/">PT物理社详细介绍</a>
+          <a href="/experiments/">互动实验</a>
+          <a href="/games/">物理游戏</a>
+          <a href="/videos/">视频</a>
+          <a href="/navigation/">导航</a>
+        </nav>
+        <section>
+          <h2>CYPT 开放性物理研究</h2>
+          <p>CYPT（中国高中生青年物理学家学术交流会）是物理社的核心活动，对标国际青年物理学家锦标赛（IYPT），围绕 17 道涵盖电、磁、流、光、热等领域的开放性物理问题展开。每年天津一中选派 12 名同学组成两支队伍参加全国赛，经历题目分析、预实验、理论分析、实验、结论与扩展的完整科研流程。</p>
+          <h2>历年成绩</h2>
+          <p>2025 年两支队伍分别荣获全国第八名、第九名，双双斩获全国一等奖；郝晋荣同学以全国第一名的优异成绩荣膺全国最佳选手，并入选 IYPT 国家集训队。2024 年一队荣获全国第五名（全国一等奖），二队荣获全国二等奖。</p>
+          <h2>我们在做什么</h2>
+          <p>七个浏览器互动物理实验、五个互动游戏、Markdown 物理笔记与 IYPT 交互式网页影片。为往圣继绝学，为万世开太平。</p>
+        </section>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

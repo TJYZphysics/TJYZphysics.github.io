@@ -2,10 +2,16 @@ import { ArrowUpRight, BookMarked, Search, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getBlogPosts } from '../content/content'
+import { usePageMeta } from '../lib/seo'
 import '../styles/blog.css'
 
 export default function BlogPage() {
   const posts = getBlogPosts()
+  usePageMeta({
+    title: '物理笔记 · 天津一中物理社 | TJYZ Physics',
+    description: '天津一中物理社的物理笔记：实验过程、现象观察、阅读笔记与社团思考。',
+    path: '/blog/',
+  })
   const [params, setParams] = useSearchParams()
   const searchRef = useRef<HTMLInputElement>(null)
   const query = params.get('q') ?? ''

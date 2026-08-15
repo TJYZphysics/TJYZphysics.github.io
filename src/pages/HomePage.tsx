@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom'
 import OrbitalField from '../components/OrbitalField'
 import PostCarousel from '../components/PostCarousel'
 import { getBlogPosts, selectHomepagePosts } from '../content/content'
+import { usePageMeta } from '../lib/seo'
 
 export default function HomePage() {
   const recentPosts = selectHomepagePosts(getBlogPosts())
+  usePageMeta({
+    title: '天津一中物理社 · 天津市第一中学物理社官网 | TJYZ Physics',
+    description: '天津一中物理社（天津市第一中学物理社 / PT 物理社）官方网站，分享 CYPT 开放性物理研究、互动物理实验与游戏、社团活动及历年获奖记录。',
+    path: '/',
+    image: '/about/team-mark.jpg',
+  })
 
   return (
     <main className="home-page">

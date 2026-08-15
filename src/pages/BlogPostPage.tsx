@@ -4,11 +4,38 @@ import GiscusComments from '../components/GiscusComments'
 import MarkdownArticle, { getArticleHeadings } from '../components/MarkdownArticle'
 import ReactionBar from '../components/ReactionBar'
 import { getBlogPost } from '../content/content'
+import { usePageMeta, SITE_URL, organizationJsonLd, breadcrumbJsonLd } from '../lib/seo'
 import '../styles/blog.css'
 
 export default function BlogPostPage() {
   const { slug = '' } = useParams()
   const post = getBlogPost(slug)
+  usePageMeta({
+    title: post ? `${post.title} · 天津一中物理社 | TJYZ Physics` : '未找到笔记 · 天津一中物理社',
+    description: post?.summary || '天津一中物理社的物理笔记。',
+    path: `/blog/${slug}/`,
+    image: post?.cover,
+    jsonLd: post
+      ? [
+          {
+            '@type': 'BlogPosting',
+            headline: post.title,
+            description: post.summary,
+            datePublished: post.date,
+            url: `${SITE_URL}/blog/${post.slug}/`,
+            author: { '@id': `${SITE_URL}/#organization` },
+            publisher: organizationJsonLd,
+            mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${post.slug}/` },
+            inLanguage: 'zh-CN',
+          },
+          breadcrumbJsonLd([
+            { name: '主页', path: '/' },
+            { name: '物理笔记', path: '/blog/' },
+            { name: post.title, path: `/blog/${post.slug}/` },
+          ]),
+        ]
+      : undefined,
+  })
   if (!post) return <main className="not-found"><p>NOTE NOT FOUND</p><h1>这页笔记似乎被风吹走了。</h1><Link to="/blog">返回博客</Link></main>
   const headings = getArticleHeadings(post.body).filter((heading) => heading.depth >= 2)
   return (

@@ -1,10 +1,18 @@
 import MarkdownArticle from '../components/MarkdownArticle'
 import { getAboutDocument } from '../content/content'
+import { usePageMeta, organizationJsonLd, breadcrumbJsonLd } from '../lib/seo'
 import '../styles/about.css'
 
 export default function AboutPage() {
   const intro = getAboutDocument('introduction')
   const history = getAboutDocument('history')
+  usePageMeta({
+    title: '关于我们 · 天津一中物理社 | 天津市第一中学物理社',
+    description: '天津一中物理社简介与历史：CYPT 物理竞赛、科研训练、社团活动与历年成绩。一群因好奇而聚在一起的学生。',
+    path: '/about/',
+    image: '/about/team-mark.jpg',
+    jsonLd: [organizationJsonLd, breadcrumbJsonLd([{ name: '主页', path: '/' }, { name: '关于我们', path: '/about/' }])],
+  })
   return (
     <main className="about-page">
       <section className="about-hero">

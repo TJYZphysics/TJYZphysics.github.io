@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUpRight, Bot, BookOpen, Compass, ExternalLink, Globe2, Library, Search, Star, Wrench, X } from 'lucide-react'
 import { navigationCategories, type NavigationSite } from '../data/navigationSites'
+import { usePageMeta } from '../lib/seo'
 import '../styles/navigation.css'
 
 const FAVORITES_STORAGE_KEY = 'tjyzphysics-navigation-favorites'
@@ -49,6 +50,11 @@ function SiteCard({ entry, favorite, onToggleFavorite }: { entry: NavigationSite
 }
 
 export default function NavigationPage() {
+  usePageMeta({
+    title: '导航 · 天津一中物理社 | TJYZ Physics',
+    description: '物理学习与科研常用站点、AI 工具、论文与软件资源导航。',
+    path: '/navigation/',
+  })
   const [query, setQuery] = useState('')
   const [favorites, setFavorites] = useState<string[]>(readFavorites)
   const siteCount = navigationCategories.reduce((total, category) => total + category.sites.length, 0)

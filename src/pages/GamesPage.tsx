@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrainCircuit, Box, Magnet, ScanLine, Sparkles } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
+import { usePageMeta } from '../lib/seo'
 
 import '../styles/experiments.css'
 import '../styles/games.css'
@@ -26,6 +27,11 @@ function resolveGame(value: string | null): GameId {
 }
 
 export default function GamesPage() {
+  usePageMeta({
+    title: '物理游戏 · 天津一中物理社 | TJYZ Physics',
+    description: '五个互动物理游戏：图灵测试、三维五子、电磁指南、光路寻踪与光路塔防。',
+    path: '/games/',
+  })
   const [searchParams, setSearchParams] = useSearchParams()
   const active = resolveGame(searchParams.get('game'))
 

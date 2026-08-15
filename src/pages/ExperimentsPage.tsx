@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { Atom, Boxes, CircleDot, Gauge, Magnet, Mountain, Waves } from 'lucide-react'
+import { usePageMeta } from '../lib/seo'
 import '../styles/experiments.css'
 
 const ThreeBodyLab = lazy(() => import('../features/experiments/threeBody/ThreeBodyLab').then((module) => ({ default: module.ThreeBodyLab })))
@@ -28,6 +29,11 @@ function readInitialExperiment(): ExperimentId {
 }
 
 export default function ExperimentsPage() {
+  usePageMeta({
+    title: '互动实验 · 天津一中物理社 | TJYZ Physics',
+    description: '七个浏览器互动物理实验：三体模拟器、碰撞模拟器、波的传播、追及相遇、平抛运动、电势曲面与电磁画布。',
+    path: '/experiments/',
+  })
   const [active, setActive] = useState<ExperimentId>(readInitialExperiment)
   return (
     <main className="experiments-page page-pad">

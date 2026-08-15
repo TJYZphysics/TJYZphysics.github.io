@@ -73,6 +73,7 @@ CYPT（中国高中生青年物理学家学术交流会）是物理社的核心�
 - **架构**：纯前端静态站点，无后端、无数据库。实验与游戏使用独立的 TypeScript 模拟层，Phaser 负责渲染；光路塔防采用固定步长（1/30 秒）确定性战斗模拟，功率守恒光路网络与 RGB 加色光学。
 - **质量保障**：Vitest 单元测试覆盖物理模型、光路网络、战斗模拟与组件交互；Playwright E2E 覆盖桌面与横屏触控视口；GitHub Actions 在推送 `main` 时自动运行测试、构建并部署 GitHub Pages。
 - **部署**：GitHub Pages（`https://tjyzphysics.github.io`），含 SPA 回退与 404 脚本。
+- **SEO**：首页含中文标题/描述/关键词与 JSON-LD 结构化数据；`npm run build` 时通过 `scripts/prerender-seo.mjs` 为各内容路由生成静态 HTML 快照（供百度等不执行 JS 的爬虫读取）与 `sitemap.xml`，并随包输出 `robots.txt`。站长平台验证（百度搜索资源平台 / Google Search Console）需自行在 `index.html` 添加验证 meta。
 
 ## 本地开发
 
