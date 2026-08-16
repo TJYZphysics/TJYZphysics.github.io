@@ -282,7 +282,7 @@ export function DevilsBalanceGame() {
 
   const selectColor = (color: ColorId) => {
     setSelectedColor(color)
-    setMessage(`已选择${colorInfo(color).fullName}。点击天平托盘上的「＋ 放入」。`)
+    setMessage(`已选择${colorInfo(color).fullName}。点击天平下方的「放入左盘 / 放入右盘」按钮。`)
   }
 
   const selectPan = (panIndex: number) => {
@@ -523,7 +523,7 @@ export function DevilsBalanceGame() {
             })}
           </div>
           <div className="db-game__vault-hint">
-            先选择一种矿物，再点击天平托盘上的「＋ 放入」。
+            先选择一种矿物，再点击天平下方的「放入左盘 / 放入右盘」按钮。
             NPC 方块来自无限池，你放入的方块会在「提交测量」时消耗。
           </div>
         </aside>
@@ -533,7 +533,7 @@ export function DevilsBalanceGame() {
             <div className="db-game__arena-title">
               <span>WEIGHT SCALE CHAMBER</span>
               <strong>双天平实验台</strong>
-              <p><MousePointer2 aria-hidden="true" />点击托盘选中目标，点「＋」直接投放所选矿物。</p>
+              <p><MousePointer2 aria-hidden="true" />点击托盘选中目标，点击下方「放入」按钮投放所选矿物。</p>
             </div>
             <div className="db-game__arena-legend" aria-label="实验台图例">
               <span><i className="is-npc" />NPC 方块</span>
@@ -552,17 +552,20 @@ export function DevilsBalanceGame() {
                     <div><Scale aria-hidden="true" /><span>{name}</span><small>{SCALE_ROLES[scaleIndex]}</small></div>
                     <strong className={`is-${tone}`} aria-label={`${name}结果 ${result ?? '待测量'}`} title={result ? `${name}·${formatResult(result)}` : '待测量'}>{result ?? '?'}</strong>
                   </header>
-                  <div key={`${name}-${history.length}-${result ?? 'pending'}`} className={`db-game__beam db-game__beam--${tone}`} aria-hidden="true"><i /><i /><b /></div>
-                  <div className="db-game__trays">
+                  <div key={`${name}-${history.length}-${result ?? 'pending'}`} className="db-game__machine">
+                    <div className="db-game__beam db-game__beam--result" aria-hidden="true" />
+                    <div className="db-game__pivot" aria-hidden="true" />
+                    <div className="db-game__stem" aria-hidden="true" />
+                    <div className="db-game__cord db-game__cord--left" aria-hidden="true" />
+                    <div className="db-game__cord db-game__cord--right" aria-hidden="true" />
                     {[scaleIndex * 2, scaleIndex * 2 + 1].map((panIndex) => {
                       const isTarget = selectedPanIndex === panIndex
                       const isHintTarget = hintTargetPan === panIndex
                       const animationInfo = pieceAnimation?.panIndex === panIndex ? colorInfo(pieceAnimation.color) : null
-                      const canRemove = status === 'playing' && playerTrays[panIndex][selectedColor] > 0
                       return (
                         <div
                           key={PAN_NAMES[panIndex]}
-                          className={`db-game__pan db-game__pan--interactive ${isTarget ? 'is-target' : ''} ${isHintTarget ? 'is-hint-target' : ''}`}
+                          className={`db-game__tray db-game__tray--${panIndex % 2 === 0 ? 'left' : 'right'} db-game__tray--interactive ${isTarget ? 'is-target' : ''} ${isHintTarget ? 'is-hint-target' : ''}`}
                           role="button"
                           tabIndex={status === 'playing' ? 0 : -1}
                           onClick={() => selectPan(panIndex)}
@@ -574,36 +577,42 @@ export function DevilsBalanceGame() {
                           aria-label={`选择${PAN_NAMES[panIndex]}作为投放目标`}
                           aria-pressed={isTarget}
                         >
-                          <div className="db-game__pan-label">
-                            <span>{PAN_NAMES[panIndex]}</span>
-                            <small className={isTarget ? 'is-target' : ''}>
-                              {isTarget ? '当前目标 · 投放点' : countPanLabels(playerTrays[panIndex], npc[panIndex]) ? '已投放' : '空盘'}
-                            </small>
+                          <div className="db-game__tray-head">
+                            <span className="db-game__tray-label">{PAN_NAMES[panIndex]}</span>
+                            <small className={isTarget ? 'is-target' : ''}>{isTarget ? '当前目标' : '点击选目标'}</small>
                           </div>
                           {animationInfo ? <span key={pieceAnimation?.id} className={`db__animated-piece db__animated-piece--${pieceAnimation?.kind}`} style={{ '--piece-color': animationInfo.hex, '--piece-soft': animationInfo.soft } as CSSProperties} aria-hidden="true"><i /><b>{animationInfo.name}</b></span> : null}
                           <StockRow pan={npc[panIndex]} source="npc" />
                           <StockRow pan={playerTrays[panIndex]} source="player" />
-                          <div className="db-game__pan-drop">
-                            <button
-                              type="button"
-                              className="db-game__pan-add"
-                              onClick={(event) => { event.stopPropagation(); addToPan(panIndex) }}
-                              disabled={status !== 'playing'}
-                              title={`把${selectedColorInfo.fullName}放入${PAN_NAMES[panIndex]}`}
-                            >
-                              <Plus aria-hidden="true" /><span>放入</span>
-                            </button>
-                            <button
-                              type="button"
-                              className="db-game__pan-remove"
-                              onClick={(event) => { event.stopPropagation(); removeFromPan(panIndex) }}
-                              disabled={!canRemove}
-                              title={`从${PAN_NAMES[panIndex]}取出一枚${selectedColorInfo.fullName}`}
-                              aria-label={`从${PAN_NAMES[panIndex]}取出一枚${selectedColorInfo.fullName}`}
-                            >
-                              <Minus aria-hidden="true" />
-                            </button>
-                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="db-game__scale-drop">
+                    {[0, 1].map((side) => {
+                      const panIndex = scaleIndex * 2 + side
+                      const canRemove = status === 'playing' && playerTrays[panIndex][selectedColor] > 0
+                      return (
+                        <div key={PAN_NAMES[panIndex]} className="db-game__drop-zone">
+                          <button
+                            type="button"
+                            className="db-game__drop-btn"
+                            onClick={() => addToPan(panIndex)}
+                            disabled={status !== 'playing'}
+                            title={`把${selectedColorInfo.fullName}放入${PAN_NAMES[panIndex]}`}
+                          >
+                            {side === 0 ? <><Plus aria-hidden="true" /><span>放入左盘</span></> : <><span>放入右盘</span><Plus aria-hidden="true" /></>}
+                          </button>
+                          <button
+                            type="button"
+                            className="db-game__drop-remove"
+                            onClick={() => removeFromPan(panIndex)}
+                            disabled={!canRemove}
+                            title={`从${PAN_NAMES[panIndex]}取出一枚${selectedColorInfo.fullName}`}
+                            aria-label={`从${PAN_NAMES[panIndex]}取出一枚${selectedColorInfo.fullName}`}
+                          >
+                            <Minus aria-hidden="true" />
+                          </button>
                         </div>
                       )
                     })}
@@ -721,7 +730,7 @@ export function DevilsBalanceGame() {
             <ol className="db-game__tutorial-steps">
               <li><b>01</b><div><strong>记住参照</strong><span>本关公开了 {referenceInfo.fullName} = {level.reference.weight}，它是唯一的精确重量。</span></div></li>
               <li><b>02</b><div><strong>选颜色</strong><span>在左侧“矿物库存”里选中一种颜色，卡片右侧的数字是你的库存。</span></div></li>
-              <li><b>03</b><div><strong>锁定目标</strong><span>点击任意托盘或其上的「＋ 放入」，把方块投进要比较的盘。每回合最多放 {level.playerLimit} 枚。</span></div></li>
+              <li><b>03</b><div><strong>锁定目标</strong><span>点击托盘选中目标盘，再点击天平下方「放入左盘 / 放入右盘」按钮。每回合最多放 {level.playerLimit} 枚。</span></div></li>
               <li><b>04</b><div><strong>提交测量</strong><span>点击底部“提交测量”，两台天平只返回 &gt;、&lt; 或 =，托盘里的方块会被消耗。</span></div></li>
               <li><b>05</b><div><strong>锁定唯一解</strong><span>候选解降到 1 组时获胜；资源耗尽前都可以重置本关重新规划。</span></div></li>
             </ol>
@@ -744,7 +753,7 @@ export function DevilsBalanceGame() {
               <article><span>目标</span><strong>找出五种颜色的真实重量</strong><p>每种重量是 1–10 的互不相同整数。候选解只保留与所有测量记录一致的组合。</p></article>
               <article><span>已知参照</span><strong>{referenceInfo.fullName} = {level.reference.weight}</strong><p>每一关只公开一种颜色的精确重量，其余四种需要通过比较推导。</p></article>
               <article><span>NPC 阶段</span><strong>先随机投放 0–3 枚</strong><p>NPC 方块来自无限池，你可以看见它们的颜色和数量，但不能取走。</p></article>
-              <article><span>玩家阶段</span><strong>最多投放 {level.playerLimit} 枚</strong><p>先在库存或底部选择颜色，再点击托盘上的「＋ 放入」；「−」会把本回合的玩家方块移出托盘。</p></article>
+              <article><span>玩家阶段</span><strong>最多投放 {level.playerLimit} 枚</strong><p>先在库存或底部选择颜色，再点击天平下方「放入」按钮；「−」会把本回合的玩家方块移出托盘。</p></article>
               <article><span>测量反馈</span><strong>&gt; 左重　&lt; 右重　= 平衡</strong><p>两台天平分别比较左右盘总重，不会显示具体数字。</p></article>
               <article><span>消耗与胜负</span><strong>提交后全部清空</strong><p>托盘方块会消耗。候选解为 1 组即胜利；候选解为空或资源/回合耗尽仍未唯一则失败。</p></article>
             </div>
@@ -810,10 +819,6 @@ export function DevilsBalanceGame() {
       ), document.body) : null}
     </section>
   )
-}
-
-function countPanLabels(player: Pan, npc: Pan): boolean {
-  return Object.values(player).some((count) => count > 0) || Object.values(npc).some((count) => count > 0)
 }
 
 export default DevilsBalanceGame
