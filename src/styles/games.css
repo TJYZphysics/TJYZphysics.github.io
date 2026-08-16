@@ -41,6 +41,26 @@
   background: #09101f;
 }
 
+.game-stage--devils-balance {
+  width: min(1580px, calc(100vw - 28px));
+  max-width: none;
+  margin-left: 50%;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transform: translateX(-50%);
+}
+
+.game-stage--devils-balance::before {
+  display: none;
+}
+
+html[data-color-mode='light'] .game-stage--devils-balance {
+  background: transparent;
+}
+
 .game-stage--turing::before,
 .game-stage--gomoku-3d::before,
 .game-stage--optical-defense::before {
@@ -62,7 +82,8 @@ html[data-color-mode='light'] .game-stage--optical-defense {
   background: #07121e;
 }
 
-body:has(.game-stage--optical-defense) .site-header {
+body:has(.game-stage--optical-defense) .site-header,
+body:has(.game-stage--devils-balance) .site-header {
   position: absolute;
 }
 
@@ -88,5 +109,9 @@ body:has(.game-stage--optical-defense) .site-header {
 
   .game-stage {
     min-height: 500px;
+  }
+
+  .game-stage--devils-balance {
+    width: calc(100vw - 16px);
   }
 }
