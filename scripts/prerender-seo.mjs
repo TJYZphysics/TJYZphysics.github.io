@@ -197,7 +197,7 @@ function buildPage({ route, title, description, keywords, contentHtml, jsonLd, i
     ${ogImage}<link rel="icon" href="${FAVICON}" />
 ${ld}    <script>
       // 不执行 JS 的搜索引擎爬虫读取上方静态正文；真实浏览器跳转回交互式站点。
-      sessionStorage.setItem('tjyzphysics:redirect', ${JSON.stringify(route)})
+      sessionStorage.setItem('tjyzphysics:redirect', ${JSON.stringify(route)} + location.search + location.hash)
       location.replace('/')
     </script>
     <style>
@@ -259,6 +259,7 @@ const GAMES = [
   ['电磁指南', '电场与洛伦兹力'],
   ['光路寻踪', '镜片与棱镜'],
   ['光路塔防', '几何光学实验台'],
+  ['魔鬼天平', '只看比较，不看数字'],
 ]
 const VIDEOS = [
   ['IYPT比赛介绍', '用滚动与自动播放推进的交互式网页影片，了解 IYPT 的研究流程、物理对抗与团队协作。', '/videos/iypt-introduction/'],
@@ -408,7 +409,7 @@ ${renderMarkdown(history.body, 1)}`
     {
       route: '/games',
       title: '物理游戏 · 天津一中物理社 | TJYZ Physics',
-      description: '五个互动物理游戏：图灵测试、三维五子、电磁指南、光路寻踪与光路塔防。',
+      description: '六个互动物理游戏：图灵测试、三维五子、电磁指南、光路寻踪、光路塔防与魔鬼天平。',
       h1: '物理游戏',
       lead: '奇奇怪怪的小东西。',
       cards: cardList(GAMES),
