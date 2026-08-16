@@ -67,14 +67,13 @@ function flattenPan(pan: Pan): ColorId[] {
   return COLOR_IDS.flatMap((color) => Array.from({ length: pan[color] }, () => color))
 }
 
-/** 托盘内的方块始终横向排布（左盘 / 右盘使用同一布局）。 */
+/** 托盘内只显示方块；来源信息保留在无障碍标签中，不占用盘面视觉空间。 */
 function StockRow({ pan, source }: { pan: Pan; source: 'npc' | 'player' }) {
   const pieces = COLOR_IDS.filter((color) => pan[color] > 0)
   return (
-    <div className={`db__stock db__stock--${source}`}>
-      <span className="db__stock-label">{source === 'npc' ? 'NPC' : '你'}</span>
-      <div className="db__stock-fill" aria-label={`${source === 'npc' ? 'NPC' : '玩家'}方块`}>
-        {pieces.length === 0 ? <i className="db__stock-empty">—</i> : pieces.flatMap((color) => {
+    <div className={`db__stock db__stock--${source}`} aria-label={`${source === 'npc' ? 'NPC' : '玩家'}方块`}>
+      <div className="db__stock-fill">
+        {pieces.flatMap((color) => {
           const info = colorInfo(color)
           const cells = Math.min(pan[color], 24)
           const row = Array.from({ length: cells }, (_, index) => (
@@ -556,18 +555,16 @@ export function DevilsBalanceGame() {
                     <div className="db-game__beam" aria-hidden="true" />
                     <div className="db-game__pivot" aria-hidden="true" />
                     <div className="db-game__stem" aria-hidden="true" />
-                    <div className="db-game__chain db-game__chain--l1" aria-hidden="true" />
-                    <div className="db-game__chain db-game__chain--l2" aria-hidden="true" />
-                    <div className="db-game__chain db-game__chain--r1" aria-hidden="true" />
-                    <div className="db-game__chain db-game__chain--r2" aria-hidden="true" />
-                    <div className="db-game__hook db-game__hook--l" aria-hidden="true" />
-                    <div className="db-game__hook db-game__hook--r" aria-hidden="true" />
                     {[scaleIndex * 2, scaleIndex * 2 + 1].map((panIndex) => {
                       const isTarget = selectedPanIndex === panIndex
                       const isHintTarget = hintTargetPan === panIndex
                       const animationInfo = pieceAnimation?.panIndex === panIndex ? colorInfo(pieceAnimation.color) : null
                       return (
-                        <div
+                        <div className={`db-game__suspension db-game__suspension--${panIndex % 2 === 0 ? 'left' : 'right'}`} key={PAN_NAMES[panIndex]}>
+                          <span className="db-game__suspension-anchor" aria-hidden="true" />
+                          <span className="db-game__suspension-chain db-game__suspension-chain--near" aria-hidden="true" />
+                          <span className="db-game__suspension-chain db-game__suspension-chain--far" aria-hidden="true" />
+                          <div
                           key={PAN_NAMES[panIndex]}
                           className={`db-game__tray db-game__tray--${panIndex % 2 === 0 ? 'left' : 'right'} db-game__tray--interactive ${isTarget ? 'is-target' : ''} ${isHintTarget ? 'is-hint-target' : ''}`}
                           role="button"
@@ -583,13 +580,10 @@ export function DevilsBalanceGame() {
                         >
                           <span className="db-game__dish" aria-hidden="true" />
                           <div className="db-game__tray-content">
-                            <div className="db-game__tray-head">
-                              <span className="db-game__tray-label">{PAN_NAMES[panIndex]}</span>
-                              <small className={isTarget ? 'is-target' : ''}>{isTarget ? '当前目标' : '点击选目标'}</small>
-                            </div>
-                            {animationInfo ? <span key={pieceAnimation?.id} className={`db__animated-piece db__animated-piece--${pieceAnimation?.kind}`} style={{ '--piece-color': animationInfo.hex, '--piece-soft': animationInfo.soft } as CSSProperties} aria-hidden="true"><i /><b>{animationInfo.name}</b></span> : null}
+                            {animationInfo ? <span key={pieceAnimation?.id} className={`db__animated-piece db__animated-piece--${pieceAnimation?.kind}`} style={{ '--piece-color': animationInfo.hex, '--piece-soft': animationInfo.soft } as CSSProperties} aria-hidden="true"><i /></span> : null}
                             <StockRow pan={npc[panIndex]} source="npc" />
                             <StockRow pan={playerTrays[panIndex]} source="player" />
+                          </div>
                           </div>
                         </div>
                       )
