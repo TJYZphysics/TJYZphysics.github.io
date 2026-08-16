@@ -553,11 +553,15 @@ export function DevilsBalanceGame() {
                     <strong className={`is-${tone}`} aria-label={`${name}结果 ${result ?? '待测量'}`} title={result ? `${name}·${formatResult(result)}` : '待测量'}>{result ?? '?'}</strong>
                   </header>
                   <div key={`${name}-${history.length}-${result ?? 'pending'}`} className="db-game__machine">
-                    <div className="db-game__beam db-game__beam--result" aria-hidden="true" />
+                    <div className="db-game__beam" aria-hidden="true" />
                     <div className="db-game__pivot" aria-hidden="true" />
                     <div className="db-game__stem" aria-hidden="true" />
-                    <div className="db-game__cord db-game__cord--left" aria-hidden="true" />
-                    <div className="db-game__cord db-game__cord--right" aria-hidden="true" />
+                    <div className="db-game__chain db-game__chain--l1" aria-hidden="true" />
+                    <div className="db-game__chain db-game__chain--l2" aria-hidden="true" />
+                    <div className="db-game__chain db-game__chain--r1" aria-hidden="true" />
+                    <div className="db-game__chain db-game__chain--r2" aria-hidden="true" />
+                    <div className="db-game__hook db-game__hook--l" aria-hidden="true" />
+                    <div className="db-game__hook db-game__hook--r" aria-hidden="true" />
                     {[scaleIndex * 2, scaleIndex * 2 + 1].map((panIndex) => {
                       const isTarget = selectedPanIndex === panIndex
                       const isHintTarget = hintTargetPan === panIndex
@@ -577,13 +581,16 @@ export function DevilsBalanceGame() {
                           aria-label={`选择${PAN_NAMES[panIndex]}作为投放目标`}
                           aria-pressed={isTarget}
                         >
-                          <div className="db-game__tray-head">
-                            <span className="db-game__tray-label">{PAN_NAMES[panIndex]}</span>
-                            <small className={isTarget ? 'is-target' : ''}>{isTarget ? '当前目标' : '点击选目标'}</small>
+                          <span className="db-game__dish" aria-hidden="true" />
+                          <div className="db-game__tray-content">
+                            <div className="db-game__tray-head">
+                              <span className="db-game__tray-label">{PAN_NAMES[panIndex]}</span>
+                              <small className={isTarget ? 'is-target' : ''}>{isTarget ? '当前目标' : '点击选目标'}</small>
+                            </div>
+                            {animationInfo ? <span key={pieceAnimation?.id} className={`db__animated-piece db__animated-piece--${pieceAnimation?.kind}`} style={{ '--piece-color': animationInfo.hex, '--piece-soft': animationInfo.soft } as CSSProperties} aria-hidden="true"><i /><b>{animationInfo.name}</b></span> : null}
+                            <StockRow pan={npc[panIndex]} source="npc" />
+                            <StockRow pan={playerTrays[panIndex]} source="player" />
                           </div>
-                          {animationInfo ? <span key={pieceAnimation?.id} className={`db__animated-piece db__animated-piece--${pieceAnimation?.kind}`} style={{ '--piece-color': animationInfo.hex, '--piece-soft': animationInfo.soft } as CSSProperties} aria-hidden="true"><i /><b>{animationInfo.name}</b></span> : null}
-                          <StockRow pan={npc[panIndex]} source="npc" />
-                          <StockRow pan={playerTrays[panIndex]} source="player" />
                         </div>
                       )
                     })}
