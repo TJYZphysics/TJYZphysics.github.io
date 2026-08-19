@@ -36,7 +36,8 @@
 
 .game-stage--turing,
 .game-stage--gomoku-3d,
-.game-stage--optical-defense {
+.game-stage--optical-defense,
+.game-stage--hat-factory {
   padding: 0;
   background: #09101f;
 }
@@ -63,13 +64,15 @@ html[data-color-mode='light'] .game-stage--devils-balance {
 
 .game-stage--turing::before,
 .game-stage--gomoku-3d::before,
-.game-stage--optical-defense::before {
+.game-stage--optical-defense::before,
+.game-stage--hat-factory::before {
   display: none;
 }
 
 html[data-color-mode='light'] .game-stage--turing,
 html[data-color-mode='light'] .game-stage--gomoku-3d,
-html[data-color-mode='light'] .game-stage--optical-defense {
+html[data-color-mode='light'] .game-stage--optical-defense,
+html[data-color-mode='light'] .game-stage--hat-factory {
   background: var(--surface);
 }
 

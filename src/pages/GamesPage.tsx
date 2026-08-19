@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrainCircuit, Box, Magnet, Scale, ScanLine, Sparkles } from 'lucide-react'
+import { BrainCircuit, Box, Factory, Magnet, Scale, ScanLine, Sparkles } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { usePageMeta } from '../lib/seo'
 
@@ -12,8 +12,9 @@ const ElectromagneticGuideGame = lazy(() => import('../features/games/electromag
 const CausalOrigamiGame = lazy(() => import('../features/games/causalOrigami/CausalOrigamiGame').then((module) => ({ default: module.CausalOrigamiGame })))
 const OpticalDefenseGame = lazy(() => import('../features/games/opticalDefense').then((module) => ({ default: module.OpticalDefenseGame })))
 const DevilsBalanceGame = lazy(() => import('../features/games/devilsBalance/DevilsBalanceGame').then((module) => ({ default: module.DevilsBalanceGame })))
+const HatFactoryGame = lazy(() => import('../features/games/hatFactory').then((module) => ({ default: module.HatFactoryGame })))
 
-type GameId = 'turing' | 'gomoku-3d' | 'electromagnetic' | 'causal' | 'optical-defense' | 'devils-balance'
+type GameId = 'turing' | 'gomoku-3d' | 'electromagnetic' | 'causal' | 'optical-defense' | 'devils-balance' | 'hat-factory'
 
 const games = [
   { id: 'turing' as const, number: '01', title: '图灵测试', subtitle: '图灵与冯诺依曼的神奇测试', icon: BrainCircuit },
@@ -22,6 +23,7 @@ const games = [
   { id: 'causal' as const, number: '04', title: '光路寻踪', subtitle: '镜片与棱镜', icon: Sparkles },
   { id: 'optical-defense' as const, number: '05', title: '光路塔防', subtitle: '几何光学实验台', icon: ScanLine },
   { id: 'devils-balance' as const, number: '06', title: '魔鬼天平', subtitle: '只看比较，不看数字', icon: Scale },
+  { id: 'hat-factory' as const, number: '07', title: '帽子工厂', subtitle: '量头定制，概不退换', icon: Factory },
 ]
 
 function resolveGame(value: string | null): GameId {
@@ -31,7 +33,7 @@ function resolveGame(value: string | null): GameId {
 export default function GamesPage() {
   usePageMeta({
     title: '物理游戏 · 天津一中物理社 | TJYZ Physics',
-    description: '六个互动物理游戏：图灵测试、三维五子、电磁指南、光路寻踪、光路塔防与魔鬼天平。',
+    description: '七个互动科学游戏：图灵测试、三维五子、电磁指南、光路寻踪、光路塔防、魔鬼天平与帽子工厂。',
     path: '/games/',
   })
   const [searchParams, setSearchParams] = useSearchParams()
@@ -67,6 +69,7 @@ export default function GamesPage() {
           {active === 'causal' && <CausalOrigamiGame />}
           {active === 'optical-defense' && <OpticalDefenseGame />}
           {active === 'devils-balance' && <DevilsBalanceGame />}
+          {active === 'hat-factory' && <HatFactoryGame />}
         </Suspense>
       </section>
     </main>

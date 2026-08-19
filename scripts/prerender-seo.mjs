@@ -260,6 +260,7 @@ const GAMES = [
   ['光路寻踪', '镜片与棱镜'],
   ['光路塔防', '几何光学实验台'],
   ['魔鬼天平', '只看比较，不看数字'],
+  ['帽子工厂', '量头定制，概不退换'],
 ]
 const VIDEOS = [
   ['IYPT比赛介绍', '用滚动与自动播放推进的交互式网页影片，了解 IYPT 的研究流程、物理对抗与团队协作。', '/videos/iypt-introduction/'],
@@ -409,7 +410,7 @@ ${renderMarkdown(history.body, 1)}`
     {
       route: '/games',
       title: '物理游戏 · 天津一中物理社 | TJYZ Physics',
-      description: '六个互动物理游戏：图灵测试、三维五子、电磁指南、光路寻踪、光路塔防与魔鬼天平。',
+      description: '七个互动科学游戏：图灵测试、三维五子、电磁指南、光路寻踪、光路塔防、魔鬼天平与帽子工厂。',
       h1: '物理游戏',
       lead: '奇奇怪怪的小东西。',
       cards: cardList(GAMES),
