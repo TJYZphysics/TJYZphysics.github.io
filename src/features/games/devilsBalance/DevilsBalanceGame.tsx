@@ -37,12 +37,22 @@ type PieceAnimation = {
   color: ColorId
 }
 
+type PendingMeasurement = {
+  observation: Observation
+  nextCandidates: ReturnType<typeof filterCandidates>
+  nextRemaining: Record<ColorId, number>
+  nextTurnIndex: number
+  outcome: 'continue' | 'won' | 'lost'
+  message: string
+}
+
 const SCALE_NAMES = ['天平 A', '天平 B'] as const
 const SCALE_ROLES = ['主天平 / MAIN', '副天平 / AUX'] as const
 const PAN_SHORT_NAMES = ['A 左', 'A 右', 'B 左', 'B 右'] as const
 const PAN_NAMES = ['A 左盘', 'A 右盘', 'B 左盘', 'B 右盘'] as const
 const TUTORIAL_STORAGE_KEY = 'tjyz-devils-balance-tutorial-seen'
 const MAX_CANDIDATE_MASS = 10
+const RESULT_SETTLE_MS = 800
 
 function initialInventory(level: DevilBalanceLevel) {
   return COLOR_IDS.reduce<Record<ColorId, number>>((inventory, color) => {
@@ -165,8 +175,10 @@ export function DevilsBalanceGame() {
   const [resultOpen, setResultOpen] = useState(false)
   const [pieceAnimation, setPieceAnimation] = useState<PieceAnimation | null>(null)
   const [hintTargetPan, setHintTargetPan] = useState<number | null>(null)
+  const [pendingMeasurement, setPendingMeasurement] = useState<PendingMeasurement | null>(null)
   const modalScrollY = useRef<number | null>(null)
   const modalOpen = (tutorialOpen && levelIndex === 0) || rulesOpen || hintOpen || resultOpen
+  const isSettling = pendingMeasurement !== null
 
   const getGameScrollTarget = useCallback(() => {
     const root = gameRootRef.current
@@ -231,6 +243,39 @@ export function DevilsBalanceGame() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [hintOpen, resultOpen, rulesOpen, tutorialOpen])
 
+  useEffect(() => {
+    if (!pendingMeasurement) return undefined
+
+    const timeout = window.setTimeout(() => {
+      setHistory((items) => [...items, pendingMeasurement.observation])
+      setCandidates(pendingMeasurement.nextCandidates)
+      setRemaining(pendingMeasurement.nextRemaining)
+      setPlayerTrays(emptyTrays())
+      setPieceAnimation(null)
+      setHintLevel(0)
+      setPendingMeasurement(null)
+
+      if (pendingMeasurement.outcome === 'won') {
+        setStatus('won')
+        setMessage(pendingMeasurement.message)
+        setResultOpen(true)
+        return
+      }
+      if (pendingMeasurement.outcome === 'lost') {
+        setStatus('lost')
+        setMessage(pendingMeasurement.message)
+        setResultOpen(true)
+        return
+      }
+
+      setDisplayedResults([undefined, undefined])
+      setTurnIndex(pendingMeasurement.nextTurnIndex)
+      setMessage(pendingMeasurement.message)
+    }, RESULT_SETTLE_MS)
+
+    return () => window.clearTimeout(timeout)
+  }, [pendingMeasurement])
+
   const level = DEVILS_BALANCE_LEVELS[levelIndex]
   const npc = useMemo(() => npcPhase(level, turnIndex), [level, turnIndex])
   const solved = useMemo(() => deriveSolvedWeights(candidates), [candidates])
@@ -280,19 +325,13 @@ export function DevilsBalanceGame() {
   }
 
   const selectColor = (color: ColorId) => {
+    if (status !== 'playing' || isSettling) return
     setSelectedColor(color)
-    setMessage(`已选择${colorInfo(color).fullName}。点击天平下方的「放入左盘 / 放入右盘」按钮。`)
-  }
-
-  const selectPan = (panIndex: number) => {
-    if (status !== 'playing') return
-    setSelectedPanIndex(panIndex)
-    setHintTargetPan(null)
-    setMessage(`已选择${PAN_NAMES[panIndex]}作为投放目标。`)
+    setMessage(`已选择${colorInfo(color).fullName}。点击任一托盘即可直接投放，也可使用天平下方的放入按钮。`)
   }
 
   const guideToHintAction = () => {
-    if (!hintAction || status !== 'playing') return
+    if (!hintAction || status !== 'playing' || isSettling) return
     setSelectedColor(hintAction.color)
     setSelectedPanIndex(hintAction.panIndex)
     setHintTargetPan(hintAction.panIndex)
@@ -315,6 +354,7 @@ export function DevilsBalanceGame() {
     setDisplayedResults([undefined, undefined])
     setPieceAnimation(null)
     setHintTargetPan(null)
+    setPendingMeasurement(null)
     setHintLevel(0)
     dismissTutorial()
     setRulesOpen(false)
@@ -329,7 +369,7 @@ export function DevilsBalanceGame() {
   }
 
   const addToPan = (panIndex = selectedPanIndex) => {
-    if (status !== 'playing') return
+    if (status !== 'playing' || isSettling) return
     if (playerCount >= level.playerLimit) {
       setMessage(`本回合最多投放 ${level.playerLimit} 枚玩家方块。`)
       return
@@ -348,8 +388,15 @@ export function DevilsBalanceGame() {
     setMessage(`已将${colorInfo(selectedColor).fullName}方块放入${PAN_NAMES[panIndex]}。`)
   }
 
+  const placeOnPan = (panIndex: number) => {
+    if (status !== 'playing' || isSettling) return
+    setSelectedPanIndex(panIndex)
+    setHintTargetPan(null)
+    addToPan(panIndex)
+  }
+
   const removeFromPan = (panIndex = selectedPanIndex) => {
-    if (status !== 'playing' || playerTrays[panIndex][selectedColor] <= 0) return
+    if (status !== 'playing' || isSettling || playerTrays[panIndex][selectedColor] <= 0) return
     setDisplayedResults([undefined, undefined])
     setPlayerTrays((current) => {
       const next = cloneTrays(current)
@@ -361,14 +408,14 @@ export function DevilsBalanceGame() {
   }
 
   const clearPlayerTrays = () => {
-    if (playerCount === 0) return
+    if (isSettling || playerCount === 0) return
     setPlayerTrays(emptyTrays())
     setPieceAnimation(null)
     setMessage('本回合的玩家投放已清空。')
   }
 
   const submitMeasurement = () => {
-    if (status !== 'playing') return
+    if (status !== 'playing' || isSettling) return
     const validation = validatePlayerTrays(playerTrays, remaining, level.playerLimit)
     if (!validation.ok) {
       setMessage(validation.reason === 'limit' ? `本回合最多投放 ${level.playerLimit} 枚方块。` : '玩家库存不足，无法提交。')
@@ -386,39 +433,36 @@ export function DevilsBalanceGame() {
       results,
       remainingCandidates: nextCandidates.length,
     }
-    setHistory((items) => [...items, nextHistory])
-    setCandidates(nextCandidates)
-    setRemaining(nextRemaining)
-    setPlayerTrays(emptyTrays())
     setPieceAnimation(null)
     setDisplayedResults(results)
-    setHintLevel(0)
+    const nextTurnIndex = turnIndex + 1
+    const outcome = nextCandidates.length === 1
+      ? 'won'
+      : nextCandidates.length === 0 || isInventoryEmpty(nextRemaining) || nextTurnIndex >= level.maxTurns
+        ? 'lost'
+        : 'continue'
+    const nextMessage = nextCandidates.length === 1
+      ? '唯一解已锁定。五种颜色的重量全部确定，实验完成。'
+      : nextCandidates.length === 0
+        ? '记录与当前规则矛盾，候选解为空。请重置本关再试。'
+        : isInventoryEmpty(nextRemaining) || nextTurnIndex >= level.maxTurns
+          ? '方块资源已耗尽，仍有多个候选解。重置本关可以重新规划投放。'
+          : `第 ${nextTurnIndex + 1} 回合已就绪。上一轮：天平 A ${formatResult(results[0])}，天平 B ${formatResult(results[1])}；候选解剩余 ${nextCandidates.length} 组。`
 
-    if (nextCandidates.length === 1) {
-      setStatus('won')
-      setMessage('唯一解已锁定。五种颜色的重量全部确定，实验完成。')
-      setResultOpen(true)
-      return
-    }
-    if (nextCandidates.length === 0) {
-      setStatus('lost')
-      setMessage('记录与当前规则矛盾，候选解为空。请重置本关再试。')
-      setResultOpen(true)
-      return
-    }
-    if (isInventoryEmpty(nextRemaining) || turnIndex + 1 >= level.maxTurns) {
-      setStatus('lost')
-      setMessage('方块资源已耗尽，仍有多个候选解。重置本关可以重新规划投放。')
-      setResultOpen(true)
-      return
-    }
-    setTurnIndex((index) => index + 1)
-    setMessage(`测量完成：天平 A ${formatResult(results[0])}，天平 B ${formatResult(results[1])}。候选解剩余 ${nextCandidates.length} 组。`)
+    setPendingMeasurement({
+      observation: nextHistory,
+      nextCandidates,
+      nextRemaining,
+      nextTurnIndex,
+      outcome,
+      message: nextMessage,
+    })
+    setMessage(`第 ${turnIndex + 1} 回合正在结算：天平 A ${formatResult(results[0])}，天平 B ${formatResult(results[1])}。`)
   }
 
   const undoLastMeasurement = () => {
     const previous = history.at(-1)
-    if (!previous || status === 'won' || status === 'lost') return
+    if (!previous || status === 'won' || status === 'lost' || isSettling) return
     const previousHistory = history.slice(0, -1)
     const previousCandidates = previousHistory.reduce(
       (items, record) => filterCandidates(items, record.combined, record.results),
@@ -449,7 +493,7 @@ export function DevilsBalanceGame() {
   }
 
   return (
-    <section ref={gameRootRef} className={`db-game db-game--${status}`} aria-labelledby="devils-balance-title">
+    <section ref={gameRootRef} className={`db-game db-game--${status}`} aria-labelledby="devils-balance-title" aria-busy={isSettling}>
       <header className="db-game__header">
         <div className="db-game__brand">
           <span className="db-game__eyebrow">WEIGHT SCALE GAME · 10 CASES</span>
@@ -463,8 +507,8 @@ export function DevilsBalanceGame() {
           <div className="db-game__chip" title="剩余方块总数">
             <span>BLOCKS</span><strong>{remainingTotal}</strong>
           </div>
-          <div className={`db-game__chip db-game__chip-status is-${status}`} title="当前状态">
-            <span>STATUS</span><strong>{status === 'playing' ? '进行中' : status === 'won' ? '已获胜' : '已失败'}</strong>
+          <div className={`db-game__chip db-game__chip-status is-${isSettling ? 'settling' : status}`} title="当前状态">
+            <span>STATUS</span><strong>{isSettling ? '结算中' : status === 'playing' ? '进行中' : status === 'won' ? '已获胜' : '已失败'}</strong>
           </div>
           <div className="db-game__header-tools" aria-label="游戏工具">
             <button type="button" className="db-game__tool-button" onClick={() => { rememberModalScroll(); setRulesOpen(true) }} title="打开规则书">
@@ -509,6 +553,7 @@ export function DevilsBalanceGame() {
                   type="button"
                   className={`db-game__vault-card ${isSelected ? 'is-selected' : ''} ${isEmpty ? 'is-empty' : ''}`}
                   onClick={() => selectColor(color.id)}
+                  disabled={isSettling || status !== 'playing'}
                   role="option"
                   aria-selected={isSelected}
                   aria-label={`选择${color.fullName}，库存 ${remaining[color.id]}`}
@@ -522,7 +567,7 @@ export function DevilsBalanceGame() {
             })}
           </div>
           <div className="db-game__vault-hint">
-            先选择一种矿物，再点击天平下方的「放入左盘 / 放入右盘」按钮。
+            先选择一种矿物，再直接点击目标托盘；也可以使用天平下方的「放入左盘 / 放入右盘」按钮。
             NPC 方块来自无限池，你放入的方块会在「提交测量」时消耗。
           </div>
         </aside>
@@ -532,7 +577,7 @@ export function DevilsBalanceGame() {
             <div className="db-game__arena-title">
               <span>WEIGHT SCALE CHAMBER</span>
               <strong>双天平实验台</strong>
-              <p><MousePointer2 aria-hidden="true" />点击托盘选中目标，点击下方「放入」按钮投放所选矿物。</p>
+              <p><MousePointer2 aria-hidden="true" />点击托盘直接投放当前矿物，下方按钮提供同样的精确操作。</p>
             </div>
             <div className="db-game__arena-legend" aria-label="实验台图例">
               <span><i className="is-npc" />NPC 方块</span>
@@ -568,15 +613,16 @@ export function DevilsBalanceGame() {
                           key={PAN_NAMES[panIndex]}
                           className={`db-game__tray db-game__tray--${panIndex % 2 === 0 ? 'left' : 'right'} db-game__tray--interactive ${isTarget ? 'is-target' : ''} ${isHintTarget ? 'is-hint-target' : ''}`}
                           role="button"
-                          tabIndex={status === 'playing' ? 0 : -1}
-                          onClick={() => selectPan(panIndex)}
+                          tabIndex={status === 'playing' && !isSettling ? 0 : -1}
+                          onClick={() => placeOnPan(panIndex)}
                           onKeyDown={(event) => {
                             if (event.key !== 'Enter' && event.key !== ' ') return
                             event.preventDefault()
-                            selectPan(panIndex)
+                            placeOnPan(panIndex)
                           }}
-                          aria-label={`选择${PAN_NAMES[panIndex]}作为投放目标`}
+                          aria-label={`把${selectedColorInfo.fullName}投放到${PAN_NAMES[panIndex]}`}
                           aria-pressed={isTarget}
+                          aria-disabled={isSettling || status !== 'playing'}
                         >
                           <span className="db-game__dish" aria-hidden="true" />
                           <div className="db-game__tray-content">
@@ -592,14 +638,14 @@ export function DevilsBalanceGame() {
                   <div className="db-game__scale-drop">
                     {[0, 1].map((side) => {
                       const panIndex = scaleIndex * 2 + side
-                      const canRemove = status === 'playing' && playerTrays[panIndex][selectedColor] > 0
+                      const canRemove = status === 'playing' && !isSettling && playerTrays[panIndex][selectedColor] > 0
                       return (
                         <div key={PAN_NAMES[panIndex]} className="db-game__drop-zone">
                           <button
                             type="button"
                             className="db-game__drop-btn"
-                            onClick={() => addToPan(panIndex)}
-                            disabled={status !== 'playing'}
+                            onClick={() => placeOnPan(panIndex)}
+                            disabled={status !== 'playing' || isSettling}
                             title={`把${selectedColorInfo.fullName}放入${PAN_NAMES[panIndex]}`}
                           >
                             {side === 0 ? <><Plus aria-hidden="true" /><span>放入左盘</span></> : <><span>放入右盘</span><Plus aria-hidden="true" /></>}
@@ -625,7 +671,7 @@ export function DevilsBalanceGame() {
 
           <div className="db-game__statusbar" role="status" aria-live="polite">
             <span className="db-game__statusbar-icon">{status === 'won' ? <Check aria-hidden="true" /> : status === 'lost' ? <AlertTriangle aria-hidden="true" /> : <Scale aria-hidden="true" />}</span>
-            <strong>{status === 'won' ? '推导完成' : status === 'lost' ? '本关未完成' : '实验记录'}</strong>
+            <strong>{isSettling ? '结算中' : status === 'won' ? '推导完成' : status === 'lost' ? '本关未完成' : '实验记录'}</strong>
             <span className="db-game__statusbar-msg">{message}</span>
           </div>
         </section>
@@ -699,6 +745,7 @@ export function DevilsBalanceGame() {
               type="button"
               className={`db-game__mini ${selectedColor === color.id ? 'is-active' : ''}`}
               onClick={() => selectColor(color.id)}
+              disabled={isSettling || status !== 'playing'}
               aria-selected={selectedColor === color.id}
               role="option"
               aria-label={color.fullName}
@@ -711,10 +758,10 @@ export function DevilsBalanceGame() {
           <span className="db-game__selection-text">已选：{selectedColorInfo.fullName} · 库存 {remaining[selectedColor]}</span>
         </div>
         <div className="db-game__footer-actions">
-          <button type="button" onClick={clearPlayerTrays} disabled={playerCount === 0} title="清空本回合投放" aria-label="清空本回合投放"><Trash2 aria-hidden="true" /><span>清空</span></button>
-          <button type="button" onClick={undoLastMeasurement} disabled={history.length === 0 || status !== 'playing'} title="撤销上一轮测量"><Undo2 aria-hidden="true" /><span>撤销上一轮</span></button>
+          <button type="button" onClick={clearPlayerTrays} disabled={playerCount === 0 || isSettling} title="清空本回合投放" aria-label="清空本回合投放"><Trash2 aria-hidden="true" /><span>清空</span></button>
+          <button type="button" onClick={undoLastMeasurement} disabled={history.length === 0 || status !== 'playing' || isSettling} title="撤销上一轮测量"><Undo2 aria-hidden="true" /><span>撤销上一轮</span></button>
           <button type="button" onClick={() => resetLevel()} title="重置当前关卡"><RotateCcw aria-hidden="true" /><span>重置本关</span></button>
-          <button type="button" className="db-game__measure" onClick={submitMeasurement} disabled={status !== 'playing'} title={`提交测量：消耗 ${playerCount} 枚玩家方块，结算两台天平`}>
+          <button type="button" className="db-game__measure" onClick={submitMeasurement} disabled={status !== 'playing' || isSettling} title={`提交测量：消耗 ${playerCount} 枚玩家方块，结算两台天平`}>
             <Scale aria-hidden="true" /><span>提交测量 · END TURN</span><small>{playerCount}/{level.playerLimit} 已放</small>
           </button>
         </div>
@@ -731,7 +778,7 @@ export function DevilsBalanceGame() {
             <ol className="db-game__tutorial-steps">
               <li><b>01</b><div><strong>记住参照</strong><span>本关公开了 {referenceInfo.fullName} = {level.reference.weight}，它是唯一的精确重量。</span></div></li>
               <li><b>02</b><div><strong>选颜色</strong><span>在左侧“矿物库存”里选中一种颜色，卡片右侧的数字是你的库存。</span></div></li>
-              <li><b>03</b><div><strong>锁定目标</strong><span>点击托盘选中目标盘，再点击天平下方「放入左盘 / 放入右盘」按钮。每回合最多放 {level.playerLimit} 枚。</span></div></li>
+              <li><b>03</b><div><strong>锁定目标</strong><span>选择颜色后点击目标托盘即可直接投放，也可使用天平下方「放入左盘 / 放入右盘」按钮。每回合最多放 {level.playerLimit} 枚。</span></div></li>
               <li><b>04</b><div><strong>提交测量</strong><span>点击底部“提交测量”，两台天平只返回 &gt;、&lt; 或 =，托盘里的方块会被消耗。</span></div></li>
               <li><b>05</b><div><strong>锁定唯一解</strong><span>候选解降到 1 组时获胜；资源耗尽前都可以重置本关重新规划。</span></div></li>
             </ol>

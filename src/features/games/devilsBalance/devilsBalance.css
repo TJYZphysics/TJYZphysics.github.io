@@ -91,6 +91,7 @@
   letter-spacing: .1em;
 }
 .db-game__chip strong { color: var(--db-cyan); font: 700 .9rem 'Space Grotesk', sans-serif; }
+.db-game__chip-status.is-settling strong { color: var(--db-gold); }
 .db-game__chip-status.is-won strong { color: var(--db-green); }
 .db-game__chip-status.is-lost strong { color: var(--db-red); }
 
@@ -481,6 +482,7 @@
   transition: transform .38s cubic-bezier(.2,.9,.3,1.15);
 }
 .db-game__tray--interactive { cursor: pointer; }
+.db-game__tray--interactive[aria-disabled='true'] { cursor: wait; }
 .db-game__tray--interactive:focus-visible { outline: 2px solid rgba(109,225,239,.5); outline-offset: 3px; border-radius: 18px; }
 .db-game__tray.is-hint-target { animation: db-hint-target 1.45s ease both; }
 
@@ -616,6 +618,9 @@
 }
 .db-game__drop-remove:hover:not(:disabled) { border-color: var(--db-red); color: #fff; background: rgba(243,122,115,.16); }
 .db-game__drop-remove svg { width: 14px; }
+
+.db-game__vault-card:disabled,
+.db-game__mini:disabled { cursor: wait; opacity: .62; }
 
 /* --- 投放动画：重力加速下落 + 撞击压缩 + 衰减回弹 --- */
 
@@ -1302,6 +1307,7 @@ html[data-theme='claude-dark'] .db-game__dish::after { background: radial-gradie
 .db-game__footer { border-color: rgba(87, 70, 44, .2); background: rgba(255, 252, 245, .58); box-shadow: inset 0 1px rgba(255,255,255,.7); }
 .db-game__chip { color: #727168; }
 .db-game__chip strong { color: #356e73; }
+.db-game__chip-status.is-settling strong { color: #9c6a2d; }
 .db-game__chip-status.is-won strong { color: #34704c; }
 .db-game__chip-status.is-lost strong { color: #a34335; }
 .db-game__tool-button { color: #5b625f; }
@@ -1623,8 +1629,8 @@ html[data-theme='claude-dark'] .db-game .db-game__tray--interactive:hover .db-ga
 .db-game__suspension::after { display: none; }
 .db-game__tray-content { height: 44px; padding: 0 8px; }
 .db__stock { left: 8px; right: 8px; grid-template-columns: minmax(0, 1fr); }
-.db__stock--npc { top: 3px; }
-.db__stock--player { top: 23px; }
+.db__stock--npc { top: 3px; z-index: 1; }
+.db__stock--player { top: 14px; z-index: 2; }
 .db__stock-fill { justify-content: center; gap: 4px; }
 .db__mini-block { width: 18px; height: 18px; border-radius: 5px; }
 .db__animated-piece i { width: 26px; height: 26px; border-radius: 6px; }
