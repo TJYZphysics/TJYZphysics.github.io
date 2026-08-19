@@ -86,7 +86,8 @@ html[data-color-mode='light'] .game-stage--hat-factory {
 }
 
 body:has(.game-stage--optical-defense) .site-header,
-body:has(.game-stage--devils-balance) .site-header {
+body:has(.game-stage--devils-balance) .site-header,
+body:has(.game-stage--hat-factory) .site-header {
   position: absolute;
 }
 

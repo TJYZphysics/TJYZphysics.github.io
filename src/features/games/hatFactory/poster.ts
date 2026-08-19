@@ -75,6 +75,18 @@ function wrapText(context: CanvasRenderingContext2D, text: string, maxWidth: num
   return lines
 }
 
+function fitWrappedText(context: CanvasRenderingContext2D, text: string, maxWidth: number, startingSize: number, font: string, maxLines: number) {
+  let size = startingSize
+  let lines: string[] = []
+  do {
+    context.font = `900 ${size}px ${font}`
+    lines = wrapText(context, text, maxWidth)
+    if (lines.length <= maxLines) return { size, lines }
+    size -= 2
+  } while (size > 22)
+  return { size, lines: lines.slice(0, maxLines) }
+}
+
 function drawHatShape(context: CanvasRenderingContext2D, shape: HatShape) {
   context.beginPath()
   if (shape === 'peaked') {
@@ -212,7 +224,9 @@ export async function createHatFactoryPosterBlob(result: HatPosterResult, style:
   context.fillStyle = archive ? '#b8b493' : '#355b7e'
   context.font = '700 21px "Arial", sans-serif'
   context.fillText('CERTIFICATE NO. HF-20-027', 98, 361)
-  context.fillText('QUALITY CONTROL: ABSURDLY STRICT', 620, 361)
+  context.textAlign = 'right'
+  context.fillText('QUALITY CONTROL: ABSURDLY STRICT', 982, 361)
+  context.textAlign = 'left'
   context.strokeStyle = archive ? '#756f59' : '#171713'
   context.lineWidth = 3
   context.beginPath(); context.moveTo(98, 390); context.lineTo(982, 390); context.stroke()
@@ -227,8 +241,10 @@ export async function createHatFactoryPosterBlob(result: HatPosterResult, style:
   fitFont(context, result.name, 820, 124, '"Noto Sans SC", sans-serif')
   context.fillText(result.name, 540, 1205)
   context.fillStyle = archive ? '#c95645' : '#e05c37'
-  context.font = '900 34px "Noto Sans SC", sans-serif'
-  context.fillText(`「${result.tagline}」`, 540, 1272)
+  const tagline = fitWrappedText(context, `「${result.tagline}」`, 820, 34, '"Noto Sans SC", sans-serif', 2)
+  context.font = `900 ${tagline.size}px "Noto Sans SC", sans-serif`
+  const taglineStartY = tagline.lines.length === 1 ? 1272 : 1248
+  tagline.lines.forEach((line, index) => context.fillText(line, 540, taglineStartY + index * 38))
 
   roundedRect(context, 100, 1325, 880, 270, archive ? 4 : 26)
   context.fillStyle = archive ? 'rgba(232,217,184,.07)' : '#fffaf0'
@@ -246,25 +262,25 @@ export async function createHatFactoryPosterBlob(result: HatPosterResult, style:
 
   if (archive) {
     context.save()
-    context.translate(850, 1265)
+    context.translate(855, 1642)
     context.rotate(-.16)
     context.strokeStyle = '#a9322c'
-    context.lineWidth = 8
-    context.beginPath(); context.ellipse(0, 0, 107, 57, 0, 0, Math.PI * 2); context.stroke()
-    context.font = '900 31px "Noto Sans SC", sans-serif'
+    context.lineWidth = 7
+    context.beginPath(); context.ellipse(0, 0, 92, 42, 0, 0, Math.PI * 2); context.stroke()
+    context.font = '900 27px "Noto Sans SC", sans-serif'
     context.fillStyle = '#a9322c'
     context.textAlign = 'center'; context.textBaseline = 'middle'
     context.fillText('鉴定完毕', 0, 0)
     context.restore()
   } else {
     context.save()
-    context.translate(840, 1270)
+    context.translate(855, 1642)
     context.rotate(.09)
     context.fillStyle = '#f2bd39'
     context.strokeStyle = '#171713'
-    context.lineWidth = 7
-    roundedRect(context, -115, -43, 230, 86, 16); context.fill(); context.stroke()
-    context.font = '900 29px "Noto Sans SC", sans-serif'
+    context.lineWidth = 6
+    roundedRect(context, -101, -34, 202, 68, 14); context.fill(); context.stroke()
+    context.font = '900 25px "Noto Sans SC", sans-serif'
     context.fillStyle = '#171713'; context.textAlign = 'center'; context.textBaseline = 'middle'
     context.fillText('新鲜出炉!', 0, 0)
     context.restore()

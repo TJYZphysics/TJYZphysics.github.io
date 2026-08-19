@@ -92,6 +92,7 @@ function PosterPreview({ result, qrCode }: { result: HatFactoryResult; qrCode: s
 }
 
 export function HatFactoryGame() {
+  const factoryRef = useRef<HTMLElement>(null)
   const [phase, setPhase] = useState<GamePhase>('intro')
   const [selectedSize, setSelectedSize] = useState<HatSize | null>(null)
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -104,6 +105,15 @@ export function HatFactoryGame() {
   const reducedMotion = useReducedMotion()
   const startUrl = useMemo(getHatFactoryUrl, [])
   const supportsWebShare = typeof navigator !== 'undefined' && typeof (navigator as OptionalWebShareNavigator).share === 'function'
+
+  const focusFactory = () => {
+    window.requestAnimationFrame(() => factoryRef.current?.scrollIntoView?.({ block: 'start', behavior: 'auto' }))
+  }
+
+  const showPhase = (nextPhase: GamePhase) => {
+    setPhase(nextPhase)
+    focusFactory()
+  }
 
   const questions = selectedSize ? QUESTIONS_BY_SIZE[selectedSize] : []
   const result = useMemo(() => {
@@ -125,7 +135,7 @@ export function HatFactoryGame() {
   }, [result, startUrl])
 
   const openFactory = () => {
-    setPhase('size-select')
+    showPhase('size-select')
     setActionMessage('')
   }
 
@@ -135,7 +145,7 @@ export function HatFactoryGame() {
     setQuestionIndex(0)
     setLeaving(false)
     setActionMessage('')
-    setPhase('quiz')
+    showPhase('quiz')
   }
 
   const chooseAnswer = (optionId: string) => {
@@ -146,7 +156,7 @@ export function HatFactoryGame() {
 
     const advance = () => {
       setLeaving(false)
-      if (questionIndex === questions.length - 1) setPhase('result')
+      if (questionIndex === questions.length - 1) showPhase('result')
       else setQuestionIndex((current) => current + 1)
     }
 
@@ -166,7 +176,7 @@ export function HatFactoryGame() {
 
   const changeSize = () => {
     if (transitionTimer.current !== null) window.clearTimeout(transitionTimer.current)
-    setPhase('size-select')
+    showPhase('size-select')
     setAnswers([])
     setQuestionIndex(0)
     setLeaving(false)
@@ -230,7 +240,7 @@ export function HatFactoryGame() {
   const currentQuestion = questions[questionIndex]
 
   return (
-    <section className={`hat-factory hf-phase--${phase}`} aria-label="帽子工厂历史戏仿测评">
+    <section ref={factoryRef} className={`hat-factory hf-phase--${phase}`} aria-label="帽子工厂历史戏仿测评">
       <div className="hat-factory__texture" aria-hidden="true" />
       <div className="hat-factory__rail" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
 
@@ -257,7 +267,7 @@ export function HatFactoryGame() {
       {phase === 'size-select' && (
         <div className="hf-size-select">
           <header className="hf-section-header">
-            <button type="button" onClick={() => setPhase('intro')} aria-label="返回工厂介绍"><ArrowLeft /></button>
+            <button type="button" onClick={() => showPhase('intro')} aria-label="返回工厂介绍"><ArrowLeft /></button>
             <div><p>第一道工序</p><h2>选择工厂尺码</h2><span>先决定帽子的分量，再决定帽子的款式。</span></div>
           </header>
           <div className="hf-size-grid" role="radiogroup" aria-label="选择帽子尺码">

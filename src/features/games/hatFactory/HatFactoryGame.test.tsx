@@ -4,6 +4,21 @@ import { describe, expect, it, vi } from 'vitest'
 import { HatFactoryGame } from './HatFactoryGame'
 
 describe('HatFactoryGame flow', () => {
+  it('returns the factory to the viewport when entering a new phase', () => {
+    const scrollIntoView = vi.fn()
+    const originalScrollIntoView = Element.prototype.scrollIntoView
+    Element.prototype.scrollIntoView = scrollIntoView
+    const requestAnimationFrame = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      callback(0)
+      return 1
+    })
+    render(<HatFactoryGame />)
+    fireEvent.click(screen.getByRole('button', { name: /进入工厂/ }))
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' })
+    requestAnimationFrame.mockRestore()
+    Element.prototype.scrollIntoView = originalScrollIntoView
+  })
+
   it('requires a size before starting and exposes a 20-step quiz', () => {
     render(<HatFactoryGame />)
     fireEvent.click(screen.getByRole('button', { name: /进入工厂/ }))
