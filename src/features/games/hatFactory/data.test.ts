@@ -28,6 +28,16 @@ describe('hat factory question bank', () => {
       })
     })
   })
+
+  it('keeps three independent banks with unique scenes and prompts', () => {
+    const allQuestions = HAT_SIZE_IDS.flatMap((size) => QUESTIONS_BY_SIZE[size])
+    expect(allQuestions).toHaveLength(60)
+    expect(new Set(allQuestions.map(({ scene }) => scene)).size).toBe(60)
+    expect(new Set(allQuestions.map(({ prompt }) => prompt)).size).toBe(60)
+    HAT_SIZE_IDS.forEach((size) => {
+      QUESTIONS_BY_SIZE[size].forEach((question) => expect(question.size).toBe(size))
+    })
+  })
 })
 
 describe('scoreHatFactory', () => {
