@@ -1,5 +1,5 @@
-import { ArrowUpRight, Film, Play, Search, X } from 'lucide-react'
-import { useEffect, useMemo, useRef } from 'react'
+import { ArrowUpRight, ChevronDown, Film, Play, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { htmlVideos } from '../data/videos'
 import { usePageMeta } from '../lib/seo'
@@ -12,6 +12,7 @@ export default function VideosPage() {
     path: '/videos/',
   })
   const [params, setParams] = useSearchParams()
+  const [tagsOpen, setTagsOpen] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
   const query = params.get('q') ?? ''
   const activeTag = params.get('tag') ?? ''
@@ -45,6 +46,10 @@ export default function VideosPage() {
     value ? next.set(key, value) : next.delete(key)
     setParams(next, { replace: true })
   }
+  const selectTag = (tag: string) => {
+    updateParam('tag', tag)
+    setTagsOpen(false)
+  }
 
   return (
     <main className="videos-page page-pad">
@@ -67,13 +72,19 @@ export default function VideosPage() {
           <input ref={searchRef} value={query} onChange={(event) => updateParam('q', event.target.value)} placeholder="搜索标题、简介或标签…" />
           <kbd>/</kbd>
         </label>
-        <div className="video-tags" aria-label="按标签筛选">
-          <button type="button" className={!activeTag ? 'is-active' : ''} onClick={() => updateParam('tag', '')}>全部 <span>{htmlVideos.length}</span></button>
-          {tags.map((tag) => (
-            <button type="button" key={tag} className={activeTag === tag ? 'is-active' : ''} onClick={() => updateParam('tag', activeTag === tag ? '' : tag)}>
-              {tag} <span>{htmlVideos.filter((video) => video.tags.includes(tag)).length}</span>
-            </button>
-          ))}
+        <div className="video-tags-control">
+          <button type="button" className="video-tags-toggle" aria-expanded={tagsOpen} aria-controls="video-tag-options" onClick={() => setTagsOpen((value) => !value)}>
+            <span><small>标签筛选</small><strong>{activeTag || '全部影片'}</strong></span>
+            <ChevronDown aria-hidden="true" />
+          </button>
+          <div id="video-tag-options" className={`video-tags${tagsOpen ? ' is-open' : ''}`} aria-label="按标签筛选">
+            <button type="button" className={!activeTag ? 'is-active' : ''} onClick={() => selectTag('')}>全部 <span>{htmlVideos.length}</span></button>
+            {tags.map((tag) => (
+              <button type="button" key={tag} className={activeTag === tag ? 'is-active' : ''} onClick={() => selectTag(activeTag === tag ? '' : tag)}>
+                {tag} <span>{htmlVideos.filter((video) => video.tags.includes(tag)).length}</span>
+              </button>
+            ))}
+          </div>
         </div>
         {(query || activeTag) && <button type="button" className="video-filter-reset" onClick={() => setParams({}, { replace: true })}><X /> 清除筛选</button>}
       </section>

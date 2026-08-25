@@ -43,8 +43,8 @@ function SiteHeader() {
   return <header className={`site-header ${isAbout ? 'site-header--about' : ''}`}>
     <NavLink className="brand" to="/" aria-label="TJYZ Physics 主页"><span className="brand-mark" aria-hidden="true"><i /><i /><i /></span><span><b>TJYZ</b><small>PHYSICS</small></span></NavLink>
     {!isAbout && <button className="theme-toggle" type="button" onClick={() => setTheme((value) => value === 'dark' ? 'light' : 'dark')} aria-label={theme === 'dark' ? '切换浅色主题' : '切换深色主题'} title={theme === 'dark' ? '浅色主题' : '深色主题'}>{theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}</button>}
-    <button className="menu-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="切换导航">{open ? <X /> : <Menu />}</button>
-    <nav className={open ? 'primary-nav is-open' : 'primary-nav'} aria-label="主导航">{navItems.map((item) => <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => isActive ? 'active' : ''}>{item.label}</NavLink>)}</nav>
+    <button className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-controls="site-primary-nav" aria-label={open ? '关闭导航' : '打开导航'}>{open ? <X /> : <Menu />}</button>
+    <nav id="site-primary-nav" className={open ? 'primary-nav is-open' : 'primary-nav'} aria-label="主导航">{navItems.map((item) => <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => isActive ? 'active' : ''}>{item.label}</NavLink>)}</nav>
   </header>
 }
 

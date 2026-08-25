@@ -193,3 +193,45 @@ html[data-color-mode='light'] .markdown-body .hljs-built_in { color: #79c0ff; }
   .markdown-table th:last-child,
   .markdown-table td:last-child { width: 32%; }
 }
+
+/* On phones, tags live in an expandable control instead of a narrow scrolling rail. */
+.blog-tags-control { display: contents; }
+.blog-tags-toggle { display: none; }
+
+@media (max-width: 520px) {
+  .blog-tags-toggle { display: flex; }
+}
+
+@media (max-width: 520px) {
+  .blog-tags-control { display: block; margin-top: 12px; }
+  .blog-tags-toggle {
+    width: 100%;
+    min-height: 60px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid var(--blog-line);
+    border-radius: 14px;
+    color: var(--blog-text);
+    background: color-mix(in srgb, var(--blog-control) 88%, transparent);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .22s ease, background .22s ease;
+  }
+  .blog-tags-toggle:hover,
+  .blog-tags-toggle[aria-expanded='true'] { border-color: var(--blog-accent); background: var(--blog-control-hover); }
+  .blog-tags-toggle > span { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .blog-tags-toggle small { color: var(--blog-muted); font-size: 10px; letter-spacing: .12em; }
+  .blog-tags-toggle strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+  .blog-tags-toggle > svg { width: 18px; flex: 0 0 auto; color: var(--blog-accent); transition: transform .28s ease; }
+  .blog-tags-toggle[aria-expanded='true'] > svg { transform: rotate(180deg); }
+  .blog-tags { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; max-height: 0; margin-top: 0; padding: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-5px); transition: max-height .3s ease, margin-top .3s ease, padding .3s ease, opacity .2s ease, transform .3s ease, visibility 0s linear .3s; }
+  .blog-tags.is-open { max-height: 320px; margin-top: 8px; padding: 2px 1px 4px; opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0s; }
+  .blog-tags button { min-height: 46px; padding: 10px 11px; border-radius: 12px; white-space: normal; line-height: 1.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-tags-toggle > svg, .blog-tags, .blog-tags-toggle { transition: none; }
+}
