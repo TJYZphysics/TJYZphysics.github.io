@@ -1,4 +1,5 @@
 import { ArrowLeft, List } from 'lucide-react'
+import type { MouseEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import GiscusComments from '../components/GiscusComments'
 import MarkdownArticle, { getArticleHeadings } from '../components/MarkdownArticle'
@@ -38,6 +39,13 @@ export default function BlogPostPage() {
   })
   if (!post) return <main className="not-found"><p>NOTE NOT FOUND</p><h1>这页笔记似乎被风吹走了。</h1><Link to="/blog">返回博客</Link></main>
   const headings = getArticleHeadings(post.body).filter((heading) => heading.depth >= 2)
+  const jumpToHeading = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    const target = document.getElementById(id)
+    if (!target) return
+    event.preventDefault()
+    window.history.pushState(null, '', `#${encodeURIComponent(id)}`)
+    target.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+  }
   return (
     <main className="article-page page-pad">
       <Link className="back-link" to="/blog"><ArrowLeft /> 返回全部笔记</Link>
@@ -47,7 +55,7 @@ export default function BlogPostPage() {
           <MarkdownArticle body={post.body} />
           <ReactionBar id={`blog:${post.slug}`} />
         </article>
-        {headings.length > 0 && <aside className="article-toc" aria-label="文章目录"><div><p><List /> 本文目录</p><nav>{headings.map((heading) => <a key={heading.id} className={`toc-depth-${heading.depth}`} href={`#${heading.id}`}>{heading.text}</a>)}</nav></div></aside>}
+        {headings.length > 0 && <aside className="article-toc" aria-label="文章目录"><div><p><List /> 本文目录</p><nav>{headings.map((heading) => <a key={heading.id} className={`toc-depth-${heading.depth}`} href={`#${heading.id}`} onClick={(event) => jumpToHeading(event, heading.id)}>{heading.text}</a>)}</nav></div></aside>}
       </div>
       <GiscusComments />
     </main>

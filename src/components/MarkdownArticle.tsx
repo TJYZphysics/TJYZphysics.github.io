@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
+import LoadingImage from './LoadingImage'
 
 export interface ArticleHeading {
   depth: number
@@ -50,15 +51,20 @@ const nodeText = (node: ReactNode): string => {
 
 export default function MarkdownArticle({ body, className = '' }: { body: string; className?: string }) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
-  const headingIds = useMemo(() => {
-    const queues = new Map<string, string[]>()
-    getArticleHeadings(body).forEach(({ text, id }) => {
+  const headingIdsByLine = useMemo(() => {
+    const ids = new Map<number, string>()
+    const counts = new Map<string, number>()
+    body.split('\n').forEach((line, index) => {
+      const match = line.match(/^(#{1,3})\s+(.+?)\s*#*\s*$/)
+      if (!match) return
+      const text = stripInlineMarkdown(match[2])
       const base = slugBase(text)
-      queues.set(base, [...(queues.get(base) ?? []), id])
+      const count = counts.get(base) ?? 0
+      counts.set(base, count + 1)
+      ids.set(index + 1, count ? `${base}-${count}` : base)
     })
-    return queues
+    return ids
   }, [body])
-  const renderedCounts = new Map<string, number>()
 
   useEffect(() => {
     if (!lightbox) return
@@ -71,12 +77,9 @@ export default function MarkdownArticle({ body, className = '' }: { body: string
     }
   }, [lightbox])
 
-  const heading = (level: 1 | 2 | 3) => ({ children, node: _node, ...props }: { children?: ReactNode; node?: unknown }) => {
+  const heading = (level: 1 | 2 | 3) => ({ children, node, ...props }: { children?: ReactNode; node?: { position?: { start?: { line?: number } } } }) => {
     const text = nodeText(children)
-    const base = slugBase(text)
-    const index = renderedCounts.get(base) ?? 0
-    renderedCounts.set(base, index + 1)
-    const id = headingIds.get(base)?.[index] ?? (index ? `${base}-${index}` : base)
+    const id = headingIdsByLine.get(node?.position?.start?.line ?? -1) ?? slugBase(text)
     const Tag = `h${level}` as const
     return <Tag id={id} {...props}>{children}<a className="heading-anchor" href={`#${id}`} aria-hidden="true" tabIndex={-1}>#</a></Tag>
   }
@@ -102,7 +105,7 @@ export default function MarkdownArticle({ body, className = '' }: { body: string
             ),
             img: ({ src, alt = '', ...props }) => src ? (
               <button className="markdown-image" type="button" onClick={() => setLightbox({ src, alt })} aria-label={`放大图片${alt ? `：${alt}` : ''}`}>
-                <img src={src} alt={alt} loading="lazy" {...props} />
+                <LoadingImage src={src} alt={alt} loading="lazy" {...props} />
                 <span aria-hidden="true"><ZoomIn /></span>
               </button>
             ) : null,
@@ -113,7 +116,7 @@ export default function MarkdownArticle({ body, className = '' }: { body: string
         <div className="image-lightbox" role="dialog" aria-modal="true" aria-label="图片预览" onClick={() => setLightbox(null)}>
           <button type="button" onClick={() => setLightbox(null)} aria-label="关闭图片预览"><X /></button>
           <figure onClick={(event) => event.stopPropagation()}>
-            <img src={lightbox.src} alt={lightbox.alt} />
+            <LoadingImage src={lightbox.src} alt={lightbox.alt} />
             {lightbox.alt && <figcaption>{lightbox.alt}</figcaption>}
           </figure>
         </div>

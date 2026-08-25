@@ -15,6 +15,7 @@ import {
   type HatPosterStyle,
 } from './poster'
 import { scoreHatFactory, type HatFactoryResult } from './scoring'
+import LoadingImage from '../../../components/LoadingImage'
 import './hatFactory.css'
 
 type GamePhase = 'intro' | 'size-select' | 'quiz' | 'result'
@@ -84,7 +85,7 @@ function PosterPreview({ result, qrCode }: { result: HatFactoryResult; qrCode: s
       <h3>{result.hat.name}</h3>
       <strong>「{copy.tagline}」</strong>
       <footer>
-        {qrCode ? <img src={qrCode} alt="扫描后开始帽子工厂测试" /> : <i aria-hidden="true" />}
+        {qrCode ? <LoadingImage src={qrCode} alt="扫描后开始帽子工厂测试" /> : <i aria-hidden="true" />}
         <span>扫码进厂<br />量头定制</span>
       </footer>
     </div>

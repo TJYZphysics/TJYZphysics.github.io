@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ArrowDown, ArrowUpRight, Bot, BookOpen, Compass, ExternalLink, Globe2, Library, Search, Star, Wrench, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDown, ArrowUpRight, Bot, BookOpen, ChevronDown, Compass, ExternalLink, Globe2, Library, Search, Star, Wrench, X } from 'lucide-react'
 import { navigationCategories, type NavigationSite } from '../data/navigationSites'
 import { usePageMeta } from '../lib/seo'
 import '../styles/navigation.css'
@@ -56,6 +56,9 @@ export default function NavigationPage() {
     path: '/navigation/',
   })
   const [query, setQuery] = useState('')
+  const [searchCompact, setSearchCompact] = useState(false)
+  const [searchExpanded, setSearchExpanded] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [favorites, setFavorites] = useState<string[]>(readFavorites)
   const siteCount = navigationCategories.reduce((total, category) => total + category.sites.length, 0)
   const favoriteSet = useMemo(() => new Set(favorites), [favorites])
@@ -88,6 +91,23 @@ export default function NavigationPage() {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites))
   }, [favorites])
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY
+      setSearchCompact(currentY > 96)
+      if (currentY <= 96) {
+        setSearchExpanded(false)
+      }
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    if (searchExpanded) searchInputRef.current?.focus()
+  }, [searchExpanded])
+
   const toggleFavorite = (url: string) => {
     setFavorites((current) => current.includes(url) ? current.filter((item) => item !== url) : [url, ...current])
   }
@@ -106,20 +126,25 @@ export default function NavigationPage() {
         </div>
       </header>
 
-      <section className="directory-search" id="directory-search" aria-label="站内导航搜索">
-        <Search aria-hidden="true" />
-        <label htmlFor="navigation-search">搜索站点</label>
-        <input
-          id="navigation-search"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="搜索名称、简介、域名或分类…"
-          autoComplete="off"
-        />
-        {query ? <button type="button" onClick={() => setQuery('')} aria-label="清空搜索"><X /></button> : null}
-        <output aria-live="polite">{query ? `找到 ${visibleCount} 个站点` : `${siteCount} 个站点可搜索`}</output>
-      </section>
+      <div className={`directory-search-shell${searchCompact ? ' is-compact' : ''}${searchExpanded ? ' is-expanded' : ''}`}>
+        <section className="directory-search" id="directory-search" aria-label="站内导航搜索">
+          <Search aria-hidden="true" />
+          <label htmlFor="navigation-search">搜索站点</label>
+          <input
+            ref={searchInputRef}
+            id="navigation-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="搜索名称、简介、域名或分类…"
+            autoComplete="off"
+          />
+          {query ? <button type="button" onClick={() => setQuery('')} aria-label="清空搜索"><X /></button> : null}
+          <output aria-live="polite">{query ? `找到 ${visibleCount} 个站点` : `${siteCount} 个站点可搜索`}</output>
+          {searchExpanded ? <button className="directory-search__close" type="button" onClick={() => setSearchExpanded(false)} aria-label="收起搜索"><ChevronDown /></button> : null}
+        </section>
+        {searchCompact && !searchExpanded ? <button className="directory-search__float" type="button" onClick={() => setSearchExpanded(true)} aria-label="展开搜索"><Search /></button> : null}
+      </div>
 
       <div className="navigation-layout">
         <aside className="directory-sidebar" aria-label="网站分类目录">

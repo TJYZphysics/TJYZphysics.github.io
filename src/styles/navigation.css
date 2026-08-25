@@ -14,6 +14,10 @@
   backdrop-filter: blur(18px) saturate(140%);
 }
 
+.directory-search-shell { position: relative; z-index: 20; }
+.directory-search__float,
+.directory-search__close { display: none; }
+
 .directory-search > svg { width: 1.1rem; color: var(--cyan); }
 .directory-search label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .directory-search input { min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; }
@@ -157,3 +161,89 @@ html[data-theme='claude-dark'] .navigation-page {
 
 /* Search stays in the page flow so it never masks directory content. */
 .directory-search { position: relative !important; top: auto !important; z-index: 1 !important; margin-top: 1.5rem !important; }
+
+@media (max-width: 650px) {
+  .navigation-page { display: flex; flex-direction: column; }
+  .directory-search-shell { order: -1; min-height: 94px; margin-top: 0; }
+  .directory-search-shell .directory-search { margin-top: 0 !important; }
+  .directory-search-shell .directory-search {
+    transform-origin: top center;
+    transition: opacity .3s ease, transform .42s cubic-bezier(.22,.8,.2,1), filter .42s ease;
+  }
+  .directory-search-shell.is-compact .directory-search {
+    position: fixed !important;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 220;
+    margin: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(24px) scale(.18);
+    filter: blur(3px);
+  }
+  .directory-search__float {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 221;
+    display: grid;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--directory-line);
+    border-radius: 18px;
+    color: var(--directory-accent);
+    background: color-mix(in srgb, var(--directory-surface) 94%, transparent);
+    box-shadow: 0 18px 42px var(--directory-shadow), inset 0 1px rgba(255,255,255,.12);
+    backdrop-filter: blur(18px) saturate(150%);
+    animation: directory-search-pop .42s cubic-bezier(.22,.8,.2,1) both;
+  }
+  .directory-search__float svg { width: 21px; }
+  .directory-search-shell.is-expanded .directory-search {
+    position: fixed !important;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 222;
+    margin: 0 !important;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    filter: none;
+    grid-template-columns: auto minmax(0,1fr) auto auto;
+    animation: directory-search-expand .46s cubic-bezier(.22,.8,.2,1) both;
+  }
+  .directory-search-shell.is-expanded .directory-search output { display: none; }
+  .directory-search-shell.is-expanded .directory-search__float { display: none; }
+  .directory-search__close {
+    position: static;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--directory-line);
+    border-radius: 9px;
+    color: var(--directory-muted);
+    background: color-mix(in srgb, var(--directory-text) 7%, transparent);
+  }
+  .directory-search__close svg { width: 16px; transform: rotate(180deg); }
+}
+
+@keyframes directory-search-pop {
+  from { opacity: 0; transform: translateY(14px) scale(.55); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes directory-search-expand {
+  from { opacity: 0; transform: translateY(28px) scale(.48); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .directory-search-shell,
+  .directory-search-shell .directory-search,
+  .directory-search__float { transition: none; animation: none; }
+}

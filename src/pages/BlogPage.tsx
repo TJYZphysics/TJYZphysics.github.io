@@ -1,9 +1,11 @@
-import { ArrowUpRight, BookMarked, ChevronDown, Search, Star, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookMarked, ChevronDown, Search, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getBlogPosts } from '../content/content'
 import { usePageMeta } from '../lib/seo'
 import '../styles/blog.css'
+
+const MOBILE_POSTS_PER_PAGE = 3
 
 export default function BlogPage() {
   const posts = getBlogPosts()
@@ -14,6 +16,8 @@ export default function BlogPage() {
   })
   const [params, setParams] = useSearchParams()
   const [tagsOpen, setTagsOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [turnDirection, setTurnDirection] = useState<'next' | 'previous'>('next')
   const searchRef = useRef<HTMLInputElement>(null)
   const query = params.get('q') ?? ''
   const activeTag = params.get('tag') ?? ''
@@ -26,6 +30,10 @@ export default function BlogPage() {
       return matchesTag && (!normalized || haystack.includes(normalized))
     })
   }, [activeTag, posts, query])
+  const postPages = useMemo(() => Array.from(
+    { length: Math.max(1, Math.ceil(visiblePosts.length / MOBILE_POSTS_PER_PAGE)) },
+    (_, pageIndex) => visiblePosts.slice(pageIndex * MOBILE_POSTS_PER_PAGE, (pageIndex + 1) * MOBILE_POSTS_PER_PAGE),
+  ), [visiblePosts])
 
   useEffect(() => {
     const focusSearch = (event: KeyboardEvent) => {
@@ -39,6 +47,8 @@ export default function BlogPage() {
     return () => window.removeEventListener('keydown', focusSearch)
   }, [])
 
+  useEffect(() => setCurrentPage(0), [activeTag, query])
+
   const updateParam = (key: 'q' | 'tag', value: string) => {
     const next = new URLSearchParams(params)
     value ? next.set(key, value) : next.delete(key)
@@ -47,6 +57,10 @@ export default function BlogPage() {
   const selectTag = (tag: string) => {
     updateParam('tag', tag)
     setTagsOpen(false)
+  }
+  const turnPage = (nextPage: number) => {
+    setTurnDirection(nextPage > currentPage ? 'next' : 'previous')
+    setCurrentPage(nextPage)
   }
 
   return (
@@ -69,21 +83,36 @@ export default function BlogPage() {
       <section className="notebook-shell">
         <div className="notebook-paper">
           <div className="notebook-heading"><BookMarked /><div><small>TJYZ PHYSICS / NOTEBOOK</small><h2>{query || activeTag ? '筛选结果' : '最近记录'}</h2></div><b>{String(visiblePosts.length).padStart(2, '0')}</b></div>
-          <div className="post-list">
-            {visiblePosts.length === 0 ? <div className="empty-state blog-empty"><Search /><h3>没有找到匹配的笔记</h3><p>换一个关键词或标签，也许会有新的发现。</p></div> : visiblePosts.map((post, index) => (
-              <Link className="post-row" to={`/blog/${post.slug}`} key={post.slug}>
-                <span className="post-number">{String(index + 1).padStart(2, '0')}</span>
-                <div>
-                  <p className="post-row__meta">
-                    {post.pinned ? <span className="post-row__pinned"><Star aria-hidden="true" /> 星标置顶</span> : null}
-                    <span>{post.tags.join(' · ') || '观察记录'}</span>
-                  </p>
-                  <h2>{post.title}</h2><span>{post.summary}</span>
-                </div>
-                <time>{post.date || '未标注日期'}</time><ArrowUpRight />
-              </Link>
+          <div className={`post-list post-list--turn-${turnDirection}`}>
+            {visiblePosts.length === 0 ? <div className="empty-state blog-empty"><Search /><h3>没有找到匹配的笔记</h3><p>换一个关键词或标签，也许会有新的发现。</p></div> : postPages.map((pagePosts, pageIndex) => (
+              <div className={`post-page${pageIndex === currentPage ? ' is-current' : ''}`} key={`page-${pageIndex}`}>
+                {pagePosts.map((post, index) => {
+                  const postIndex = pageIndex * MOBILE_POSTS_PER_PAGE + index
+                  return (
+                    <Link className="post-row" to={`/blog/${post.slug}`} key={post.slug}>
+                      <span className="post-number">{String(postIndex + 1).padStart(2, '0')}</span>
+                      <div>
+                        <p className="post-row__meta">
+                          {post.pinned ? <span className="post-row__pinned"><Star aria-hidden="true" /> 星标置顶</span> : null}
+                          <span>{post.tags.join(' · ') || '观察记录'}</span>
+                        </p>
+                        <h2>{post.title}</h2><span>{post.summary}</span>
+                      </div>
+                      <time>{post.date || '未标注日期'}</time><ArrowUpRight />
+                    </Link>
+                  )
+                })}
+              </div>
             ))}
           </div>
+          {visiblePosts.length > MOBILE_POSTS_PER_PAGE ? (
+            <nav className="notebook-pagination" aria-label="笔记翻页">
+              <button type="button" disabled={currentPage === 0} onClick={() => turnPage(currentPage - 1)} aria-label="上一页"><ArrowLeft /></button>
+              <span><b>{String(currentPage + 1).padStart(2, '0')}</b> / {String(postPages.length).padStart(2, '0')}</span>
+              <div aria-hidden="true">{postPages.map((_, index) => <i className={index === currentPage ? 'is-active' : ''} key={index} />)}</div>
+              <button type="button" disabled={currentPage === postPages.length - 1} onClick={() => turnPage(currentPage + 1)} aria-label="下一页"><ArrowRight /></button>
+            </nav>
+          ) : null}
         </div>
       </section>
     </main>

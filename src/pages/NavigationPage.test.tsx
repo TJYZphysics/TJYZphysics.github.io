@@ -26,4 +26,15 @@ describe('NavigationPage', () => {
     render(<NavigationPage />)
     expect(screen.getAllByRole('button', { name: '取消收藏 GitHub' })).toHaveLength(2)
   })
+
+  it('stows the mobile search after scrolling and expands it on demand', () => {
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 180 })
+    render(<NavigationPage />)
+    fireEvent.scroll(window)
+
+    const trigger = screen.getByRole('button', { name: '展开搜索' })
+    fireEvent.click(trigger)
+    expect(screen.getByRole('button', { name: '收起搜索' })).toBeInTheDocument()
+    expect(screen.getByRole('searchbox', { name: '搜索站点' })).toHaveFocus()
+  })
 })

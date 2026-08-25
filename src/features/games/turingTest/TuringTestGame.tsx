@@ -12,6 +12,7 @@ import {
 import { ANSWER_OPTIONS, QUESTIONS, type AnswerValue } from './data'
 import { createStartQrCode, createTuringPosterBlob, getTuringTestUrl } from './poster'
 import { scoreAssessment, type AssessmentResult } from './scoring'
+import LoadingImage from '../../../components/LoadingImage'
 import './turingTest.css'
 
 type GamePhase = 'intro' | 'quiz' | 'result'
@@ -129,7 +130,7 @@ function SharePreview({ result, qrCode }: { result: AssessmentResult; qrCode: st
         ))}
       </div>
       <div className="tt-share-preview__qr">
-        {qrCode ? <img src={qrCode} alt="扫描后开始图灵测试" /> : <span aria-hidden="true" />}
+        {qrCode ? <LoadingImage src={qrCode} alt="扫描后开始图灵测试" /> : <span aria-hidden="true" />}
         <small>扫码测测你的派系</small>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import MarkdownArticle from '../components/MarkdownArticle'
+import LoadingImage from '../components/LoadingImage'
 import { getAboutDocument } from '../content/content'
 import { usePageMeta, organizationJsonLd, breadcrumbJsonLd } from '../lib/seo'
 import '../styles/about.css'
@@ -63,7 +64,7 @@ export default function AboutPage() {
         <div className="about-grid-content">
           {intro ? <MarkdownArticle body={`# ${intro.title}\n\n${intro.body}`} className="about-markdown" /> : <p>介绍文档暂不可用。</p>}
           <figure className="about-feature-image">
-            <img src="/about/optics-lab.jpg" alt="物理社成员搭建光学实验装置" loading="eager" />
+            <LoadingImage src="/about/optics-lab.jpg" alt="物理社成员搭建光学实验装置" loading="eager" />
             <figcaption>把抽象的定律，交给真实的仪器验证。<span>OPTICS LAB / FIELD NOTE</span></figcaption>
           </figure>
         </div>
@@ -85,7 +86,7 @@ export default function AboutPage() {
             <p>队员从题目分析、预实验、理论分析、实验、结论到扩展，经历六个阶段；查阅文献、构建模型、设计装置、制作 PPT，并在赛场上完成报告与辩论。</p>
             <div className="about-cypt-tools"><span>MATLAB</span><span>COMSOL</span><span>实验记录</span><span>学术辩论</span></div>
           </div>
-          <figure className="about-cypt-image"><img src="/blog/pt-physics-club/cypt-2026-venue.jpg" alt="2026 CYPT 中国高中生青年物理学家学术交流会现场" loading="eager" /><figcaption>CYPT / 全国交流现场</figcaption></figure>
+          <figure className="about-cypt-image"><LoadingImage src="/blog/pt-physics-club/cypt-2026-venue.jpg" alt="2026 CYPT 中国高中生青年物理学家学术交流会现场" loading="eager" /><figcaption>CYPT / 全国交流现场</figcaption></figure>
         </div>
         <div className="about-stage-list">{researchStages.map(([no, title, text]) => <article key={no}><span>{no}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
       </section>
@@ -93,7 +94,7 @@ export default function AboutPage() {
       <section className="about-manifesto"><div className="about-manifesto__mark" aria-hidden="true">!</div><p>我们不急着得到所有答案。</p><strong>我们先学习，如何提出更好的问题。</strong><span className="about-manifesto__ru">ВОПРОС → ОПЫТ → ЗНАНИЕ</span></section>
 
       <section className="about-results-section">
-        <div className="about-results-copy"><span>05 / RECORD OF WORK</span><h2>好的问题，会留下痕迹。</h2><p>这些结果不是终点，而是下一位成员可以接着使用的坐标。</p><img src="/blog/pt-physics-club/optical-experiment.jpg" alt="PT 社研究中搭建的光学实验装置" loading="eager" /></div>
+        <div className="about-results-copy"><span>05 / RECORD OF WORK</span><h2>好的问题，会留下痕迹。</h2><p>这些结果不是终点，而是下一位成员可以接着使用的坐标。</p><LoadingImage src="/blog/pt-physics-club/optical-experiment.jpg" alt="PT 社研究中搭建的光学实验装置" loading="eager" /></div>
         <div className="about-results-list">
           <article><small>2025 / TEAM</small><strong>全国第八名 · 全国第九名</strong><p>两支队伍双双斩获全国一等奖。</p><span>TEAM AWARD / 01</span></article>
           <article><small>2025 / INDIVIDUAL</small><strong>全国最佳选手</strong><p>郝晋荣同学入选 IYPT 国家集训队。</p><span>INDIVIDUAL / 01</span></article>
@@ -106,8 +107,8 @@ export default function AboutPage() {
         <div className="about-grid-content">
           {history ? <MarkdownArticle body={`# ${history.title}\n\n${history.body}`} className="about-markdown" /> : <p>历史文档暂不可用。</p>}
           <div className="about-image-duo">
-            <figure><img src="/about/blackboard.jpg" alt="写满物理公式的黑板" loading="eager" /><figcaption>从一块黑板开始，把问题讲清楚。</figcaption></figure>
-            <figure><img src="/about/green-laser.jpg" alt="实验室中的绿色激光装置" loading="eager" /><figcaption>让光路、数据与想象彼此照亮。</figcaption></figure>
+            <figure><LoadingImage src="/about/blackboard.jpg" alt="写满物理公式的黑板" loading="eager" /><figcaption>从一块黑板开始，把问题讲清楚。</figcaption></figure>
+            <figure><LoadingImage src="/about/green-laser.jpg" alt="实验室中的绿色激光装置" loading="eager" /><figcaption>让光路、数据与想象彼此照亮。</figcaption></figure>
           </div>
         </div>
       </section>
