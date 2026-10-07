@@ -1,0 +1,73 @@
+/* Applied only inside the website's iframe; the original game file stays intact. */
+html,
+body {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+}
+
+.archive-app.archive-shell {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 32px);
+  height: 100dvh;
+  min-height: 0;
+}
+
+.archive-shell > .site-header,
+.archive-shell > .page-footer,
+.game-shell > .frame-label,
+.game-shell > .combat-hud,
+.game-shell > .loadout,
+.game-shell > .run-footer {
+  flex-shrink: 0;
+}
+
+.archive-shell > .game-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.archive-shell .game-shell > .stage-viewport {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: auto;
+}
+
+.archive-shell .screen-overlay {
+  overscroll-behavior: contain;
+}
+
+.archive-shell .overlay-title {
+  overflow: auto;
+}
+
+.archive-shell .menu-panel {
+  flex-shrink: 0;
+  margin: auto;
+}
+
+.archive-shell .codex-panel {
+  flex-shrink: 1;
+}
+
+.archive-app.archive-shell:fullscreen {
+  width: calc(100vw / var(--magic-echoes-fullscreen-scale, 1));
+  height: calc(100dvh / var(--magic-echoes-fullscreen-scale, 1));
+  padding: 0 16px;
+  zoom: var(--magic-echoes-fullscreen-scale, 1);
+}
+
+@media (max-width: 650px) {
+  .archive-app.archive-shell {
+    width: calc(100% - 20px);
+  }
+}

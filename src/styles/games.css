@@ -34,6 +34,39 @@
   min-height: 560px;
 }
 
+.game-stage.game-stage--magic-echoes {
+  padding: 0;
+  min-height: 0;
+  scroll-margin-top: 16px;
+}
+
+.game-stage--magic-echoes::before {
+  display: none;
+}
+
+.magic-echoes-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #131210;
+}
+
+.magic-echoes-frame {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  max-width: none;
+  border: 0;
+  transform-origin: top left;
+  background: #131210;
+}
+
+.magic-echoes-frame:fullscreen {
+  width: 100vw !important;
+  height: 100dvh !important;
+  transform: none !important;
+}
+
 .game-stage--turing,
 .game-stage--gomoku-3d,
 .game-stage--optical-defense,
@@ -87,7 +120,8 @@ html[data-color-mode='light'] .game-stage--hat-factory {
 
 body:has(.game-stage--optical-defense) .site-header,
 body:has(.game-stage--devils-balance) .site-header,
-body:has(.game-stage--hat-factory) .site-header {
+body:has(.game-stage--hat-factory) .site-header,
+body:has(.game-stage--magic-echoes) .site-header {
   position: absolute;
 }
 
