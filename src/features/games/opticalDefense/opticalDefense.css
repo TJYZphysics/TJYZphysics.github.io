@@ -1,2607 +1,424 @@
+/* The optical spectrum is the only colour on an otherwise monochrome field. */
 .optical-defense {
-  --optical-bg: #08110f;
-  --optical-panel: #0e1a17;
-  --optical-panel-2: #142620;
-  --optical-line: rgba(151, 201, 181, 0.22);
-  --optical-text: #edf5ff;
-  --optical-muted: #9eb2c5;
-  --optical-mint: #66ddea;
-  --optical-yellow: #ffe78b;
-  --optical-red: #ff7185;
+  --optical-bg: #0b0b0b;
+  --optical-panel: #161616;
+  --optical-panel-2: #232323;
+  --optical-line: #353535;
+  --optical-text: #f5f5f5;
+  --optical-muted: #a2a2a2;
+  --optical-mint: #f5f5f5;
+  --optical-yellow: #f5f5f5;
+  --optical-red: #ff243b;
+  --optical-mono: "Cascadia Mono", Consolas, "SFMono-Regular", monospace;
   position: relative;
   min-width: 0;
-  overflow: hidden;
+  isolation: isolate;
+  container-type: inline-size;
+  color-scheme: dark;
   color: var(--optical-text);
   background: var(--optical-bg);
-  border: 1px solid rgba(139, 183, 186, 0.2);
-  font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
-}
-
-.optical-defense button,
-.optical-defense input,
-.optical-defense select {
-  font: inherit;
-}
-
-.optical-defense button {
-  color: inherit;
-}
-
-.optical-defense__topbar {
-  display: grid;
-  grid-template-columns: auto auto minmax(360px, 1fr) auto;
-  min-height: 72px;
-  align-items: stretch;
-  border-bottom: 1px solid var(--optical-line);
-  background: #0a1613;
-}
-
-.optical-defense__identity {
-  display: flex;
-  min-width: 180px;
-  padding: 13px 18px;
-  justify-content: center;
-  flex-direction: column;
-  border-right: 1px solid var(--optical-line);
-}
-
-.optical-defense__identity span,
-.optical-defense__modal header span,
-.optical-defense__result > span {
-  color: var(--optical-mint);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-}
-
-.optical-defense__identity h2 {
-  margin: 2px 0 0;
-  font-size: 20px;
-  line-height: 1.1;
-  letter-spacing: 0;
-}
-
-.optical-defense__level-button {
-  display: grid;
-  grid-template-columns: auto auto 18px;
-  gap: 8px;
-  min-width: 120px;
-  min-height: 44px;
-  align-items: center;
-  padding: 0 15px;
-  border: 0;
-  border-right: 1px solid var(--optical-line);
-  background: transparent;
-  cursor: pointer;
-}
-
-.optical-defense__level-button span {
-  color: var(--optical-muted);
-  font-size: 9px;
-  font-weight: 800;
-}
-
-.optical-defense__level-button strong {
-  color: var(--optical-yellow);
-  font: 700 25px/1 ui-monospace, monospace;
-}
-
-.optical-defense__level-button svg {
-  width: 16px;
-}
-
-.optical-defense__meters {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(84px, 1fr));
-}
-
-.optical-defense__meters > div {
-  display: grid;
-  grid-template-columns: 18px 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 8px;
-  align-content: center;
-  min-width: 0;
-  padding: 9px 12px;
-  border-right: 1px solid var(--optical-line);
-}
-
-.optical-defense__meters svg {
-  grid-row: 1 / 3;
-  width: 17px;
-  color: var(--optical-mint);
-}
-
-.optical-defense__meters span {
-  color: var(--optical-muted);
-  font-size: 9px;
-}
-
-.optical-defense__meters strong {
-  overflow: hidden;
-  font: 700 13px/1.3 ui-monospace, monospace;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.optical-defense__top-actions {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-  padding: 10px 12px;
-}
-
-.optical-defense__speed {
-  display: flex;
-  height: 50px;
-  align-items: center;
-  padding: 3px;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: #10201b;
-}
-
-.optical-defense__speed > svg {
-  width: 15px;
-  margin: 0 5px;
-  color: var(--optical-muted);
-}
-
-.optical-defense__top-actions .optical-defense__speed button {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 7px;
-  border: 0;
-  background: transparent;
-  color: var(--optical-muted);
-  font: 800 10px/1 ui-monospace, monospace;
-}
-
-.optical-defense__top-actions .optical-defense__speed button.is-active {
-  color: #07121e;
-  background: var(--optical-yellow);
-}
-
-.optical-defense__top-actions button,
-.optical-defense__modal header button {
-  display: inline-flex;
-  min-width: 44px;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: var(--optical-panel-2);
-  cursor: pointer;
-}
-
-.optical-defense__top-actions button svg,
-.optical-defense__modal header button svg {
-  width: 18px;
-}
-
-.optical-defense__top-actions .is-primary,
-.optical-defense__result .is-primary {
-  gap: 8px;
-  min-width: 112px;
-  padding: 0 16px;
-  border-color: transparent;
-  color: #04110d;
-  background: var(--optical-mint);
-  font-weight: 800;
-}
-
-.optical-defense__top-actions button:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
-.optical-defense__mission {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(165px, 0.32fr) minmax(220px, 1fr) auto;
-  gap: 18px;
-  min-height: 57px;
-  align-items: center;
-  padding: 8px 18px 10px;
-  border-bottom: 1px solid var(--optical-line);
-  background: #10201c;
-}
-
-.optical-defense__tutorial {
-  display: grid;
-  grid-template-columns: minmax(190px, auto) minmax(0, 1fr) auto;
-  gap: 14px;
-  min-height: 62px;
-  align-items: center;
-  padding: 8px 12px 8px 16px;
-  border-bottom: 1px solid rgba(102, 221, 234, 0.3);
-  background: #102822;
-  box-shadow: inset 3px 0 var(--optical-mint);
-}
-
-.optical-defense__tutorial > div:first-child,
-.optical-defense__tutorial > div:first-child > span {
-  display: flex;
-  min-width: 0;
-}
-
-.optical-defense__tutorial > div:first-child {
-  gap: 10px;
-  align-items: center;
-}
-
-.optical-defense__tutorial > div:first-child > svg {
-  width: 19px;
-  flex: 0 0 auto;
-  color: var(--optical-mint);
-}
-
-.optical-defense__tutorial > div:first-child > span {
-  flex-direction: column;
-}
-
-.optical-defense__tutorial strong {
-  font-size: 11px;
-}
-
-.optical-defense__tutorial small {
-  margin-top: 2px;
-  color: var(--optical-muted);
-  font-size: 9px;
-  line-height: 1.35;
-}
-
-.optical-defense__tutorial ol {
-  display: flex;
-  min-width: 0;
-  gap: 5px;
-  align-items: stretch;
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
-  list-style: none;
-  scrollbar-width: thin;
-}
-
-.optical-defense__tutorial li {
-  display: inline-flex;
-  min-height: 32px;
-  min-width: max-content;
-  gap: 5px;
-  align-items: center;
-  padding: 5px 8px;
-  border: 1px solid var(--optical-line);
-  border-radius: 3px;
-  color: #d9e5ea;
-  background: #0a1815;
-  font-size: 9px;
-}
-
-.optical-defense__tutorial li svg {
-  width: 12px;
-  color: #61746d;
-}
-
-.optical-defense__tutorial li.is-complete {
-  border-color: rgba(102, 221, 234, 0.3);
-  color: #a7c4bb;
-}
-
-.optical-defense__tutorial li.is-complete svg {
-  color: var(--optical-mint);
-}
-
-.optical-defense__tutorial-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.optical-defense__tutorial-actions button,
-.optical-defense__manual-footer button {
-  min-height: 34px;
-  padding: 0 10px;
-  border: 1px solid var(--optical-line);
-  border-radius: 3px;
-  color: var(--optical-text);
-  background: #17372f;
-  font-size: 9px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.optical-defense__tutorial-actions button:last-child {
-  width: 34px;
-  padding: 0;
-}
-
-.optical-defense__tutorial-actions svg {
-  width: 14px;
-}
-
-.optical-defense__mission > div:first-child {
-  display: flex;
-  gap: 10px;
-  min-width: 0;
-  align-items: baseline;
-}
-
-.optical-defense__mission > div:first-child span {
-  color: var(--optical-yellow);
-  font: 700 10px/1 ui-monospace, monospace;
-}
-
-.optical-defense__mission > div:first-child strong {
-  overflow: hidden;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.optical-defense__mission p {
-  margin: 0;
-  color: var(--optical-muted);
+  border: 1px solid #555;
+  font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
   font-size: 12px;
-  line-height: 1.45;
-}
-
-.optical-defense__mission > i {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  max-width: 100%;
-  background: var(--optical-yellow);
-  transition: width 180ms ease;
-}
-
-.optical-defense__threats {
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.optical-defense__threats span {
-  padding: 3px 6px;
-  border: 1px solid rgba(141, 194, 218, 0.2);
-  color: var(--optical-muted);
-  background: rgba(141, 194, 218, 0.04);
-  font-size: 8px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.optical-defense__threats .is-fast { color: var(--optical-yellow); }
-.optical-defense__threats .is-armored { color: #c8d5e5; }
-.optical-defense__threats .is-resistant { color: #d58cff; }
-.optical-defense__threats .is-boss { color: var(--optical-red); }
-
-.optical-defense__workspace {
-  display: grid;
-  grid-template-columns: 190px minmax(600px, 1fr) 210px;
-  min-height: 640px;
-}
-
-.optical-defense__palette,
-.optical-defense__inspector {
-  min-width: 0;
-  background: var(--optical-panel);
-}
-
-.optical-defense__palette {
-  overflow-y: auto;
-  border-right: 1px solid var(--optical-line);
-  scrollbar-width: thin;
-}
-
-.optical-defense__palette section {
-  padding: 12px;
-  border-bottom: 1px solid var(--optical-line);
-}
-
-.optical-defense__palette h3 {
-  margin: 0 0 8px;
-  color: var(--optical-muted);
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.optical-defense__palette section > div {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.optical-defense__palette button {
-  --tool-color: var(--optical-mint);
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  grid-template-rows: 1fr 1fr;
-  min-width: 0;
-  min-height: 56px;
-  align-items: center;
-  padding: 6px 7px;
-  border: 1px solid rgba(144, 182, 184, 0.15);
-  border-radius: 4px;
-  background: #0b1815;
-  text-align: left;
-  cursor: pointer;
-}
-
-.optical-defense__palette button svg {
-  grid-row: 1 / 3;
-  width: 18px;
-  color: var(--tool-color);
-}
-
-.optical-defense__palette button span {
-  overflow: hidden;
-  font-size: 10px;
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.optical-defense__palette button small {
-  color: var(--optical-muted);
-  font: 700 8px/1 ui-monospace, monospace;
-}
-
-.optical-defense__palette button:hover,
-.optical-defense__palette button.is-active {
-  border-color: color-mix(in srgb, var(--tool-color) 58%, transparent);
-  background: color-mix(in srgb, var(--tool-color) 10%, #0b1815);
-}
-
-.optical-defense__palette button.is-active {
-  box-shadow: inset 3px 0 var(--tool-color);
-}
-
-.optical-defense__field {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) 43px;
-  min-width: 0;
-  min-height: 0;
-  background: #03090b;
-}
-
-.optical-defense__canvas-shell {
-  position: relative;
-  align-self: start;
-  width: 100%;
-  min-height: 0;
-  overflow: hidden;
-  aspect-ratio: 1200 / 700;
-  background: #07100e;
-  touch-action: none;
-}
-
-.optical-defense__canvas-shell canvas {
-  position: relative;
-  z-index: 1;
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 1200 / 700;
-}
-
-.optical-defense__field-status {
-  display: flex;
-  gap: 10px;
-  min-width: 0;
-  align-items: center;
-  padding: 0 12px;
-  border-top: 1px solid var(--optical-line);
-  background: #0d1c18;
-}
-
-.optical-defense__field-status > span {
-  flex: 0 0 auto;
-  min-width: 44px;
-  padding: 3px 7px;
-  border: 1px solid rgba(100, 229, 189, 0.35);
-  color: var(--optical-mint);
-  font-size: 9px;
-  font-weight: 800;
-  text-align: center;
-}
-
-.optical-defense__field-status > span.is-running {
-  color: var(--optical-yellow);
-  border-color: rgba(255, 211, 105, 0.45);
-}
-
-.optical-defense__field-status > span.is-defeat {
-  color: var(--optical-red);
-}
-
-.optical-defense__field-status output {
-  overflow: hidden;
-  color: var(--optical-muted);
-  font-size: 10px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.optical-defense__field-status > b {
-  margin-left: auto;
-  color: var(--optical-muted);
-  font: 700 9px/1 ui-monospace, monospace;
-  white-space: nowrap;
-}
-
-.optical-defense__field-status > em {
-  flex: 0 0 auto;
-  color: var(--optical-yellow);
-  font-size: 9px;
-  font-style: normal;
-}
-
-.optical-defense__inspector {
-  border-left: 1px solid var(--optical-line);
-}
-
-.optical-defense__inspector > header {
-  display: flex;
-  gap: 8px;
-  height: 40px;
-  align-items: center;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--optical-line);
-  color: var(--optical-muted);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.optical-defense__inspector > header svg {
-  width: 15px;
-}
-
-.optical-defense__empty-inspector,
-.optical-defense__device {
-  padding: 14px 12px;
-}
-
-.optical-defense__empty-inspector > svg {
-  width: 26px;
-  color: var(--optical-muted);
-}
-
-.optical-defense__empty-inspector > strong {
-  display: block;
-  margin: 8px 0 18px;
-  font-size: 13px;
-}
-
-.optical-defense__empty-inspector dl,
-.optical-defense__device dl,
-.optical-defense__result dl {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-}
-
-.optical-defense__empty-inspector dl div,
-.optical-defense__device dl div,
-.optical-defense__result dl div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 32px;
-  padding: 0 8px;
-  background: rgba(255, 255, 255, 0.025);
-}
-
-.optical-defense__empty-inspector dt,
-.optical-defense__device dt,
-.optical-defense__result dt {
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__empty-inspector dd,
-.optical-defense__device dd,
-.optical-defense__result dd {
-  margin: 0;
-  font: 700 11px/1 ui-monospace, monospace;
-}
-
-.optical-defense__device-title {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.optical-defense__device-title i {
-  --tool-color: var(--optical-mint);
-  display: grid;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--tool-color) 44%, transparent);
-  color: var(--tool-color);
-  background: color-mix(in srgb, var(--tool-color) 8%, transparent);
-}
-
-.optical-defense__device-title svg {
-  width: 19px;
-}
-
-.optical-defense__device-title span {
-  min-width: 0;
-}
-
-.optical-defense__device-title strong,
-.optical-defense__device-title small {
-  display: block;
-}
-
-.optical-defense__device-title strong {
-  font-size: 12px;
-}
-
-.optical-defense__device-title small {
-  margin-top: 3px;
-  color: var(--optical-muted);
-  font-size: 9px;
-}
-
-.optical-defense__device > label,
-.optical-defense__device fieldset > label,
-.optical-defense__switch-row {
-  display: grid;
-  gap: 6px;
-  margin-top: 12px;
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__device select,
-.optical-defense__device input[type='range'] {
-  width: 100%;
-}
-
-.optical-defense__device select {
-  min-height: 36px;
-  padding: 0 8px;
-  border: 1px solid var(--optical-line);
-  border-radius: 3px;
-  color: var(--optical-text);
-  background: #091411;
-}
-
-.optical-defense__device fieldset {
-  margin: 14px 0 0;
-  padding: 10px;
-  border: 1px solid var(--optical-line);
-}
-
-.optical-defense__device legend {
-  padding: 0 5px;
-  color: var(--optical-muted);
-  font-size: 9px;
-}
-
-.optical-defense__device fieldset label span {
-  display: flex;
-  justify-content: space-between;
-}
-
-.optical-defense__segments {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-}
-
-.optical-defense__segments button {
-  min-height: 34px;
-  border: 1px solid var(--optical-line);
-  border-radius: 3px;
-  color: var(--optical-muted);
-  background: transparent;
-}
-
-.optical-defense__segments button.is-active {
-  color: var(--optical-mint);
-  border-color: rgba(100, 229, 189, 0.42);
-}
-
-.optical-defense__switch-row {
-  grid-template-columns: 1fr auto !important;
-  align-items: center;
-}
-
-.optical-defense__angle-control {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 36px;
-  gap: 5px;
-  margin-top: 10px;
-}
-
-.optical-defense__angle-control button,
-.optical-defense__angle-control input {
-  min-width: 0;
-  min-height: 36px;
-  border: 1px solid var(--optical-line);
-  border-radius: 3px;
-  color: var(--optical-text);
-  background: #091411;
-}
-
-.optical-defense__angle-control button {
-  display: grid;
-  padding: 0;
-  place-items: center;
-}
-
-.optical-defense__angle-control button svg {
-  width: 14px;
-}
-
-.optical-defense__angle-control input {
-  padding: 0 8px;
-  text-align: center;
-}
-
-.optical-defense__sensor-state {
-  display: block;
-  margin-top: 10px;
-  padding: 7px;
-  border: 1px solid var(--optical-line);
-  color: var(--optical-muted);
-  font: 700 9px/1 ui-monospace, monospace;
-  text-align: center;
-}
-
-.optical-defense__sensor-state.is-triggered {
-  color: #07110d;
-  border-color: var(--optical-mint);
-  background: var(--optical-mint);
-}
-
-.optical-defense input[type='checkbox'] {
-  width: 38px;
-  height: 22px;
-  accent-color: var(--optical-mint);
-}
-
-.optical-defense__device-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 16px;
-}
-
-.optical-defense__device-actions button,
-.optical-defense__snap-action,
-.optical-defense__capacitor button,
-.optical-defense__result button,
-.optical-defense__restore-settings {
-  display: inline-flex;
-  gap: 6px;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: #102126;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.optical-defense__snap-action {
-  width: 100%;
-  margin-top: 12px;
-  color: var(--optical-mint);
-  border-color: rgba(102, 221, 234, 0.36);
-}
-
-.optical-defense__snap-action.is-active {
-  color: #07121e;
-  background: var(--optical-mint);
-  border-color: var(--optical-mint);
-}
-
-.optical-defense__device-actions button:disabled,
-.optical-defense__capacitor button:disabled {
-  opacity: 0.36;
-  cursor: not-allowed;
-}
-
-.optical-defense__device-actions svg,
-.optical-defense__capacitor svg,
-.optical-defense__result button svg {
-  width: 15px;
-}
-
-.optical-defense__capacitor {
-  margin-top: 14px;
-  padding: 10px;
-  border: 1px solid rgba(255, 211, 105, 0.28);
-  background: rgba(255, 211, 105, 0.04);
-}
-
-.optical-defense__capacitor > span {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  color: var(--optical-yellow);
-  font-size: 10px;
-}
-
-.optical-defense__capacitor > span output {
-  margin-left: auto;
-  font-family: ui-monospace, monospace;
-}
-
-.optical-defense__capacitor > i {
-  display: block;
-  height: 5px;
-  margin: 8px 0;
-  overflow: hidden;
-  background: #060b0c;
-}
-
-.optical-defense__capacitor > i b {
-  display: block;
-  height: 100%;
-  background: var(--optical-yellow);
-}
-
-.optical-defense__capacitor button {
-  width: 100%;
-  border-color: rgba(255, 211, 105, 0.4);
-  color: var(--optical-yellow);
-}
-
-.optical-defense__capacitor small {
-  display: block;
-  color: var(--optical-muted);
-  font-size: 9px;
-}
-
-.optical-defense__collector {
-  margin-top: 14px;
-  padding: 10px;
-  border: 1px solid rgba(255, 200, 87, 0.3);
-  background: rgba(255, 200, 87, 0.05);
-}
-
-.optical-defense__collector strong,
-.optical-defense__collector small {
-  display: block;
-}
-
-.optical-defense__collector strong {
-  color: var(--optical-yellow);
-  font-size: 10px;
-}
-
-.optical-defense__collector small {
-  margin-top: 5px;
-  color: var(--optical-muted);
-  font-size: 9px;
-  line-height: 1.55;
-}
-
-.optical-defense__overlay {
-  position: fixed;
-  z-index: 300;
-  inset: 0;
-  display: grid;
-  padding: 20px;
-  place-items: center;
-  background: rgba(2, 7, 8, 0.82);
-  backdrop-filter: blur(8px);
-}
-
-.optical-defense__modal {
-  width: min(720px, 94vw);
-  max-height: min(720px, 90vh);
-  overflow: auto;
-  border: 1px solid rgba(150, 194, 196, 0.3);
-  border-radius: 6px;
-  background: #0d1c18;
-  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.56);
-}
-
-.optical-defense__modal > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--optical-line);
-}
-
-.optical-defense__modal header h3 {
-  margin: 2px 0 0;
-  font-size: 20px;
-  letter-spacing: 0;
-}
-
-.optical-defense__level-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  max-height: min(620px, calc(90vh - 82px));
-  overflow-y: auto;
-  padding: 1px;
-  background: var(--optical-line);
-}
-
-.optical-defense__level-grid button {
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  grid-template-rows: 1fr 1fr;
-  gap: 2px 10px;
-  min-height: 76px;
-  align-items: center;
-  padding: 10px 14px;
-  border: 0;
-  background: #12251f;
-  text-align: left;
-  cursor: pointer;
-}
-
-.optical-defense__level-grid button > span {
-  grid-row: 1 / 3;
-  color: var(--optical-yellow);
-  font: 800 21px/1 ui-monospace, monospace;
-}
-
-.optical-defense__level-grid button > span svg {
-  width: 18px;
-}
-
-.optical-defense__keyboard-grid {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  pointer-events: none;
-}
-
-.optical-defense__keyboard-grid button {
-  position: absolute;
-  width: 5.2%;
-  min-width: 22px;
-  aspect-ratio: 1;
-  padding: 0;
-  transform: translate(-50%, -50%);
-  border: 2px solid transparent;
-  border-radius: 4px;
-  opacity: 0;
-  background: rgba(102, 221, 234, 0.08);
-  pointer-events: none;
-}
-
-.optical-defense__keyboard-grid button:focus-visible {
-  opacity: 1;
-  border-color: #ffffff;
-  outline: 2px solid var(--optical-yellow);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 6px rgba(102, 221, 234, 0.18);
-}
-
-.optical-defense__field:focus-visible {
-  outline: 2px solid var(--optical-mint);
-  outline-offset: -2px;
-}
-
-.optical-defense button:focus-visible,
-.optical-defense input:focus-visible,
-.optical-defense select:focus-visible {
-  outline: 2px solid var(--optical-yellow);
-  outline-offset: 2px;
-}
-
-.optical-defense__level-grid button strong {
-  font-size: 12px;
-}
-
-.optical-defense__level-grid button small {
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__level-grid button.is-current {
-  box-shadow: inset 3px 0 var(--optical-mint);
-}
-
-.optical-defense__level-grid button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.optical-defense__settings {
-  width: min(460px, 94vw);
-}
-
-.optical-defense__help {
-  width: min(900px, 94vw);
-}
-
-.optical-defense__manual-tabs {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  border-bottom: 1px solid var(--optical-line);
-}
-
-.optical-defense__manual-tabs button {
-  min-height: 44px;
-  padding: 6px 5px;
-  border: 0;
-  border-right: 1px solid var(--optical-line);
-  color: var(--optical-muted);
-  background: #0b1714;
-  font-size: 10px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.optical-defense__manual-tabs button:last-child {
-  border-right: 0;
-}
-
-.optical-defense__manual-tabs button.is-active {
-  color: #07120f;
-  background: var(--optical-yellow);
-}
-
-.optical-defense__manual-page {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  min-height: 300px;
-}
-
-.optical-defense__manual-page article {
-  min-width: 0;
-  padding: 18px;
-  border-right: 1px solid var(--optical-line);
-}
-
-.optical-defense__manual-page article:last-child {
-  border-right: 0;
-}
-
-.optical-defense__manual-page h4 {
-  margin: 0 0 8px;
-  color: var(--optical-yellow);
-  font-size: 13px;
-  letter-spacing: 0;
-}
-
-.optical-defense__manual-page p,
-.optical-defense__manual-page li,
-.optical-defense__manual-page dt,
-.optical-defense__manual-page dd {
-  margin: 0;
-  color: var(--optical-muted);
-  font-size: 11px;
-  line-height: 1.75;
-}
-
-.optical-defense__manual-page ol {
-  margin: 0;
-  padding-left: 18px;
-}
-
-.optical-defense__manual-page li + li {
-  margin-top: 8px;
-}
-
-.optical-defense__manual-page dl {
-  margin: 0;
-}
-
-.optical-defense__manual-page dl > div {
-  padding: 8px 0;
-  border-top: 1px solid var(--optical-line);
-}
-
-.optical-defense__manual-page dt {
-  color: var(--optical-text);
-  font-weight: 750;
-}
-
-.optical-defense__manual-page dd {
-  margin-top: 2px;
-}
-
-.optical-defense__manual-footer {
-  display: flex;
-  gap: 12px;
-  min-height: 50px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px 8px 18px;
-  border-top: 1px solid var(--optical-line);
-  color: var(--optical-muted);
-  background: #0b1714;
-  font-size: 9px;
-}
-
-.optical-defense__settings > label {
-  display: flex;
-  min-height: 66px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 18px;
-  border-bottom: 1px solid var(--optical-line);
-}
-
-.optical-defense__settings label strong,
-.optical-defense__settings label small {
-  display: block;
-}
-
-.optical-defense__settings label strong {
-  font-size: 12px;
-}
-
-.optical-defense__settings label small {
-  margin-top: 4px;
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__restore-settings {
-  margin: 14px 18px 18px;
-}
-
-.optical-defense__result {
-  width: min(440px, 94vw);
-  padding: 28px;
-  text-align: center;
-}
-
-.optical-defense__result > svg {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 12px;
-  color: var(--optical-yellow);
-}
-
-.optical-defense__result h3 {
-  margin: 4px 0 6px;
-  font-size: 28px;
-  letter-spacing: 0;
-}
-
-.optical-defense__stars {
-  margin-bottom: 18px;
-  color: var(--optical-yellow);
-  font-size: 28px;
-}
-
-.optical-defense__result dl {
-  margin-bottom: 16px;
   text-align: left;
 }
 
-.optical-defense__result > div:last-child {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
+.optical-defense *, .optical-defense *::before, .optical-defense *::after { box-sizing: border-box; }
+.optical-defense :is(button, input, select) { font: inherit; border-radius: 0; }
+.optical-defense button { color: inherit; cursor: pointer; transition: background-color 100ms, border-color 100ms; }
+.optical-defense button:disabled { cursor: not-allowed; opacity: .38; }
+.optical-defense :is(button, input, select):focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.optical-defense button:active:not(:disabled) { transform: translateY(1px); }
+.optical-defense svg:not(.optical-defense__pixel-icon) { width: 16px; height: 16px; flex-shrink: 0; stroke-width: 1.7; stroke-linecap: square; stroke-linejoin: miter; }
+.optical-defense .optical-defense__pixel-icon { display: block; width: 32px; height: 32px; flex-shrink: 0; image-rendering: pixelated; }
+.optical-defense :is(h2, h3, h4, p, dl) { margin: 0; }
+.optical-defense :is(strong, b) { font-weight: 600; }
+.optical-defense small { color: var(--optical-muted); }
+.optical-defense input[type="checkbox"] { width: 16px; height: 16px; flex: 0 0 auto; margin: 0; accent-color: #f5f5f5; cursor: pointer; }
+.optical-defense input[type="range"] { width: 100%; height: 16px; margin: 4px 0; accent-color: #ddd; cursor: pointer; }
+.optical-defense :is(input[type="number"], select) { min-width: 0; padding: 7px; color: #fff; background: #0b0b0b; border: 1px solid #4a4a4a; }
+.optical-defense select { max-width: 100%; }
+.optical-defense .is-primary { color: #0b0b0b; background: #f5f5f5; border-color: #f5f5f5; font-weight: 700; }
+.optical-defense .is-primary:hover:not(:disabled) { background: #ccc; border-color: #ccc; }
+
+.optical-defense__topbar { display: grid; grid-template-columns: auto auto 1fr auto; align-items: stretch; min-height: 76px; background: #161616; border-bottom: 1px solid #555; }
+.optical-defense__identity { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-right: 1px solid var(--optical-line); }
+.optical-defense__identity .optical-defense__pixel-icon { width: 40px; height: 40px; }
+.optical-defense__identity span, .optical-defense__modal > header span, .optical-defense__result > span { color: #999; font: 10px/1.5 var(--optical-mono); letter-spacing: .13em; }
+.optical-defense__identity h2 { margin-top: 2px; color: #fff; font-size: 21px; font-weight: 700; letter-spacing: .12em; line-height: 1.25; }
+.optical-defense__level-button { display: grid; grid-template-columns: 1fr auto; align-content: center; gap: 3px 10px; padding: 12px 17px; border: 0; border-right: 1px solid var(--optical-line); background: transparent; text-align: left; }
+.optical-defense__level-button > span { color: #999; font: 9px var(--optical-mono); letter-spacing: .15em; }
+.optical-defense__level-button > strong { grid-row: 2; font: 24px/1 var(--optical-mono); }
+.optical-defense__level-button > svg { grid-column: 2; grid-row: 1 / 3; }
+.optical-defense__level-button:hover { background: #292929; }
+.optical-defense__meters { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 1.7vw, 30px); padding: 12px 16px; }
+.optical-defense__meters > div { display: grid; grid-template-columns: 16px auto; align-items: center; gap: 4px 6px; }
+.optical-defense__meters svg { color: #aaa; }
+.optical-defense__meters span { color: #999; font-size: 10px; }
+.optical-defense__meters strong { grid-column: 1 / -1; font: 13px/1.4 var(--optical-mono); white-space: nowrap; }
+.optical-defense__top-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; padding: 12px; border-left: 1px solid var(--optical-line); }
+.optical-defense__top-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 32px; min-height: 34px; padding: 8px; border: 1px solid #444; background: #1c1c1c; }
+.optical-defense__top-actions button:hover:not(:disabled) { background: #333; border-color: #888; }
+.optical-defense__top-actions .is-primary { min-width: 98px; margin-left: 5px; background: #f5f5f5; }
+.optical-defense__top-actions .is-primary:hover { background: #ccc; }
+.optical-defense__speed { display: flex; align-items: center; padding-right: 7px; gap: 1px; }
+.optical-defense__speed > svg { display: none; }
+.optical-defense__speed button { min-width: 28px; padding: 4px; border-color: transparent; color: #999; font: 11px var(--optical-mono); background: transparent; }
+.optical-defense__speed button.is-active { color: #0b0b0b; background: #ddd; }
+
+.optical-defense__mission { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; min-height: 58px; padding: 12px 20px; background: #101010; border-bottom: 1px solid var(--optical-line); }
+.optical-defense__mission > div:first-child { display: flex; gap: 12px; align-items: center; }
+.optical-defense__mission > div:first-child > span { color: #999; font: 10px var(--optical-mono); white-space: nowrap; }
+.optical-defense__mission strong { font-size: 13px; }
+.optical-defense__mission p { flex: 1; min-width: 180px; color: #aaa; font-size: 11px; line-height: 1.7; }
+.optical-defense__mission > i { position: absolute; left: 0; bottom: -1px; max-width: 100%; height: 2px; background: #ddd; }
+.optical-defense__threats { display: flex; flex-wrap: wrap; gap: 12px; }
+.optical-defense__threats > span { display: flex; align-items: center; gap: 4px; color: #bbb; font: 9px var(--optical-mono); white-space: nowrap; }
+.optical-defense__threats .optical-defense__pixel-icon { width: 20px; height: 20px; }
+.optical-defense__tutorial { display: grid; grid-template-columns: 190px 1fr auto; gap: 14px; align-items: center; padding: 12px 18px; background: #202020; border-bottom: 1px solid #555; }
+.optical-defense__tutorial > div:first-child { display: flex; align-items: center; gap: 10px; }
+.optical-defense__tutorial > div:first-child span { display: grid; gap: 5px; }
+.optical-defense__tutorial strong { font-size: 11px; }
+.optical-defense__tutorial small { font-size: 9px; line-height: 1.6; }
+.optical-defense__tutorial ol { display: flex; flex-wrap: wrap; gap: 7px 13px; margin: 0; padding: 0; list-style: none; }
+.optical-defense__tutorial li { display: flex; align-items: center; gap: 5px; color: #888; font-size: 10px; }
+.optical-defense__tutorial li > svg { width: 12px; height: 12px; border: 1px solid #666; color: transparent; }
+.optical-defense__tutorial li.is-complete { color: #eee; }
+.optical-defense__tutorial li.is-complete > svg { color: #111; border-color: #ddd; background: #ddd; }
+.optical-defense__tutorial-actions { display: flex; gap: 5px; }
+.optical-defense__tutorial-actions button { display: flex; align-items: center; justify-content: center; padding: 6px; color: #ccc; background: transparent; border: 1px solid #555; font-size: 10px; }
+
+.optical-defense__workspace { display: grid; grid-template-columns: 174px minmax(0, 1fr) 226px; align-items: stretch; }
+.optical-defense__palette { height: calc((100cqw - 400px) * .583333 + 102px); min-height: 320px; max-height: 804px; padding: 14px 12px; overflow-y: auto; border-right: 1px solid var(--optical-line); background: #161616; scrollbar-width: thin; scrollbar-color: #555 #161616; }
+.optical-defense__palette > header { display: grid; gap: 7px; padding: 0 2px 15px; border-bottom: 1px solid var(--optical-line); }
+.optical-defense__palette > header span { font: 10px var(--optical-mono); letter-spacing: .08em; }
+.optical-defense__palette > header small { font-size: 9px; }
+.optical-defense__palette section { margin-top: 16px; }
+.optical-defense__palette h3 { margin-bottom: 9px; color: #999; font-size: 10px; font-weight: 400; }
+.optical-defense__palette section > div { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.optical-defense__palette button { --tool-color: #f5f5f5; position: relative; display: grid; justify-items: center; gap: 6px; min-width: 0; min-height: 88px; padding: 10px 4px 8px; color: #bbb; background: #101010; border: 1px solid #353535; text-align: center; }
+.optical-defense__palette button > span { font-size: 10px; line-height: 1.2; white-space: nowrap; }
+.optical-defense__palette button > small { font: 9px var(--optical-mono); }
+.optical-defense__palette button:hover:not(:disabled) { background: #292929; border-color: #777; }
+.optical-defense__palette button.is-active { color: #fff; background: #292929; border-color: #ddd; box-shadow: inset 0 -2px 0 var(--tool-color); }
+.optical-defense__palette button.is-active::after { content: ''; position: absolute; right: 4px; top: 4px; width: 3px; height: 3px; background: #fff; }
+.optical-defense__field { min-width: 0; align-self: start; background: #0b0b0b; outline: 0; }
+.optical-defense__field-head { display: flex; align-items: center; gap: 20px; min-height: 38px; padding: 10px 16px; border-bottom: 1px solid #353535; color: #bbb; font-size: 10px; }
+.optical-defense__field-head > span:first-child { color: #eee; }
+.optical-defense__field-head > small { margin-left: auto; color: #888; font-size: 9px; }
+.optical-defense__spectrum-legend { display: flex; gap: 4px; align-items: center; font: 9px var(--optical-mono); }
+.optical-defense__spectrum-legend i { width: 4px; height: 8px; background: #ff243b; }
+.optical-defense__spectrum-legend i:nth-of-type(2) { background: #24ff72; }
+.optical-defense__spectrum-legend i:nth-of-type(3) { background: #2864ff; }
+.optical-defense__spectrum-legend i:nth-of-type(4) { background: #fff; }
+.optical-defense__spectrum-legend > span { padding: 0 4px; color: #888; }
+.optical-defense__canvas-shell { position: relative; width: 100%; aspect-ratio: 12 / 7; overflow: hidden; background: #0b0b0b; touch-action: manipulation; }
+.optical-defense__canvas-shell canvas { position: absolute; inset: 0; display: block; width: 100% !important; height: 100% !important; margin: 0 !important; image-rendering: pixelated; image-rendering: crisp-edges; }
+.optical-defense__field-status { display: grid; grid-template-columns: auto 1fr; gap: 9px 12px; min-height: 64px; padding: 12px 16px; border-top: 1px solid var(--optical-line); color: #aaa; font-size: 10px; }
+.optical-defense__field-status > span { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+.optical-defense__field-status > span::before { content: ''; width: 5px; height: 5px; background: #999; }
+.optical-defense__field-status > span.is-running::before { background: #24ff72; }
+.optical-defense__field-status > span.is-defeat::before { background: #ff243b; }
+.optical-defense__field-status output { min-width: 0; line-height: 1.6; color: #ddd; }
+.optical-defense__field-status b { grid-column: 1 / -1; color: #888; font: 9px var(--optical-mono); }
+.optical-defense__field-status em { grid-column: 1 / -1; color: #ff243b; font-size: 10px; }
+.optical-defense__keyboard-grid { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+.optical-defense__keyboard-grid button { position: absolute; width: 5.2%; min-width: 22px; aspect-ratio: 1; padding: 0; transform: translate(-50%, -50%); border: 2px solid transparent; opacity: 0; background: rgba(255,255,255,.05); pointer-events: none; }
+.optical-defense__keyboard-grid button:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 2px; border-color: #777; }
+.optical-defense__keyboard-grid button:active:not(:disabled) { transform: translate(-50%, -50%); }
+.optical-defense__field:focus-visible { outline: 2px solid #aaa; outline-offset: -2px; }
+
+.optical-defense__inspector { min-width: 0; height: calc((100cqw - 400px) * .583333 + 102px); overflow-y: auto; border-left: 1px solid var(--optical-line); background: #161616; scrollbar-width: thin; scrollbar-color: #666 #161616; }
+.optical-defense__inspector > header { position: sticky; top: 0; z-index: 1; display: flex; gap: 8px; align-items: center; min-height: 39px; padding: 11px 14px; border-bottom: 1px solid var(--optical-line); background: #161616; color: #aaa; font-size: 10px; }
+.optical-defense__empty-inspector, .optical-defense__device { padding: 18px 14px; }
+.optical-defense__empty-inspector > svg { width: 28px; height: 28px; margin-bottom: 12px; color: #777; }
+.optical-defense__empty-inspector > strong { display: block; padding-bottom: 20px; color: #ddd; font-size: 12px; }
+.optical-defense__device-title { display: flex; align-items: center; gap: 12px; padding-bottom: 18px; margin-bottom: 2px; }
+.optical-defense__device-title > i { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; background: #0b0b0b; border: 1px solid #444; }
+.optical-defense__device-title .optical-defense__pixel-icon { width: 32px; height: 32px; }
+.optical-defense__device-title span { display: grid; gap: 8px; }
+.optical-defense__device-title strong { font-size: 12px; }
+.optical-defense__device-title small { font: 9px/1.6 var(--optical-mono); }
+.optical-defense :is(.optical-defense__empty-inspector, .optical-defense__device, .optical-defense__result) dl { display: grid; gap: 0; }
+.optical-defense :is(.optical-defense__empty-inspector, .optical-defense__device, .optical-defense__result) dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 9px 0; border-bottom: 1px solid #333; }
+.optical-defense :is(.optical-defense__empty-inspector, .optical-defense__device, .optical-defense__result) dt { color: #999; font-size: 10px; white-space: nowrap; }
+.optical-defense :is(.optical-defense__empty-inspector, .optical-defense__device, .optical-defense__result) dd { margin: 0; font: 10px/1.5 var(--optical-mono); text-align: right; }
+.optical-defense__device > label, .optical-defense__device fieldset > label { display: grid; gap: 8px; margin-top: 12px; font-size: 10px; }
+.optical-defense__device label > span { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: #bbb; }
+.optical-defense__device select { width: 100%; }
+.optical-defense__device fieldset { min-width: 0; margin: 18px 0 0; padding: 12px 10px; border: 1px solid #444; }
+.optical-defense__device legend { padding: 0 5px; color: #ccc; font-size: 10px; }
+.optical-defense__device fieldset small, .optical-defense__device > small { display: block; margin-top: 9px; color: #999; font-size: 9px; line-height: 1.8; }
+.optical-defense__device .optical-defense__switch-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.optical-defense__segments { display: flex; gap: 3px; }
+.optical-defense__segments button { flex: 1; min-height: 31px; padding: 5px; color: #aaa; background: #0b0b0b; border: 1px solid #444; font-size: 9px; }
+.optical-defense__segments button.is-active { background: #ddd; color: #111; border-color: #ddd; }
+.optical-defense__angle-control { display: grid; grid-template-columns: 28px 1fr 28px; gap: 3px; margin: 10px 0; }
+.optical-defense__angle-control button { display: grid; place-items: center; background: #1c1c1c; border: 1px solid #444; }
+.optical-defense__angle-control input { width: 100%; text-align: center; font: 11px var(--optical-mono); }
+.optical-defense__sensor-state { display: block; padding: 7px; margin-top: 10px; color: #999; border: 1px solid #444; background: #101010; font: 10px var(--optical-mono); }
+.optical-defense__sensor-state.is-triggered { color: #24ff72; border-color: #24ff72; }
+.optical-defense__device-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 16px; }
+.optical-defense__device-actions button, .optical-defense__snap-action, .optical-defense__capacitor button, .optical-defense__restore-settings, .optical-defense__result button, .optical-defense__manual-footer button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 8px; color: #ddd; background: #232323; border: 1px solid #555; font-size: 10px; }
+.optical-defense__device-actions button:hover:not(:disabled), .optical-defense__snap-action:hover:not(:disabled) { background: #333; border-color: #aaa; }
+.optical-defense__snap-action { width: 100%; margin-top: 7px; }
+.optical-defense__snap-action.is-active { background: #ddd; color: #111; border-color: #ddd; }
+.optical-defense__capacitor { margin: 16px 0; }
+.optical-defense__capacitor > span { display: flex; align-items: center; gap: 7px; font-size: 10px; }
+.optical-defense__capacitor output { margin-left: auto; font: 10px var(--optical-mono); }
+.optical-defense__capacitor > i { display: block; height: 5px; margin: 10px 0; background: #333; }
+.optical-defense__capacitor > i > b { display: block; height: 100%; background: #ddd; }
+.optical-defense__capacitor > button { width: 100%; }
+.optical-defense__capacitor small, .optical-defense__collector small { display: block; margin-top: 8px; font-size: 9px; line-height: 1.8; }
+.optical-defense__collector strong { display: block; color: #ddd; font-size: 10px; line-height: 1.7; }
+
+.optical-defense__overlay { position: absolute; inset: 0; z-index: 20; display: grid; place-items: start center; align-content: start; padding: clamp(18px, 4vw, 52px) 16px; background: rgba(0,0,0,.84); }
+.optical-defense__modal { position: relative; width: min(720px, 100%); max-height: min(800px, 90dvh); overflow: auto; background: #161616; border: 1px solid #999; box-shadow: 8px 8px 0 #080808, 9px 9px 0 #555; scrollbar-width: thin; scrollbar-color: #777 #161616; }
+.optical-defense__modal::before { content: ''; display: block; height: 3px; background: #eee; }
+.optical-defense__modal > header { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 22px 24px; border-bottom: 1px solid #555; }
+.optical-defense__modal > header h3 { margin-top: 7px; font-size: 20px; letter-spacing: .08em; }
+.optical-defense__modal > header button { display: grid; place-items: center; width: 32px; height: 32px; padding: 4px; background: transparent; border: 1px solid #666; }
+.optical-defense__modal > header button:hover { background: #333; }
+.optical-defense__level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 22px; }
+.optical-defense__level-grid button { display: grid; align-content: start; gap: 10px; min-height: 102px; padding: 14px; background: #101010; border: 1px solid #444; text-align: left; }
+.optical-defense__level-grid button > span { font: 24px/1 var(--optical-mono); color: #aaa; }
+.optical-defense__level-grid button strong { font-size: 11px; }
+.optical-defense__level-grid button small { color: #777; letter-spacing: .18em; font-size: 11px; }
+.optical-defense__level-grid button.is-current { border-color: #fff; background: #292929; box-shadow: inset 3px 0 #eee; }
+.optical-defense__level-grid button:hover { background: #333; border-color: #aaa; }
+.optical-defense__settings { width: min(460px, 100%); }
+.optical-defense__settings > label { display: flex; gap: 15px; justify-content: space-between; align-items: center; margin: 0 24px; padding: 22px 0; border-bottom: 1px solid #353535; cursor: pointer; }
+.optical-defense__settings label strong, .optical-defense__settings label small { display: block; }
+.optical-defense__settings label strong { margin-bottom: 6px; font-size: 12px; }
+.optical-defense__settings label small { font-size: 10px; }
+.optical-defense__restore-settings { margin: 20px 24px 24px; }
+.optical-defense__help { width: min(850px, 100%); }
+.optical-defense__manual-tabs { display: flex; padding: 0 20px; border-bottom: 1px solid #555; background: #101010; }
+.optical-defense__manual-tabs button { flex: 1; min-height: 45px; padding: 10px 5px; color: #999; background: transparent; border: 0; border-bottom: 2px solid transparent; font-size: 11px; }
+.optical-defense__manual-tabs button.is-active { color: #fff; border-bottom-color: #fff; background: #232323; }
+.optical-defense__manual-page { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 24px; }
+.optical-defense__manual-page article { min-width: 0; }
+.optical-defense__manual-page h4 { margin-bottom: 12px; color: #fff; font-size: 13px; font-weight: 600; }
+.optical-defense__manual-page :is(p, li, dt, dd) { color: #aaa; font-size: 11px; line-height: 1.95; }
+.optical-defense__manual-page ol { padding-left: 19px; margin: 0; }
+.optical-defense__manual-page li + li { margin-top: 10px; }
+.optical-defense__manual-page dl { display: grid; gap: 10px; }
+.optical-defense__manual-page dl > div { padding-bottom: 10px; border-bottom: 1px solid #333; }
+.optical-defense__manual-page dt { color: #ddd; }
+.optical-defense__manual-page dd { margin: 4px 0 0; }
+.optical-defense__manual-footer { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 18px 24px; border-top: 1px solid #555; background: #101010; }
+.optical-defense__manual-footer > span { color: #888; font-size: 10px; }
+.optical-defense__manual-footer button { flex-shrink: 0; }
+.optical-defense__result { width: min(460px, 100%); padding: 32px; text-align: center; }
+.optical-defense__result > svg { width: 40px !important; height: 40px !important; margin: 0 auto 20px; color: #eee; }
+.optical-defense__result > span { display: block; }
+.optical-defense__result h3 { margin: 12px 0 20px; font-size: 28px; letter-spacing: .18em; }
+.optical-defense__stars { margin: 20px 0; color: #eee; font-size: 26px; letter-spacing: .25em; }
+.optical-defense__result dl { margin: 24px 0; }
+.optical-defense__result > div:last-child { display: flex; justify-content: center; gap: 10px; }
+.optical-defense__defeat-hint { margin-bottom: 20px !important; color: #aaa; font-size: 11px; }
+.optical-defense__defeat-custom { width: min(660px, 100%); }
+.optical-defense__defeat-custom .optical-defense__defeat-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.optical-defense__defeat-options button { justify-content: flex-start; padding: 14px; text-align: left; }
+.optical-defense__defeat-options button span { display: grid; gap: 5px; }
+.optical-defense__defeat-options small { font-size: 9px; line-height: 1.7; }
+.optical-defense__confirm { width: min(460px, 100%); }
+.optical-defense__confirm > header > div { display: flex; align-items: center; gap: 10px; }
+.optical-defense__confirm-message { padding: 24px; color: #bbb; font-size: 12px; line-height: 1.9; }
+.optical-defense__confirm-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 24px 24px; }
+.optical-defense__confirm-actions button { min-height: 36px; min-width: 82px; padding: 8px 14px; border: 1px solid #777; background: #232323; }
+.optical-defense__confirm-actions button.is-danger { color: #111; background: #ddd; }
+.optical-defense__reset-wrap { position: relative; }
+.optical-defense__reset-menu { position: absolute; z-index: 12; top: calc(100% + 10px); right: 0; width: 230px; padding: 6px; background: #161616; border: 1px solid #777; box-shadow: 5px 5px 0 #000; }
+.optical-defense__reset-menu button { width: 100%; justify-content: flex-start; gap: 10px; padding: 12px 8px; border: 0; border-bottom: 1px solid #333; text-align: left; }
+.optical-defense__reset-menu button span { display: grid; gap: 5px; }
+.optical-defense__reset-menu strong { font-size: 11px; }
+.optical-defense__reset-menu small { font-size: 9px; }
+
+.optical-defense__builder { padding: 0; background: #0b0b0b; }
+.optical-defense__builder-head { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 24px; background: #161616; border-bottom: 1px solid #555; }
+.optical-defense__builder-title { display: flex; align-items: center; gap: 12px; }
+.optical-defense__builder-title > svg { width: 24px; height: 24px; }
+.optical-defense__builder-title span { display: grid; gap: 8px; }
+.optical-defense__builder-title strong { font-size: 13px; }
+.optical-defense__builder-title small { font-size: 10px; }
+.optical-defense__builder-size { display: flex; gap: 16px; }
+.optical-defense__builder-size label { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+.optical-defense__builder-size label > span { margin-right: 5px; color: #999; }
+.optical-defense__builder-size button { width: 28px; height: 30px; padding: 0; background: #232323; border: 1px solid #555; }
+.optical-defense__builder-size input { width: 48px; height: 30px; padding: 4px; text-align: center; font: 11px var(--optical-mono); }
+.optical-defense__builder-body { display: grid; grid-template-columns: minmax(0, 1fr) 230px; }
+.optical-defense__builder-canvas-shell { min-width: 0; }
+.optical-defense__builder-canvas-shell canvas { display: block; width: 100%; height: auto; aspect-ratio: 12 / 7; image-rendering: pixelated; touch-action: none; cursor: crosshair; }
+.optical-defense__builder-hint { display: flex; gap: 20px; padding: 12px 16px; border-top: 1px solid #444; font-size: 10px; color: #999; }
+.optical-defense__builder-hint span { display: flex; align-items: center; gap: 6px; }
+.optical-defense__builder-hint i { width: 8px; height: 8px; border: 1px solid #777; background: #333; }
+.optical-defense__builder-hint .is-entrance i { background: #aaa; }
+.optical-defense__builder-hint .is-core i { background: #fff; }
+.optical-defense__builder-hint .is-hole i { background: #161616; }
+.optical-defense__builder-panel { min-width: 0; padding: 20px 16px; border-left: 1px solid #444; background: #161616; }
+.optical-defense__builder-panel h3 { margin-bottom: 18px; font-size: 12px; }
+.optical-defense__builder-tools { display: grid; gap: 6px; }
+.optical-defense__builder-tools button { display: grid; grid-template-columns: 18px 1fr; gap: 5px 9px; padding: 12px; color: #bbb; background: #101010; border: 1px solid #444; text-align: left; }
+.optical-defense__builder-tools button svg { grid-row: 1 / 3; }
+.optical-defense__builder-tools button small { grid-column: 2; font-size: 9px; line-height: 1.6; }
+.optical-defense__builder-tools button.is-active { color: #fff; border-color: #fff; background: #292929; }
+.optical-defense__builder-stats { margin: 20px 0 !important; }
+.optical-defense__builder-stats div { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 10px; }
+.optical-defense__builder-stats dt { color: #999; }
+.optical-defense__builder-stats dd { margin: 0; font-family: var(--optical-mono); }
+.optical-defense__builder-error { display: flex; gap: 7px; padding: 10px; margin: 16px 0; color: #ff243b; background: #111; border: 1px solid #555; font-size: 10px; line-height: 1.8; }
+.optical-defense__builder-error.is-valid { color: #eee; }
+.optical-defense__builder-start { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 12px; color: #111 !important; background: #eee; border: 1px solid #eee; font-size: 12px; font-weight: 700; }
+.optical-defense__console { display: flex; flex-direction: column; width: min(880px, 100%); overflow: hidden; }
+.optical-defense__console > header { flex: 0 0 auto; }
+.optical-defense__console > header > div { display: flex; align-items: center; gap: 12px; }
+.optical-defense__console > header span { display: grid; gap: 6px; font: inherit; letter-spacing: 0; }
+.optical-defense__console header strong { color: #eee; font-size: 16px; }
+.optical-defense__console header small { font-size: 10px; line-height: 1.6; }
+.optical-defense__console-tabs { display: flex; flex: 0 0 auto; background: #101010; border-bottom: 1px solid #555; }
+.optical-defense__console-tabs button { display: flex; flex: 1; gap: 8px; align-items: center; justify-content: center; min-height: 42px; padding: 10px; color: #999; background: transparent; border: 0; border-bottom: 2px solid transparent; font-size: 11px; }
+.optical-defense__console-tabs button.is-active { color: #fff; background: #232323; border-bottom-color: #fff; }
+.optical-defense__console-body { min-height: 0; padding: 22px; overflow: auto; scrollbar-width: thin; scrollbar-color: #777 #161616; }
+.optical-defense__console-advanced { display: grid; gap: 22px; }
+.optical-defense__console-section { padding: 16px; border: 1px solid #444; }
+.optical-defense__console-section h3 { margin-bottom: 18px; color: #ddd; font-size: 12px; }
+.optical-defense__console-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.optical-defense__console-grid + .optical-defense__console-grid { margin-top: 15px; }
+.optical-defense__console-note { margin-top: 12px !important; color: #888; font-size: 10px; line-height: 1.8; }
+.optical-defense__number-field, .optical-defense__slider-field { display: grid; gap: 8px; min-width: 0; margin-top: 8px; }
+.optical-defense__number-field > span, .optical-defense__slider-field > span { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #aaa; font-size: 10px; }
+.optical-defense__number-field small { color: #777; font-size: 9px; }
+.optical-defense__number-field input { width: 100%; font: 12px var(--optical-mono); }
+.optical-defense__slider-field output { color: #ddd; font: 10px var(--optical-mono); }
+.optical-defense__enemy-multiselect { display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; }
+.optical-defense__enemy-multiselect button { padding: 8px 12px; background: #101010; border: 1px solid #444; font-size: 11px; }
+.optical-defense__enemy-multiselect button.is-active { color: #111; background: #ddd; border-color: #ddd; }
+.optical-defense__enemy-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.optical-defense__enemy-stats fieldset { min-width: 0; margin: 0; padding: 10px; border: 1px solid #444; }
+.optical-defense__enemy-stats fieldset.is-disabled { opacity: .4; }
+.optical-defense__enemy-stats legend { padding: 0 5px; color: #bbb; font-size: 10px; }
+.optical-defense__curve-field { display: flex; gap: 15px; align-items: center; }
+.optical-defense__curve-field > span { display: grid; flex: 0 0 90px; gap: 8px; }
+.optical-defense__curve-field strong { font-size: 11px; }
+.optical-defense__curve-field small { font-size: 9px; line-height: 1.6; }
+.optical-defense__curve-field canvas { display: block; width: 100%; min-width: 0; max-width: 100%; border: 1px solid #555; background: #101010; image-rendering: pixelated; cursor: crosshair; touch-action: none; }
+.optical-defense__waves-list { display: grid; gap: 12px; margin-top: 18px; }
+.optical-defense__wave-card { padding: 15px; border: 1px solid #444; background: #111; }
+.optical-defense__wave-card > header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.optical-defense__wave-card > header strong { font-size: 11px; }
+.optical-defense__wave-card > header button { display: grid; place-items: center; width: 27px; height: 27px; padding: 3px; color: #999; background: transparent; border: 1px solid #444; }
+.optical-defense__random-toggle { display: flex; align-items: center; gap: 6px; margin-left: auto; color: #aaa; font-size: 10px; }
+.optical-defense__wave-distribution { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.optical-defense__add-wave { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 38px; margin-top: 12px; color: #bbb; background: #111; border: 1px dashed #666; font-size: 11px; }
+.optical-defense__console-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex: 0 0 auto; padding: 16px 22px; border-top: 1px solid #555; background: #101010; }
+.optical-defense__console-footer > span { color: #999; font-size: 10px; }
+.optical-defense__console-reset { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; color: #ddd; background: #232323; border: 1px solid #555; font-size: 10px; }
+
+@media (max-width: 1320px) {
+  .optical-defense__topbar { grid-template-columns: auto auto 1fr; }
+  .optical-defense__top-actions { grid-column: 1 / -1; justify-content: flex-end; min-height: 48px; padding: 7px 14px; border-top: 1px solid #353535; border-left: 0; }
+  .optical-defense__meters { justify-content: flex-end; gap: 25px; }
+  .optical-defense__workspace { grid-template-columns: 156px minmax(0, 1fr) 210px; }
+  .optical-defense__palette { height: calc((100cqw - 366px) * .583333 + 102px); padding: 12px 9px; }
+  .optical-defense__inspector { height: calc((100cqw - 366px) * .583333 + 102px); }
+  .optical-defense__field-head > small { display: none; }
 }
 
-@media (max-width: 1180px) {
-  .optical-defense__tutorial {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .optical-defense__tutorial ol {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .optical-defense__tutorial-actions {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .optical-defense__topbar {
-    grid-template-columns: auto auto 1fr;
-  }
-
-  .optical-defense__meters {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    border-top: 1px solid var(--optical-line);
-  }
-
-  .optical-defense__top-actions {
-    grid-column: 3;
-    grid-row: 1;
-    justify-self: end;
-  }
-
-  .optical-defense__workspace {
-    grid-template-columns: 170px minmax(380px, 1fr);
-  }
-
-  .optical-defense__inspector {
-    grid-column: 1 / -1;
-    border-top: 1px solid var(--optical-line);
-    border-left: 0;
-  }
-
-  .optical-defense__device,
-  .optical-defense__empty-inspector {
-    display: grid;
-    grid-template-columns: minmax(150px, 1fr) minmax(180px, 1fr) minmax(200px, 1fr);
-    gap: 12px;
-    align-items: start;
-  }
-
-  .optical-defense__device-title,
-  .optical-defense__empty-inspector > strong {
-    margin: 0;
-  }
-
-  .optical-defense__level-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+@media (max-width: 1100px) {
+  .optical-defense__workspace { grid-template-columns: 150px minmax(0, 1fr); }
+  .optical-defense__palette { height: calc((100cqw - 150px) * .583333 + 102px); }
+  .optical-defense__inspector { grid-column: 1 / -1; height: auto; overflow: visible; border-top: 1px solid #555; border-left: 0; }
+  .optical-defense__inspector > header { position: static; }
+  .optical-defense__device { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 20px; }
+  .optical-defense__device > :is(fieldset, label, button, div) { margin-top: 0; }
+  .optical-defense__empty-inspector { display: flex; align-items: center; gap: 20px; }
+  .optical-defense__empty-inspector > svg { margin: 0; }
+  .optical-defense__empty-inspector > strong { padding: 0; }
+  .optical-defense__empty-inspector dl { flex: 1; grid-template-columns: repeat(3, 1fr); gap: 20px !important; }
+  .optical-defense__tutorial { grid-template-columns: 160px 1fr; }
+  .optical-defense__tutorial-actions { grid-column: 1 / -1; justify-content: flex-end; }
 }
 
-@media (max-width: 760px) {
-  .optical-defense__topbar {
-    grid-template-columns: minmax(120px, 1fr) auto;
-  }
-
-  .optical-defense__identity {
-    min-width: 0;
-  }
-
-  .optical-defense__level-button {
-    grid-column: 2;
-  }
-
-  .optical-defense__top-actions {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    justify-self: stretch;
-    display: grid;
-    grid-template-columns: minmax(190px, 1fr) repeat(3, 44px) minmax(112px, auto);
-    justify-content: stretch;
-    border-top: 1px solid var(--optical-line);
-  }
-
-  .optical-defense__meters {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .optical-defense__meters > div:nth-child(2) {
-    border-right: 0;
-  }
-
-  .optical-defense__mission {
-    grid-template-columns: 1fr;
-    gap: 3px;
-  }
-
-  .optical-defense__threats {
-    justify-content: flex-start;
-  }
-
-  .optical-defense__workspace {
-    grid-template-columns: 128px minmax(360px, 1fr);
-    min-height: 360px;
-    overflow-x: auto;
-  }
-
-  .optical-defense__palette section {
-    padding: 8px;
-  }
-
-  .optical-defense__palette section > div {
-    grid-template-columns: 1fr;
-  }
-
-  .optical-defense__palette button {
-    min-height: 50px;
-  }
-
-  .optical-defense__inspector {
-    grid-column: 2;
-  }
-
-  .optical-defense__device,
-  .optical-defense__empty-inspector {
-    grid-template-columns: 1fr;
-  }
-
-  .optical-defense__level-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .optical-defense__manual-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .optical-defense__manual-tabs button:nth-child(3) {
-    border-right: 0;
-  }
-
-  .optical-defense__manual-page {
-    grid-template-columns: 1fr;
-    max-height: 58vh;
-    overflow-y: auto;
-  }
-
-  .optical-defense__manual-page article {
-    border-right: 0;
-    border-bottom: 1px solid var(--optical-line);
-  }
-
-  .optical-defense__manual-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+@media (max-width: 700px) {
+  .optical-defense__topbar { grid-template-columns: 1fr auto; }
+  .optical-defense__identity { gap: 10px; padding: 14px; }
+  .optical-defense__identity h2 { font-size: 19px; }
+  .optical-defense__identity .optical-defense__pixel-icon { width: 32px; height: 32px; }
+  .optical-defense__identity span { font-size: 8px; }
+  .optical-defense__level-button { border-right: 0; padding: 10px 16px; }
+  .optical-defense__meters { grid-column: 1 / -1; justify-content: space-between; gap: 8px; padding: 12px 14px; border-top: 1px solid #333; }
+  .optical-defense__meters > div { gap: 3px 5px; }
+  .optical-defense__meters strong { font-size: 11px; }
+  .optical-defense__top-actions { justify-content: space-between; gap: 4px; padding: 8px 10px; flex-wrap: wrap; }
+  .optical-defense__top-actions button { min-width: 30px; min-height: 32px; padding: 6px; }
+  .optical-defense__top-actions .is-primary { min-width: 90px; margin-left: auto; font-size: 11px; }
+  .optical-defense__speed { padding: 0; }
+  .optical-defense__speed button { min-width: 25px; }
+  .optical-defense__mission { gap: 10px; padding: 14px; }
+  .optical-defense__mission p { flex: 1 0 100%; font-size: 10px; }
+  .optical-defense__threats { width: 100%; }
+  .optical-defense__tutorial { grid-template-columns: 1fr auto; padding: 12px; gap: 10px; }
+  .optical-defense__tutorial > div:first-child { grid-column: 1; }
+  .optical-defense__tutorial ol { grid-row: 2; grid-column: 1 / -1; gap: 8px 12px; }
+  .optical-defense__tutorial-actions { grid-column: 2; grid-row: 1; }
+  .optical-defense__tutorial-actions button:first-child { padding: 6px; font-size: 9px; }
+  .optical-defense__workspace { display: flex; flex-direction: column; }
+  .optical-defense__palette { display: flex; gap: 18px; width: 100%; height: auto; min-height: 0; max-height: none; padding: 12px; overflow-x: auto; overflow-y: hidden; border-right: 0; border-bottom: 1px solid #444; scrollbar-width: thin; scrollbar-color: #666 #161616; }
+  .optical-defense__palette > header { display: none; }
+  .optical-defense__palette section { flex: 0 0 auto; margin: 0; }
+  .optical-defense__palette h3 { margin-bottom: 7px; font-size: 9px; }
+  .optical-defense__palette section > div { display: flex; gap: 5px; }
+  .optical-defense__palette button { width: 66px; min-height: 82px; padding: 8px 4px; }
+  .optical-defense__palette button .optical-defense__pixel-icon { width: 28px; height: 28px; }
+  .optical-defense__field { width: 100%; }
+  .optical-defense__field-head { min-height: 34px; padding: 8px 12px; }
+  .optical-defense__field-head .optical-defense__spectrum-legend { margin-left: auto; }
+  .optical-defense__field-status { padding: 12px; font-size: 9px; }
+  .optical-defense__device { display: block; padding: 16px; }
+  .optical-defense__device > :is(fieldset, label, div:not(.optical-defense__device-title)) { margin-top: 14px; }
+  .optical-defense__device dl { margin-bottom: 18px; }
+  .optical-defense__device > .optical-defense__snap-action { margin-top: 7px; }
+  .optical-defense__empty-inspector { flex-wrap: wrap; gap: 12px; padding: 16px; }
+  .optical-defense__empty-inspector dl { flex: 1 0 100%; gap: 14px !important; }
+  .optical-defense__overlay { padding: 16px 10px; }
+  .optical-defense__modal { box-shadow: 4px 4px 0 #000, 5px 5px 0 #555; max-height: 88dvh; }
+  .optical-defense__modal > header { padding: 18px 16px; }
+  .optical-defense__modal > header h3 { font-size: 18px; }
+  .optical-defense__level-grid { grid-template-columns: repeat(2, 1fr); gap: 7px; padding: 14px; }
+  .optical-defense__level-grid button { min-height: 98px; }
+  .optical-defense__settings > label { margin: 0 16px; }
+  .optical-defense__manual-tabs { display: grid; grid-template-columns: repeat(3, 1fr); padding: 0; }
+  .optical-defense__manual-tabs button { font-size: 10px; min-height: 38px; }
+  .optical-defense__manual-page { grid-template-columns: 1fr; padding: 22px 16px; gap: 22px; }
+  .optical-defense__manual-footer { flex-direction: column; align-items: stretch; padding: 16px; }
+  .optical-defense__result { padding: 26px 18px; }
+  .optical-defense__result h3 { font-size: 24px; }
+  .optical-defense__defeat-custom .optical-defense__defeat-options { grid-template-columns: 1fr; }
+  .optical-defense__builder-head { flex-direction: column; align-items: flex-start; gap: 15px; padding: 16px; }
+  .optical-defense__builder-body { grid-template-columns: 1fr; }
+  .optical-defense__builder-panel { border-left: 0; border-top: 1px solid #555; }
+  .optical-defense__builder-tools { grid-template-columns: 1fr 1fr; }
+  .optical-defense__builder-hint { justify-content: space-between; gap: 10px; padding: 12px; font-size: 9px; }
+  .optical-defense__console-body { padding: 12px; }
+  .optical-defense__console-section { padding: 12px; }
+  .optical-defense__console-grid { grid-template-columns: 1fr 1fr; }
+  .optical-defense__enemy-stats { grid-template-columns: 1fr 1fr; }
+  .optical-defense__curve-field { flex-direction: column; align-items: stretch; gap: 12px; }
+  .optical-defense__curve-field > span { flex-basis: auto; }
+  .optical-defense__wave-distribution { grid-template-columns: 1fr 1fr; }
+  .optical-defense__console-footer { align-items: flex-start; padding: 12px; }
+  .optical-defense__console-footer > span { font-size: 9px; line-height: 1.7; }
 }
 
-@media (max-width: 480px) {
-  .optical-defense__top-actions {
-    grid-template-columns: repeat(3, 44px) minmax(112px, 1fr);
-  }
-
-  .optical-defense__speed {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-
-  .optical-defense__top-actions .optical-defense__speed button {
-    flex: 1;
-  }
+@media (max-width: 380px) {
+  .optical-defense__identity h2 { font-size: 16px; }
+  .optical-defense__meters strong { font-size: 10px; }
+  .optical-defense__top-actions .optical-defense__console-button span { display: none; }
+  .optical-defense__builder-size { gap: 10px; }
+  .optical-defense__builder-size label { gap: 3px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .optical-defense *,
-  .optical-defense *::before,
-  .optical-defense *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-  }
-}
-
-/* ============ 第二十关 · 关卡构建 ============ */
-.optical-defense__builder {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: 640px;
-  background: #03090b;
-}
-
-.optical-defense__builder-head {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--optical-line);
-  background: #0e1c18;
-}
-
-.optical-defense__builder-title {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.optical-defense__builder-title > svg {
-  flex: 0 0 auto;
-  width: 22px;
-  color: var(--optical-yellow);
-}
-
-.optical-defense__builder-title span {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.optical-defense__builder-title strong {
-  font-size: 14px;
-}
-
-.optical-defense__builder-title small {
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__builder-size {
-  display: flex;
-  gap: 12px;
-}
-
-.optical-defense__builder-size label {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.optical-defense__builder-size label > span {
-  color: var(--optical-muted);
-  font: 800 9px/1 ui-monospace, monospace;
-}
-
-.optical-defense__builder-size button {
-  display: inline-flex;
-  width: 30px;
-  height: 30px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: var(--optical-panel-2);
-  cursor: pointer;
-}
-
-.optical-defense__builder-size button:hover {
-  border-color: var(--optical-mint);
-  color: var(--optical-mint);
-}
-
-.optical-defense__builder-size input {
-  width: 56px;
-  height: 30px;
-  padding: 0 6px;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: #0b1815;
-  color: var(--optical-text);
-  font: 700 12px/1 ui-monospace, monospace;
-  text-align: center;
-}
-
-.optical-defense__builder-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 236px;
-  gap: 14px;
-  padding: 14px 16px;
-}
-
-.optical-defense__builder-canvas-shell {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1200 / 700;
-  overflow: hidden;
-  border: 1px solid var(--optical-line);
-  border-radius: 6px;
-  background: #07100e;
-  touch-action: none;
-}
-
-.optical-defense__builder-canvas-shell canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  cursor: crosshair;
-}
-
-.optical-defense__builder-hint {
-  position: absolute;
-  z-index: 2;
-  top: 10px;
-  left: 12px;
-  display: flex;
-  gap: 12px;
-  pointer-events: none;
-}
-
-.optical-defense__builder-hint span {
-  display: inline-flex;
-  gap: 5px;
-  align-items: center;
-  color: var(--optical-muted);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.optical-defense__builder-hint i {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-}
-
-.optical-defense__builder-hint .is-road i { background: #292620; }
-.optical-defense__builder-hint .is-entrance i { background: #63e9ad; }
-.optical-defense__builder-hint .is-core i { background: #e0ae6d; }
-.optical-defense__builder-hint .is-hole i { background: #142321; border: 1px solid rgba(66, 83, 78, 0.6); }
-
-.optical-defense__builder-panel {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid var(--optical-line);
-  border-radius: 6px;
-  background: var(--optical-panel);
-}
-
-.optical-defense__builder-panel h3 {
-  margin: 0;
-  color: var(--optical-mint);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.optical-defense__builder-tools {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.optical-defense__builder-tools button {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  grid-template-rows: 1fr 1fr;
-  gap: 0 6px;
-  min-height: 46px;
-  align-items: center;
-  padding: 5px 8px;
-  border: 1px solid rgba(144, 182, 184, 0.15);
-  border-radius: 4px;
-  background: #0b1815;
-  text-align: left;
-  cursor: pointer;
-}
-
-.optical-defense__builder-tools button svg {
-  grid-row: 1 / 3;
-  width: 16px;
-  color: var(--optical-mint);
-}
-
-.optical-defense__builder-tools button span {
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.optical-defense__builder-tools button small {
-  overflow: hidden;
-  color: var(--optical-muted);
-  font-size: 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.optical-defense__builder-tools button:hover,
-.optical-defense__builder-tools button.is-active {
-  border-color: var(--optical-mint);
-  background: color-mix(in srgb, var(--optical-mint) 10%, #0b1815);
-}
-
-.optical-defense__builder-tools button.is-active {
-  box-shadow: inset 3px 0 var(--optical-mint);
-}
-
-.optical-defense__builder-tools .is-clear {
-  grid-column: 1 / -1;
-  color: var(--optical-red);
-}
-
-.optical-defense__builder-tools .is-clear svg {
-  color: var(--optical-red);
-}
-
-.optical-defense__builder-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 10px;
-  margin: 0;
-}
-
-.optical-defense__builder-stats div {
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  border-bottom: 1px solid rgba(151, 201, 181, 0.12);
-}
-
-.optical-defense__builder-stats dt {
-  color: var(--optical-muted);
-  font-size: 9px;
-}
-
-.optical-defense__builder-stats dd {
-  margin: 0;
-  font: 700 10px/1.6 ui-monospace, monospace;
-}
-
-.optical-defense__builder-error {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  min-height: 32px;
-  padding: 7px 9px;
-  border-radius: 4px;
-  color: var(--optical-red);
-  background: rgba(255, 113, 133, 0.08);
-  font-size: 10px;
-  line-height: 1.4;
-}
-
-.optical-defense__builder-error svg {
-  flex: 0 0 auto;
-  width: 14px;
-}
-
-.optical-defense__builder-error.is-valid {
-  color: var(--optical-mint);
-  background: rgba(102, 221, 234, 0.08);
-}
-
-.optical-defense__builder-start {
-  display: inline-flex;
-  gap: 8px;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 4px;
-  color: #04110d;
-  background: var(--optical-mint);
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.optical-defense__builder-start:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
-/* ============ 第二十关 · 顶栏按钮与重置菜单 ============ */
-.optical-defense__top-actions .optical-defense__console-button {
-  gap: 6px;
-  min-width: 92px;
-  padding: 0 12px;
-  border-color: rgba(102, 221, 234, 0.4);
-  color: var(--optical-mint);
-}
-
-.optical-defense__top-actions .optical-defense__console-button span {
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.optical-defense__reset-wrap {
-  position: relative;
-}
-
-.optical-defense__reset-menu {
-  position: absolute;
-  z-index: 70;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 232px;
-  padding: 6px;
-  border: 1px solid rgba(150, 194, 196, 0.3);
-  border-radius: 6px;
-  background: #0d1c18;
-  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.5);
-}
-
-.optical-defense__reset-menu button {
-  display: flex;
-  gap: 9px;
-  width: 100%;
-  min-height: 0;
-  align-items: center;
-  padding: 8px 10px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-.optical-defense__reset-menu button:hover {
-  background: rgba(102, 221, 234, 0.1);
-}
-
-.optical-defense__reset-menu button > svg {
-  flex: 0 0 auto;
-  width: 16px;
-  color: var(--optical-mint);
-}
-
-.optical-defense__reset-menu button:first-child > svg {
-  color: var(--optical-yellow);
-}
-
-.optical-defense__reset-menu span {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.optical-defense__reset-menu strong {
-  font-size: 11px;
-}
-
-.optical-defense__reset-menu small {
-  overflow: hidden;
-  color: var(--optical-muted);
-  font-size: 9px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ============ 第二十关 · 控制台 ============ */
-.optical-defense__console {
-  display: flex;
-  width: min(900px, 96vw);
-  max-height: min(780px, 94vh);
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.optical-defense__console > header > div {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.optical-defense__console > header > div > svg {
-  flex: 0 0 auto;
-  width: 22px;
-  color: var(--optical-mint);
-}
-
-.optical-defense__console header span {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.optical-defense__console header span small {
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__console-tabs {
-  display: flex;
-  gap: 1px;
-  padding: 10px 12px 0;
-  border-bottom: 1px solid var(--optical-line);
-  background: #0a1613;
-}
-
-.optical-defense__console-tabs button {
-  display: inline-flex;
-  flex: 1;
-  gap: 6px;
-  min-height: 38px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 4px 4px 0 0;
-  background: transparent;
-  color: var(--optical-muted);
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.optical-defense__console-tabs button svg {
-  width: 15px;
-}
-
-.optical-defense__console-tabs button.is-active {
-  color: #04110d;
-  background: var(--optical-mint);
-}
-
-.optical-defense__console-body {
-  flex: 1;
-  min-height: 0;
-  padding: 14px 16px;
-  overflow-y: auto;
-}
-
-.optical-defense__console-advanced {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.optical-defense__console-section {
-  padding: 12px;
-  border: 1px solid var(--optical-line);
-  border-radius: 6px;
-  background: #0e1c18;
-}
-
-.optical-defense__console-section h3 {
-  margin: 0 0 10px;
-  color: var(--optical-mint);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.optical-defense__console-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: 10px;
-}
-
-.optical-defense__console-grid + .optical-defense__console-grid {
-  margin-top: 10px;
-}
-
-.optical-defense__console-note {
-  margin: 0;
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__number-field,
-.optical-defense__slider-field {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.optical-defense__number-field > span,
-.optical-defense__slider-field > span {
-  display: flex;
-  gap: 6px;
-  align-items: baseline;
-  justify-content: space-between;
-  color: var(--optical-muted);
-  font-size: 9px;
-}
-
-.optical-defense__number-field small {
-  color: var(--optical-muted);
-}
-
-.optical-defense__number-field input {
-  width: 100%;
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: #0b1815;
-  color: var(--optical-text);
-  font: 700 11px/1 ui-monospace, monospace;
-}
-
-.optical-defense__number-field input:focus {
-  border-color: var(--optical-mint);
-}
-
-.optical-defense__slider-field input[type="range"] {
-  width: 100%;
-  accent-color: var(--optical-mint);
-}
-
-.optical-defense__slider-field output {
-  color: var(--optical-yellow);
-  font: 700 10px/1 ui-monospace, monospace;
-}
-
-.optical-defense__enemy-multiselect {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.optical-defense__enemy-multiselect button {
-  min-height: 30px;
-  padding: 0 14px;
-  border: 1px solid var(--optical-line);
-  border-radius: 999px;
-  background: #0b1815;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.optical-defense__enemy-multiselect button.is-active {
-  border-color: var(--optical-mint);
-  color: var(--optical-mint);
-  background: color-mix(in srgb, var(--optical-mint) 12%, #0b1815);
-}
-
-.optical-defense__enemy-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.optical-defense__enemy-stats fieldset {
-  margin: 0;
-  padding: 8px;
-  border: 1px solid var(--optical-line);
-  border-radius: 6px;
-}
-
-.optical-defense__enemy-stats fieldset.is-disabled {
-  opacity: 0.45;
-}
-
-.optical-defense__enemy-stats legend {
-  padding: 0 4px;
-  color: var(--optical-yellow);
-  font-size: 9px;
-  font-weight: 800;
-}
-
-.optical-defense__enemy-stats .optical-defense__number-field {
-  gap: 3px;
-}
-
-.optical-defense__enemy-stats .optical-defense__number-field + .optical-defense__number-field {
-  margin-top: 6px;
-}
-
-.optical-defense__curve-field {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-
-.optical-defense__curve-field > span {
-  display: flex;
-  min-width: 118px;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.optical-defense__curve-field strong {
-  font-size: 10px;
-}
-
-.optical-defense__curve-field small {
-  color: var(--optical-muted);
-  font-size: 9px;
-  line-height: 1.4;
-}
-
-.optical-defense__curve-field canvas {
-  display: block;
-  max-width: 100%;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: #0a1613;
-  cursor: crosshair;
-  touch-action: none;
-}
-
-.optical-defense__waves-list {
-  display: flex;
-  margin-top: 10px;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.optical-defense__wave-card {
-  padding: 10px;
-  border: 1px solid var(--optical-line);
-  border-radius: 6px;
-  background: #0a1715;
-}
-
-.optical-defense__wave-card > header {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.optical-defense__wave-card > header strong {
-  color: var(--optical-mint);
-  font-size: 11px;
-}
-
-.optical-defense__wave-card > header > button {
-  display: inline-flex;
-  width: 28px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--optical-red);
-  cursor: pointer;
-}
-
-.optical-defense__wave-card > header > button svg {
-  width: 14px;
-}
-
-.optical-defense__random-toggle {
-  display: inline-flex;
-  gap: 5px;
-  align-items: center;
-  margin-left: auto;
-  color: var(--optical-muted);
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.optical-defense__wave-card .optical-defense__console-grid {
-  margin-bottom: 8px;
-}
-
-.optical-defense__wave-distribution {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 8px;
-}
-
-.optical-defense__add-wave {
-  display: inline-flex;
-  gap: 6px;
-  min-height: 34px;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-  padding: 0 14px;
-  border: 1px dashed rgba(102, 221, 234, 0.5);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--optical-mint);
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.optical-defense__add-wave svg {
-  width: 15px;
-}
-
-.optical-defense__console-footer {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-top: 1px solid var(--optical-line);
-}
-
-.optical-defense__console-footer > span {
-  color: var(--optical-muted);
-  font-size: 10px;
-}
-
-.optical-defense__console-reset {
-  display: inline-flex;
-  gap: 6px;
-  min-height: 32px;
-  align-items: center;
-  padding: 0 12px;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: var(--optical-panel-2);
-  color: var(--optical-yellow);
-  font-size: 10px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.optical-defense__console-reset svg {
-  width: 14px;
-}
-
-/* ============ 第二十关 · 核心失守选项 ============ */
-.optical-defense__defeat-custom {
-  width: min(520px, 94vw);
-}
-
-.optical-defense__defeat-hint {
-  margin: 0 0 12px;
-  color: var(--optical-muted);
-  font-size: 11px;
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  text-align: left;
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options button {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid var(--optical-line);
-  border-radius: 6px;
-  background: #0e1c18;
-  text-align: left;
-  cursor: pointer;
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options button:hover {
-  border-color: var(--optical-mint);
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options button > svg {
-  flex: 0 0 auto;
-  width: 18px;
-  color: var(--optical-mint);
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options button:first-child > svg {
-  color: var(--optical-yellow);
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options span {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options strong {
-  font-size: 11px;
-}
-
-.optical-defense__defeat-custom .optical-defense__defeat-options small {
-  overflow: hidden;
-  color: var(--optical-muted);
-  font-size: 9px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (max-width: 760px) {
-  .optical-defense__builder-head {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .optical-defense__builder-body {
-    grid-template-columns: 1fr;
-  }
-
-  .optical-defense__builder-panel {
-    order: 2;
-  }
-
-  .optical-defense__builder-canvas-shell {
-    order: 1;
-  }
-
-  .optical-defense__curve-field {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .optical-defense__defeat-custom .optical-defense__defeat-options {
-    grid-template-columns: 1fr;
-  }
-
-  .optical-defense__console-tabs button {
-    font-size: 10px;
-  }
-}
-
-/* ============ 确认弹窗 ============ */
-.optical-defense__confirm {
-  width: min(380px, 92vw);
-  padding: 0;
-  overflow: visible;
-}
-
-.optical-defense__confirm > header > div {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.optical-defense__confirm > header > div > svg {
-  width: 18px;
-  color: var(--optical-yellow);
-}
-
-.optical-defense__confirm-message {
-  margin: 0;
-  padding: 18px 20px;
-  color: var(--optical-muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.optical-defense__confirm-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  padding: 0 20px 18px;
-}
-
-.optical-defense__confirm-actions button {
-  display: inline-flex;
-  min-width: 88px;
-  min-height: 38px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--optical-line);
-  border-radius: 4px;
-  background: var(--optical-panel-2);
-  color: var(--optical-text);
-  font-weight: 800;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.optical-defense__confirm-actions button:hover {
-  border-color: var(--optical-mint);
-}
-
-.optical-defense__confirm-actions button.is-danger {
-  border-color: transparent;
-  color: #1a0b0e;
-  background: var(--optical-red);
-}
-
-.optical-defense__confirm-actions button.is-danger:hover {
-  filter: brightness(1.08);
-}
-
-/* ============================================================
-   亮色模式 · 光学实验台
-   银白机柜 + 钴蓝主键 + 黄铜能量点缀；仪器图标用画布同款高饱和强调色。
-   画布本身（SCENE_PALETTES.light）是「米白台面 + 黑色阳极氧化仪器」。
-   ============================================================ */
-html[data-color-mode='light'] .optical-defense {
-  --optical-bg: #eef0f4;
-  --optical-panel: #fbfbfd;
-  --optical-panel-2: #e7e9ee;
-  --optical-line: rgba(23, 26, 34, 0.13);
-  --optical-text: #171a22;
-  --optical-muted: #5d6773;
-  --optical-mint: #2453c7;
-  --optical-yellow: #b0760c;
-  --optical-red: #c0352f;
-  color-scheme: light;
-  border-color: rgba(23, 26, 34, 0.16);
-  background: var(--optical-bg);
-  box-shadow: 0 24px 60px rgba(23, 26, 34, 0.12), inset 0 1px #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__topbar {
-  background: #fbfbfd;
-}
-
-html[data-color-mode='light'] .optical-defense__level-button:hover,
-html[data-color-mode='light'] .optical-defense__top-actions button:hover:not(:disabled),
-html[data-color-mode='light'] .optical-defense__modal header button:hover,
-html[data-color-mode='light'] .optical-defense__restore-settings:hover,
-html[data-color-mode='light'] .optical-defense__device-actions button:hover:not(:disabled),
-html[data-color-mode='light'] .optical-defense__snap-action:hover:not(:disabled),
-html[data-color-mode='light'] .optical-defense__capacitor button:hover:not(:disabled) {
-  border-color: rgba(36, 83, 199, 0.42);
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__speed {
-  background: #e7e9ee;
-}
-
-html[data-color-mode='light'] .optical-defense__top-actions button,
-html[data-color-mode='light'] .optical-defense__modal header button {
-  background: #eef0f4;
-}
-
-html[data-color-mode='light'] .optical-defense__top-actions .optical-defense__speed button {
-  color: #5d6773;
-  background: transparent;
-}
-
-html[data-color-mode='light'] .optical-defense__top-actions .optical-defense__speed button.is-active {
-  color: #fffefa;
-  background: var(--optical-yellow);
-}
-
-html[data-color-mode='light'] .optical-defense__top-actions .is-primary,
-html[data-color-mode='light'] .optical-defense__result .is-primary,
-html[data-color-mode='light'] .optical-defense__builder-start {
-  color: #fffefa;
-  background: var(--optical-mint);
-  box-shadow: 0 8px 20px rgba(36, 83, 199, 0.18);
-}
-
-html[data-color-mode='light'] .optical-defense__mission {
-  background: linear-gradient(180deg, #f3eddf, #eef0f4);
-}
-
-html[data-color-mode='light'] .optical-defense__mission > i {
-  background: var(--optical-yellow);
-}
-
-html[data-color-mode='light'] .optical-defense__tutorial {
-  border-bottom-color: rgba(36, 83, 199, 0.28);
-  background: #e7edf9;
-}
-
-html[data-color-mode='light'] .optical-defense__tutorial li {
-  color: #3a4553;
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__tutorial li svg {
-  color: #8a8f9b;
-}
-
-html[data-color-mode='light'] .optical-defense__tutorial li.is-complete {
-  border-color: rgba(36, 83, 199, 0.34);
-  color: #2146a3;
-  background: #eaf0fc;
-}
-
-html[data-color-mode='light'] .optical-defense__tutorial-actions button,
-html[data-color-mode='light'] .optical-defense__manual-footer button {
-  color: #2146a3;
-  background: #e7edf9;
-}
-
-html[data-color-mode='light'] .optical-defense__threats span {
-  border-color: rgba(23, 26, 34, 0.16);
-  background: rgba(255, 255, 255, 0.62);
-}
-
-html[data-color-mode='light'] .optical-defense__threats .is-armored { color: #42576e; }
-html[data-color-mode='light'] .optical-defense__threats .is-resistant { color: #7c3ba8; }
-
-html[data-color-mode='light'] .optical-defense__palette button {
-  border-color: #d3d9e3;
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__palette button svg,
-html[data-color-mode='light'] .optical-defense__device-title i {
-  color: var(--tool-color);
-}
-
-html[data-color-mode='light'] .optical-defense__palette button:hover,
-html[data-color-mode='light'] .optical-defense__palette button.is-active {
-  background: color-mix(in srgb, var(--tool-color) 9%, #fff);
-}
-
-html[data-color-mode='light'] .optical-defense__field,
-html[data-color-mode='light'] .optical-defense__builder {
-  background: #e7e9ee;
-}
-
-html[data-color-mode='light'] .optical-defense__canvas-shell,
-html[data-color-mode='light'] .optical-defense__builder-canvas-shell {
-  border-color: #d3d9e3;
-  background: #e6e9ef;
-  box-shadow: inset 0 0 24px rgba(23, 26, 34, 0.06);
-}
-
-html[data-color-mode='light'] .optical-defense__field-status {
-  background: #f3f4f7;
-}
-
-html[data-color-mode='light'] .optical-defense__field-status > span {
-  border-color: rgba(36, 83, 199, 0.38);
-}
-
-html[data-color-mode='light'] .optical-defense__field-status > span.is-running {
-  border-color: rgba(176, 118, 12, 0.45);
-}
-
-html[data-color-mode='light'] .optical-defense__empty-inspector dl div,
-html[data-color-mode='light'] .optical-defense__device dl div,
-html[data-color-mode='light'] .optical-defense__result dl div {
-  background: rgba(23, 26, 34, 0.05);
-}
-
-html[data-color-mode='light'] .optical-defense__device-title i {
-  background: color-mix(in srgb, var(--tool-color) 8%, #fff);
-}
-
-html[data-color-mode='light'] .optical-defense__device select,
-html[data-color-mode='light'] .optical-defense__angle-control button,
-html[data-color-mode='light'] .optical-defense__angle-control input,
-html[data-color-mode='light'] .optical-defense__number-field input,
-html[data-color-mode='light'] .optical-defense__builder-size input {
-  color: var(--optical-text);
-  border-color: #d3d9e3;
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__segments button:hover:not(:disabled) {
-  color: #2146a3;
-  background: #eef1f6;
-}
-
-html[data-color-mode='light'] .optical-defense__segments button.is-active {
-  color: #2453c7;
-  border-color: rgba(36, 83, 199, 0.42);
-  background: rgba(36, 83, 199, 0.08);
-}
-
-html[data-color-mode='light'] .optical-defense__sensor-state.is-triggered,
-html[data-color-mode='light'] .optical-defense__snap-action.is-active,
-html[data-color-mode='light'] .optical-defense__console-tabs button.is-active {
-  color: #fffefa;
-}
-
-html[data-color-mode='light'] .optical-defense__device-actions button,
-html[data-color-mode='light'] .optical-defense__snap-action,
-html[data-color-mode='light'] .optical-defense__capacitor button,
-html[data-color-mode='light'] .optical-defense__result button,
-html[data-color-mode='light'] .optical-defense__restore-settings {
-  background: #eef0f4;
-}
-
-html[data-color-mode='light'] .optical-defense__snap-action {
-  border-color: rgba(36, 83, 199, 0.36);
-}
-
-html[data-color-mode='light'] .optical-defense__snap-action.is-active {
-  background: var(--optical-mint);
-}
-
-html[data-color-mode='light'] .optical-defense__capacitor {
-  border-color: rgba(176, 118, 12, 0.3);
-  background: rgba(176, 118, 12, 0.07);
-}
-
-html[data-color-mode='light'] .optical-defense__capacitor > i {
-  background: #d3d9e3;
-}
-
-html[data-color-mode='light'] .optical-defense__collector {
-  border-color: rgba(217, 147, 10, 0.32);
-  background: rgba(217, 147, 10, 0.07);
-}
-
-html[data-color-mode='light'] .optical-defense__overlay {
-  background: rgba(23, 26, 34, 0.48);
-}
-
-html[data-color-mode='light'] .optical-defense__modal,
-html[data-color-mode='light'] .optical-defense__reset-menu {
-  border-color: #d3d9e3;
-  background: #fff;
-  box-shadow: 0 24px 72px rgba(23, 26, 34, 0.24), inset 0 1px #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__level-grid button {
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__level-grid button:hover,
-html[data-color-mode='light'] .optical-defense__level-grid button:focus-visible {
-  background: #eef1f6;
-}
-
-html[data-color-mode='light'] .optical-defense__level-grid button.is-current {
-  background: #e7edf9;
-}
-
-html[data-color-mode='light'] .optical-defense__keyboard-grid button {
-  background: rgba(36, 83, 199, 0.12);
-}
-
-html[data-color-mode='light'] .optical-defense__keyboard-grid button:focus-visible {
-  border-color: #2146a3;
-  outline-color: var(--optical-yellow);
-  box-shadow: 0 0 0 6px rgba(36, 83, 199, 0.18);
-}
-
-html[data-color-mode='light'] .optical-defense__manual-tabs button,
-html[data-color-mode='light'] .optical-defense__manual-footer,
-html[data-color-mode='light'] .optical-defense__console-tabs {
-  background: #f1f3f7;
-}
-
-html[data-color-mode='light'] .optical-defense__manual-tabs button.is-active {
-  color: #fffefa;
-  background: var(--optical-yellow);
-}
-
-html[data-color-mode='light'] .optical-defense__builder-head,
-html[data-color-mode='light'] .optical-defense__console-section,
-html[data-color-mode='light'] .optical-defense__defeat-custom .optical-defense__defeat-options button {
-  background: #fbfbfd;
-}
-
-html[data-color-mode='light'] .optical-defense__builder-size button,
-html[data-color-mode='light'] .optical-defense__console-reset,
-html[data-color-mode='light'] .optical-defense__confirm-actions button {
-  background: #e7e9ee;
-}
-
-html[data-color-mode='light'] .optical-defense__builder-hint {
-  padding: 5px 7px;
-  border: 1px solid #d3d9e3;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.82);
-}
-
-html[data-color-mode='light'] .optical-defense__builder-hint .is-road i { background: #e9e1cb; border-color: rgba(183, 162, 122, 0.55); }
-html[data-color-mode='light'] .optical-defense__builder-hint .is-entrance i { background: #1e8f5a; }
-html[data-color-mode='light'] .optical-defense__builder-hint .is-core i { background: #c98a06; }
-html[data-color-mode='light'] .optical-defense__builder-hint .is-hole i { background: #f0f2f7; border-color: rgba(140, 150, 168, 0.55); }
-
-html[data-color-mode='light'] .optical-defense__builder-tools button {
-  border-color: #d3d9e3;
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__builder-tools button:hover,
-html[data-color-mode='light'] .optical-defense__builder-tools button.is-active {
-  background: color-mix(in srgb, var(--optical-mint) 7%, #fff);
-}
-
-html[data-color-mode='light'] .optical-defense__builder-error {
-  background: rgba(192, 53, 47, 0.08);
-}
-
-html[data-color-mode='light'] .optical-defense__builder-error.is-valid {
-  background: rgba(36, 83, 199, 0.08);
-}
-
-html[data-color-mode='light'] .optical-defense__reset-menu button:hover {
-  background: rgba(36, 83, 199, 0.08);
-}
-
-html[data-color-mode='light'] .optical-defense__console-tabs button.is-active {
-  background: var(--optical-mint);
-}
-
-html[data-color-mode='light'] .optical-defense__number-field input:focus {
-  border-color: var(--optical-mint);
-}
-
-html[data-color-mode='light'] .optical-defense__enemy-multiselect button {
-  background: #fff;
-}
-
-html[data-color-mode='light'] .optical-defense__enemy-multiselect button.is-active {
-  border-color: var(--optical-mint);
-  color: #2146a3;
-  background: rgba(36, 83, 199, 0.1);
-}
-
-html[data-color-mode='light'] .optical-defense__curve-field canvas {
-  background: #f1f3f7;
-}
-
-html[data-color-mode='light'] .optical-defense__wave-card {
-  background: #f1f3f7;
-}
-
-html[data-color-mode='light'] .optical-defense__add-wave {
-  border-color: rgba(36, 83, 199, 0.48);
-}
-
-html[data-color-mode='light'] .optical-defense__defeat-custom .optical-defense__defeat-options button:hover {
-  background: #eef0f4;
-}
-
-html[data-color-mode='light'] .optical-defense__confirm-actions button.is-danger {
-  color: #fffefa;
-  background: var(--optical-red);
-}
-
-html[data-color-mode='light'] .optical-defense__top-actions .is-primary:hover:not(:disabled),
-html[data-color-mode='light'] .optical-defense__snap-action.is-active:hover:not(:disabled) {
-  color: #fffefa;
-  border-color: var(--optical-mint);
-  background: var(--optical-mint);
+  .optical-defense *, .optical-defense *::before, .optical-defense *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

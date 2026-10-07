@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Brush, Check, Eraser, Flag, Hexagon, Play, RotateCcw, Target, Triangle } from 'lucide-react'
+import { Brush, Check, Eraser, Flag, Hexagon, Play, RotateCcw, Target, Triangle } from './PixelControls'
+import { CORE_SPRITE, PIXEL_INK, pixelRuns } from './pixelArt'
 
 import {
   BOARD_HEIGHT, BOARD_WIDTH, cellCenter, cellFromPoint, cellKey, computeGrid, CUSTOM_GRID_LIMITS,
@@ -65,98 +66,45 @@ function removeCell(config: CustomLevelConfig, cell: GridCell): CustomLevelConfi
   }
 }
 
-const BUILDER_PALETTES = {
-  dark: {
-    background: '#0b100f',
-    grid: 'rgba(81,97,92,0.2)',
-    road: '#292620',
-    roadBorder: 'rgba(166,141,97,0.22)',
-    route: 'rgba(235,202,132,0.55)',
-    entranceWash: 'rgba(94,225,164,0.16)',
-    entranceFill: 'rgba(94,225,164,0.5)',
-    entranceMarker: 'rgba(94,225,164,0.55)',
-    entranceLine: '#63e9ad',
-    coreWash: 'rgba(224,174,109,0.14)',
-    coreFill: 'rgba(224,174,109,0.45)',
-    coreMarker: 'rgba(224,174,109,0.5)',
-    coreLine: '#e0ae6d',
-    hole: '#142321',
-    holeBorder: 'rgba(66,83,78,0.4)',
-  },
-  light: {
-    background: '#f7f8fb',
-    grid: 'rgba(140,150,168,0.34)',
-    road: '#e9e1cb',
-    roadBorder: 'rgba(183,162,122,0.5)',
-    route: 'rgba(161,138,92,0.72)',
-    entranceWash: 'rgba(30,143,90,0.16)',
-    entranceFill: 'rgba(30,143,90,0.4)',
-    entranceMarker: 'rgba(30,143,90,0.5)',
-    entranceLine: '#1e8f5a',
-    coreWash: 'rgba(201,138,6,0.16)',
-    coreFill: 'rgba(201,138,6,0.36)',
-    coreMarker: 'rgba(201,138,6,0.48)',
-    coreLine: '#c98a06',
-    hole: '#f0f2f7',
-    holeBorder: 'rgba(140,150,168,0.5)',
-  },
-} as const
-
-function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevelConfig, grid: CustomGrid, colorMode: OpticalColorMode) {
+function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevelConfig, grid: CustomGrid) {
   const ctx = canvas?.getContext('2d')
   if (!ctx) return
-  const palette = BUILDER_PALETTES[colorMode]
   const { cellSize: cs, columns, rows, originX, originY } = grid
   const half = cs / 2
+  ctx.imageSmoothingEnabled = false
   ctx.clearRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT)
-  ctx.fillStyle = palette.background
+  ctx.fillStyle = '#0b0b0b'
   ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT)
-
-  ctx.strokeStyle = palette.grid
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  for (let column = 0; column <= columns; column += 1) {
-    ctx.moveTo(originX + column * cs, originY)
-    ctx.lineTo(originX + column * cs, originY + rows * cs)
+  ctx.fillStyle = '#141414'
+  ctx.fillRect(originX, originY, columns * cs, rows * cs)
+  ctx.fillStyle = '#333333'
+  for (let column = 0; column <= columns; column++) for (let row = 0; row <= rows; row++) {
+    ctx.fillRect(Math.round(originX + column * cs), Math.round(originY + row * cs), 2, 2)
   }
-  for (let row = 0; row <= rows; row += 1) {
-    ctx.moveTo(originX, originY + row * cs)
-    ctx.lineTo(originX + columns * cs, originY + row * cs)
-  }
-  ctx.stroke()
 
   const routeSet = new Set(config.pathCells.map(cellKey))
-  const drawRoadCell = (cell: GridCell) => {
-    const point = cellCenter(grid, cell)
-    ctx.fillRect(point.x - half, point.y - half, cs, cs)
-  }
-  ctx.fillStyle = palette.road
-  routeSet.forEach((key) => drawRoadCell(key.split(':').map(Number) as unknown as GridCell))
-  ctx.strokeStyle = palette.roadBorder
-  ctx.strokeRect(originX, originY, columns * cs, rows * cs)
+  ctx.fillStyle = '#292929'
   routeSet.forEach((key) => {
     const point = cellCenter(grid, key.split(':').map(Number) as unknown as GridCell)
-    ctx.strokeRect(point.x - half, point.y - half, cs, cs)
+    ctx.fillRect(point.x - half, point.y - half, cs, cs)
   })
-
-  // 道路延伸到入口 / 核心所在边缘。
-  const fillEdgeStrip = (cell: GridCell, color: string) => {
+  const fillEdgeStrip = (cell: GridCell) => {
     const point = cellCenter(grid, cell)
-    ctx.fillStyle = color
+    ctx.fillStyle = '#292929'
     if (cell[0] === 0) ctx.fillRect(0, point.y - half, originX, cs)
     else if (cell[0] === columns - 1) ctx.fillRect(originX + columns * cs, point.y - half, BOARD_WIDTH - originX - columns * cs, cs)
     else if (cell[1] === 0) ctx.fillRect(point.x - half, 0, cs, originY)
     else ctx.fillRect(point.x - half, originY + rows * cs, cs, BOARD_HEIGHT - originY - rows * cs)
   }
-  if (config.entranceCell) fillEdgeStrip(config.entranceCell, palette.entranceWash)
-  if (config.coreCell) fillEdgeStrip(config.coreCell, palette.coreWash)
+  if (config.entranceCell) fillEdgeStrip(config.entranceCell)
+  if (config.coreCell) fillEdgeStrip(config.coreCell)
 
-  // 敌人行进折线（保留自交顺序）。
   const polyline = orderedPathCells(config)
   if (polyline.length >= 2) {
-    ctx.strokeStyle = palette.route
-    ctx.lineWidth = 3
-    ctx.lineJoin = 'round'
+    ctx.strokeStyle = '#777777'
+    ctx.lineWidth = 2
+    ctx.lineJoin = 'miter'
+    ctx.setLineDash([3, 14])
     ctx.beginPath()
     polyline.forEach((cell, index) => {
       const point = cellCenter(grid, cell)
@@ -164,55 +112,52 @@ function drawBuilderCanvas(canvas: HTMLCanvasElement | null, config: CustomLevel
       else ctx.lineTo(point.x, point.y)
     })
     ctx.stroke()
+    ctx.setLineDash([])
   }
 
-  const drawEdgeMarker = (cell: GridCell, color: string) => {
-    const edge = edgePointFor(grid, cell)
+  const bracket = (x: number, y: number, radius: number, color: string) => {
     ctx.fillStyle = color
-    if (edge.x <= 1) ctx.fillRect(0, edge.y - 16, 16, 32)
-    else if (edge.x >= BOARD_WIDTH - 1) ctx.fillRect(BOARD_WIDTH - 16, edge.y - 16, 16, 32)
-    else if (edge.y <= 1) ctx.fillRect(edge.x - 16, 0, 32, 16)
-    else ctx.fillRect(edge.x - 16, BOARD_HEIGHT - 16, 32, 16)
+    for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+      const px = Math.round(x + sx * radius)
+      const py = Math.round(y + sy * radius)
+      ctx.fillRect(px - (sx > 0 ? 3 : 0), py, 5, 2)
+      ctx.fillRect(px, py - (sy > 0 ? 3 : 0), 2, 5)
+    }
+  }
+  for (let row = 0; row < rows; row++) for (let column = 0; column < columns; column++) {
+    const cell: GridCell = [column, row]
+    if (routeSet.has(cellKey(cell))) continue
+    const point = cellCenter(grid, cell)
+    bracket(point.x, point.y, Math.min(25, cs * 0.3), '#3b3b3b')
+    ctx.fillStyle = '#444444'
+    ctx.fillRect(Math.round(point.x) - 2, Math.round(point.y) - 2, 4, 4)
   }
   if (config.entranceCell) {
     const point = cellCenter(grid, config.entranceCell)
-    ctx.fillStyle = palette.entranceFill
-    ctx.fillRect(point.x - half, point.y - half, cs, cs)
-    ctx.strokeStyle = palette.entranceLine
-    ctx.lineWidth = 3
-    ctx.strokeRect(point.x - half + 2, point.y - half + 2, cs - 4, cs - 4)
-    drawEdgeMarker(config.entranceCell, palette.entranceMarker)
+    const edge = edgePointFor(grid, config.entranceCell)
+    bracket(point.x, point.y, Math.min(25, half - 5), '#eeeeee')
+    const dx = Math.sign(point.x - edge.x)
+    const dy = Math.sign(point.y - edge.y)
+    ctx.fillStyle = '#eeeeee'
+    for (let i = 0; i < 3; i++) for (let k = 0; k < 3; k++) {
+      const x = edge.x + dx * (10 + i * 10 + k * 3)
+      const y = edge.y + dy * (10 + i * 10 + k * 3)
+      ctx.fillRect(Math.round(x - dy * (k - 1) * 3), Math.round(y + dx * (k - 1) * 3), 3, 3)
+      ctx.fillRect(Math.round(x + dy * (k - 1) * 3), Math.round(y - dx * (k - 1) * 3), 3, 3)
+    }
+    ctx.font = '10px Consolas, monospace'
+    ctx.textAlign = 'center'
+    ctx.fillText('IN', point.x, point.y + Math.min(half - 4, 28))
   }
   if (config.coreCell) {
     const point = cellCenter(grid, config.coreCell)
-    ctx.fillStyle = palette.coreFill
-    ctx.fillRect(point.x - half, point.y - half, cs, cs)
-    ctx.strokeStyle = palette.coreLine
-    ctx.lineWidth = 3
-    ctx.strokeRect(point.x - half + 2, point.y - half + 2, cs - 4, cs - 4)
-    ctx.lineWidth = 1.5
-    ctx.beginPath()
-    ctx.arc(point.x, point.y, Math.min(cs * 0.42, 22), 0, Math.PI * 2)
-    ctx.stroke()
-    drawEdgeMarker(config.coreCell, palette.coreMarker)
-  }
-
-  // 设备孔位（非道路格）。
-  const plate = Math.max(24, Math.min(cs - 6, 46))
-  ctx.fillStyle = palette.hole
-  for (let row = 0; row < rows; row += 1) {
-    for (let column = 0; column < columns; column += 1) {
-      const cell: GridCell = [column, row]
-      if (routeSet.has(cellKey(cell))) continue
-      const point = cellCenter(grid, cell)
-      ctx.fillRect(point.x - plate / 2, point.y - plate / 2, plate, plate)
-      ctx.strokeStyle = palette.holeBorder
-      ctx.lineWidth = 1
-      ctx.strokeRect(point.x - plate / 2, point.y - plate / 2, plate, plate)
-    }
+    const unit = cs >= 65 ? 3 : cs > 38 ? 2 : 1
+    pixelRuns(CORE_SPRITE).forEach(({ x, y, width, ink }) => {
+      ctx.fillStyle = ink === 'c' ? '#ffffff' : PIXEL_INK[ink as keyof typeof PIXEL_INK]
+      ctx.fillRect(Math.round(point.x) + (x - 8) * unit, Math.round(point.y) + (y - 8) * unit, width * unit, unit)
+    })
   }
 }
-
 export function CustomLevelBuilder({ config, colorMode, onChange, onStart }: {
   config: CustomLevelConfig
   colorMode: OpticalColorMode
@@ -230,7 +175,7 @@ export function CustomLevelBuilder({ config, colorMode, onChange, onStart }: {
   useEffect(() => { latestConfigRef.current = config }, [config])
 
   useEffect(() => {
-    drawBuilderCanvas(canvasRef.current, config, grid, colorMode)
+    drawBuilderCanvas(canvasRef.current, config, grid)
   }, [colorMode, config, grid])
 
   const toCanvasPoint = (event: React.PointerEvent<HTMLCanvasElement>) => {

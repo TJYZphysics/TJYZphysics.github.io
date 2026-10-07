@@ -1,13 +1,14 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  BatteryCharging, BookOpen, Check, ChevronRight, CircleDot, Coins, Combine, Crosshair, DoorOpen, Filter,
-  Flame, Gauge, HeartPulse, HelpCircle, Layers3, Lightbulb, Link2, ListFilter, Pause, Play, RadioTower,
-  Minus, Plus, RefreshCw, RotateCw, ScanLine, Settings, Shield, SlidersHorizontal, Snowflake, Sparkles,
-  SplitSquareHorizontal, SquareStack, Trash2, Triangle, Waves, X, Zap,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+  BatteryCharging, BookOpen, Check, ChevronRight, Coins, Gauge, HeartPulse, HelpCircle, Layers3,
+  Link2, ListFilter, Pause, Play, Minus, Plus, RefreshCw, RotateCw, Settings, Shield,
+  SlidersHorizontal, Sparkles, Trash2, Waves, X, Zap,
+} from './PixelControls'
 
 import './opticalDefense.css'
+import { CorePixelIcon, DevicePixelIcon, EnemyPixelIcon } from './PixelIcon'
+import { sourceAccent } from './pixelArt'
+import { useOpticalSound } from './sound'
 import { OPTICAL_DEFENSE_LEVELS } from './levels'
 import type { OpticalDefenseScene, SceneSnapshot } from './OpticalDefenseScene'
 import {
@@ -27,51 +28,37 @@ import type { CustomLevelConfig } from './customLevel'
 import { CustomLevelBuilder } from './CustomLevelBuilder'
 import { CustomLevelConsole } from './CustomLevelConsole'
 import { useOpticalColorMode } from './colorMode'
-import type { OpticalColorMode } from './colorMode'
-import type { DeviceKind, DevicePlacement, Point, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
+import type { DeviceKind, DevicePlacement, EnemyKind, Point, RgbPower, SaveData, SensorAction, SensorChannel, TargetStrategy } from './types'
 
 type ToolDefinition = {
   kind: DeviceKind
   name: string
   shortName: string
   role: string
-  icon: LucideIcon
-  color?: string
 }
 
 const TOOLS: ToolDefinition[] = [
-  { kind: 'source-red', name: '红光源', shortName: '红光', role: '50W', icon: CircleDot, color: '#ff5b64' },
-  { kind: 'source-green', name: '绿光源', shortName: '绿光', role: '75W', icon: CircleDot, color: '#48e890' },
-  { kind: 'source-blue', name: '蓝光源', shortName: '蓝光', role: '100W', icon: CircleDot, color: '#55a8ff' },
-  { kind: 'mirror', name: '平面镜', shortName: '镜面', role: '反射', icon: SquareStack },
-  { kind: 'splitter', name: '分束器', shortName: '分束', role: '1-3 路', icon: SplitSquareHorizontal },
-  { kind: 'prism-splitter', name: '棱镜分束器', shortName: '棱镜', role: 'RGB 色散', icon: Triangle },
-  { kind: 'combiner', name: '合束器', shortName: '合束', role: 'RGB', icon: Combine },
-  { kind: 'filter', name: '滤光片', shortName: '滤色', role: '通道', icon: Filter },
-  { kind: 'collector', name: '能量收集器', shortName: '收集器', role: '回收', icon: Combine },
-  { kind: 'bulb', name: '灯泡', shortName: '灯泡', role: '广域', icon: Lightbulb },
-  { kind: 'laser-emitter', name: '激光发射器', shortName: '激光', role: '单体', icon: Crosshair },
-  { kind: 'radiation-source', name: '辐射源', shortName: '辐射', role: '范围', icon: RadioTower },
-  { kind: 'frost-tower', name: '寒冰之匣', shortName: '寒冰', role: '减速', icon: Snowflake },
-  { kind: 'brazier', name: '火焰杯', shortName: '火焰', role: '燃烧', icon: Flame },
-  { kind: 'accelerator', name: '粒子加速器', shortName: '加速器', role: '蓄力', icon: Gauge },
-  { kind: 'shutter', name: '光闸', shortName: '光闸', role: '开关', icon: DoorOpen },
-  { kind: 'photo-sensor', name: '光电传感器', shortName: '传感器', role: '控制', icon: ScanLine },
-  { kind: 'capacitor', name: '储能电容', shortName: '电容', role: '爆破', icon: BatteryCharging },
+  { kind: 'source-red', name: '红光源', shortName: '红光', role: '50W' },
+  { kind: 'source-green', name: '绿光源', shortName: '绿光', role: '75W' },
+  { kind: 'source-blue', name: '蓝光源', shortName: '蓝光', role: '100W' },
+  { kind: 'mirror', name: '平面镜', shortName: '镜面', role: '反射' },
+  { kind: 'splitter', name: '分束器', shortName: '分束', role: '1-3 路' },
+  { kind: 'prism-splitter', name: '棱镜分束器', shortName: '棱镜', role: 'RGB 色散' },
+  { kind: 'combiner', name: '合束器', shortName: '合束', role: 'RGB' },
+  { kind: 'filter', name: '滤光片', shortName: '滤色', role: '通道' },
+  { kind: 'collector', name: '能量收集器', shortName: '收集器', role: '回收' },
+  { kind: 'bulb', name: '灯泡', shortName: '灯泡', role: '广域' },
+  { kind: 'laser-emitter', name: '激光发射器', shortName: '激光', role: '单体' },
+  { kind: 'radiation-source', name: '辐射源', shortName: '辐射', role: '范围' },
+  { kind: 'frost-tower', name: '寒冰之匣', shortName: '寒冰', role: '减速' },
+  { kind: 'brazier', name: '火焰杯', shortName: '火焰', role: '燃烧' },
+  { kind: 'accelerator', name: '粒子加速器', shortName: '加速器', role: '蓄力' },
+  { kind: 'shutter', name: '光闸', shortName: '光闸', role: '开关' },
+  { kind: 'photo-sensor', name: '光电传感器', shortName: '传感器', role: '控制' },
+  { kind: 'capacitor', name: '储能电容', shortName: '电容', role: '爆破' },
 ]
 
-// 亮色模式的仪器强调色（与 OpticalDefenseScene 的 LIGHT_DEVICE_COLORS 一致），
-// 用在仪器仓按钮、检查器图标与场景仪器环上，保证界面与画布同族同色。
-const LIGHT_ACCENTS: Partial<Record<DeviceKind, string>> = {
-  'source-red': '#dd2f3a', 'source-green': '#0f9d57', 'source-blue': '#1f6feb', mirror: '#3a6bcf',
-  splitter: '#0ba5cd', 'prism-splitter': '#5b43cf', combiner: '#d08b0c', filter: '#0f9d8b', collector: '#d9930a', bulb: '#d98610',
-  'laser-emitter': '#e3383e', 'radiation-source': '#9b47d6', 'frost-tower': '#2f7fd6', brazier: '#e0631f',
-  accelerator: '#c79b10', shutter: '#38445a', 'photo-sensor': '#1f9d6a', capacitor: '#cf8608',
-}
-
-function toolAccent(kind: DeviceKind, colorMode: OpticalColorMode): string | undefined {
-  return colorMode === 'light' ? LIGHT_ACCENTS[kind] ?? TOOLS.find((tool) => tool.kind === kind)?.color : TOOLS.find((tool) => tool.kind === kind)?.color
-}
+const toolAccent = sourceAccent
 
 const TARGET_OPTIONS: Array<{ value: TargetStrategy; label: string }> = [
   { value: 'first', label: '最前' }, { value: 'last', label: '最后' }, { value: 'highest-health', label: '最高血量' },
@@ -102,24 +89,6 @@ const CONFIRM_META: Record<ConfirmKind, { title: string; message: string; confir
 function initialLevelId() {
   const stored = Number(window.sessionStorage.getItem('tjyz-optical-current-level'))
   return Number.isInteger(stored) && stored >= 1 && stored <= OPTICAL_DEFENSE_LEVELS.length ? stored : 1
-}
-
-function useOpticalSound(enabled: boolean) {
-  const contextRef = useRef<AudioContext | null>(null)
-  return useCallback((frequency = 520, duration = 0.055) => {
-    if (!enabled || typeof AudioContext === 'undefined') return
-    const context = contextRef.current ?? new AudioContext()
-    contextRef.current = context
-    const oscillator = context.createOscillator()
-    const gain = context.createGain()
-    oscillator.type = 'sine'
-    oscillator.frequency.value = frequency
-    gain.gain.setValueAtTime(0.035, context.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration)
-    oscillator.connect(gain).connect(context.destination)
-    oscillator.start()
-    oscillator.stop(context.currentTime + duration)
-  }, [enabled])
 }
 
 export function OpticalDefenseGame() {
@@ -163,7 +132,7 @@ export function OpticalDefenseGame() {
   const tutorialSnappedRef = useRef(false)
   const tutorialWaveStartedRef = useRef(false)
   const tutorialFirstKillRef = useRef(false)
-  const beep = useOpticalSound(save.settings.sound)
+  const { play: beep, unlock: unlockSound } = useOpticalSound(save.settings.sound)
   const availableDevices = level.availableDevices
   const selectedPlacement = battle.placements.find((placement) => placement.id === selectedId) ?? null
   const liveEnemies = battle.enemies.filter((enemy) => !enemy.dead && !enemy.escaped).length
@@ -263,6 +232,15 @@ export function OpticalDefenseGame() {
         onHole: (holeId) => callbacksRef.current.onHole(holeId),
         onDevice: (id) => callbacksRef.current.onDevice(id),
         onReady: () => setSceneReady(true),
+        onSound: beep,
+        onEvent: (event) => {
+          // Match the transient effect and sound to the rendered event, which can
+          // occur between the UI's less frequent resource-panel updates.
+          if (event.type === 'explosion') {
+            setMessage('电容释放完成，安装孔已恢复。')
+            beep('release')
+          }
+        },
       })
       const snapshot = sceneSnapshotRef.current
       if (snapshot) scene.setSnapshot(snapshot)
@@ -271,8 +249,8 @@ export function OpticalDefenseGame() {
         parent: stageRef.current,
         width: LAB_WIDTH,
         height: LAB_HEIGHT,
-        backgroundColor: '#071014',
-        render: { antialias: true, pixelArt: false, roundPixels: false },
+        backgroundColor: '#0b0b0b',
+        render: { antialias: false, pixelArt: true, roundPixels: true },
         scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
         scene,
         banner: false,
@@ -287,7 +265,7 @@ export function OpticalDefenseGame() {
       sceneRef.current = null
       game?.destroy(true)
     }
-  }, [builderOpen, levelId])
+  }, [beep, builderOpen, levelId])
 
   callbacksRef.current.onHole = (holeId: string) => {
     if (snapOutput) {
@@ -297,14 +275,14 @@ export function OpticalDefenseGame() {
     const result = placeDevice(battleRef.current, level, selectedTool, holeId, availableDevices)
     if (!result.ok) {
       setMessage(result.reason)
-      beep(180, 0.09)
+      beep('error')
       return
     }
     commitBattle(result.state)
     tutorialPlacementKindsRef.current.add(selectedTool)
     setSelectedId(result.state.placements.at(-1)?.id ?? null)
     setMessage(`${TOOLS.find((tool) => tool.kind === selectedTool)?.name} 已接入光路。`)
-    beep(selectedTool.startsWith('source-') ? 720 : 470)
+    beep(selectedTool.startsWith('source-') ? 'deploy' : ['mirror', 'splitter', 'prism-splitter', 'filter'].includes(selectedTool) ? 'glass' : 'deploy')
   }
   callbacksRef.current.onDevice = (id: string) => {
     if (selectedTool === 'photo-sensor' && !snapOutput) {
@@ -314,7 +292,7 @@ export function OpticalDefenseGame() {
         commitBattle(result.state)
         setSelectedId(id)
         setMessage('传感器已附着，控制菜单已并入该仪器。')
-        beep(680, 0.08)
+        beep('glass')
       }
       return
     }
@@ -336,7 +314,7 @@ export function OpticalDefenseGame() {
       setSelectedId(snapOutput.placementId)
       setSnapOutput(null)
       setMessage(`输出 ${snapOutput.outputIndex + 1} 已吸附至${TOOLS.find((tool) => tool.kind === target?.kind)?.name ?? '目标设备'}。`)
-      beep(740, 0.08)
+      beep('reflect')
       return
     }
     setSelectedId(id)
@@ -404,18 +382,23 @@ export function OpticalDefenseGame() {
       if (event.type === 'kill') {
         tutorialFirstKillRef.current = true
         if (!sawExplosion) nextMessage = `光束命中：容量 +${event.value}W。`
-        beep(880, 0.07)
+        beep('hit')
       } else if (event.type === 'explosion') {
         sawExplosion = true
         nextMessage = '电容释放完成，安装孔已恢复。'
-        beep(110, 0.22)
+        beep('release')
       } else {
         if (!sawExplosion) nextMessage = '敌人突破光路，核心生命降低。'
-        beep(140, 0.12)
+        beep('escape')
       }
     })
     if (nextMessage) setMessage(nextMessage)
   }, [battle.events, beep])
+
+  useEffect(() => {
+    if (battle.phase === 'victory') beep('victory')
+    if (battle.phase === 'defeat') beep('defeat')
+  }, [battle.phase, beep])
 
   useEffect(() => {
     if (battle.phase !== 'victory') return
@@ -481,7 +464,7 @@ export function OpticalDefenseGame() {
     battleRef.current = next
     commitBattle(next)
     setMessage(current.phase === 'running' ? '光场已暂停，可调整设备。' : current.phase === 'paused' ? '光场恢复。' : '敌人波次已进入路径。')
-    beep(current.phase === 'running' ? 330 : 610)
+    beep(current.phase === 'running' ? 'pause' : 'start')
   }
 
   const resetLevel = () => {
@@ -645,11 +628,16 @@ export function OpticalDefenseGame() {
   }, [])
 
   return (
-    <section className="optical-defense" aria-labelledby="optical-defense-title" data-testid="optical-defense">
+    <section className="optical-defense" aria-labelledby="optical-defense-title" data-testid="optical-defense"
+      onPointerDownCapture={unlockSound} onKeyDownCapture={unlockSound}
+      onClick={(event) => {
+        const button = (event.target as HTMLElement).closest('button')
+        if (button && button.dataset.testid !== 'wave-control' && (button.closest('.optical-defense__modal') || button.closest('.optical-defense__top-actions'))) beep('select')
+      }}>
       <header className="optical-defense__topbar">
         <div className="optical-defense__identity">
-          <span>OPTICAL DEFENSE</span>
-          <h2 id="optical-defense-title">光路塔防</h2>
+          <CorePixelIcon />
+          <div><span>OPTICAL DEFENSE</span><h2 id="optical-defense-title">光路塔防</h2></div>
         </div>
         <button className="optical-defense__level-button" type="button" onClick={() => setShowLevels(true)} data-testid="open-levels">
           <span>LEVEL</span><strong>{String(level.id).padStart(2, '0')}</strong><ChevronRight aria-hidden="true" />
@@ -690,7 +678,7 @@ export function OpticalDefenseGame() {
       {!builderOpen && <div className="optical-defense__mission">
         <div><span>LEVEL {String(level.id).padStart(2, '0')}</span><strong>{level.title}</strong></div>
         <p>{level.lesson}</p>
-        <div className="optical-defense__threats" aria-label="本关敌人编成">{Object.entries(enemyRoster).map(([kind, count]) => <span key={kind} className={`is-${kind}`}>{({ normal: '常规', fast: '高速', armored: '重甲', resistant: '抗性', boss: '首领' } as Record<string, string>)[kind]} ×{count}</span>)}</div>
+        <div className="optical-defense__threats" aria-label="本关敌人编成">{Object.entries(enemyRoster).map(([kind, count]) => <span key={kind} className={`is-${kind}`}><EnemyPixelIcon kind={kind as EnemyKind} />{({ normal: '常规', fast: '高速', armored: '重甲', resistant: '抗性', boss: '首领' } as Record<string, string>)[kind]} ×{count}</span>)}</div>
         <i style={{ width: `${Math.min(100, waveProgress * 100)}%` }} />
       </div>}
 
@@ -704,23 +692,24 @@ export function OpticalDefenseGame() {
         ? <CustomLevelBuilder config={customConfig} colorMode={colorMode} onChange={setCustomConfig} onStart={startCustomLevel} />
         : <div className="optical-defense__workspace">
         <aside className="optical-defense__palette" aria-label="仪器仓">
+          <header><span>BUILD / 仪器仓</span><small>选择后点击安装孔</small></header>
           {toolGroups.map((group) => {
             const available = group.tools.filter((tool) => availableDevices.includes(tool.kind))
             if (!available.length) return null
             return <section key={group.label}><h3>{group.label}</h3><div>
-              {available.map(({ kind, shortName, name, role, icon: Icon, color }) => {
+              {available.map(({ kind, shortName, name, role }) => {
                 const sourcePower = kind.startsWith('source-') ? SOURCE_POWER_W[kind as keyof typeof SOURCE_POWER_W] : null
-                const accent = toolAccent(kind, colorMode)
+                const accent = toolAccent(kind)
                 return <button
                   key={kind}
                   type="button"
                   className={selectedTool === kind ? 'is-active' : ''}
                   style={accent ? { '--tool-color': accent } as React.CSSProperties : undefined}
-                  onClick={() => { setSelectedTool(kind); setSelectedId(null); setMessage(`${name} 已进入安装位。`) }}
+                  onClick={() => { setSelectedTool(kind); setSelectedId(null); setMessage(`${name} 已进入安装位。`); beep('select') }}
                   aria-pressed={selectedTool === kind}
                   title={`${name} · ${sourcePower ? `${sourcePower}W` : `${DEVICE_COSTS[kind]} 金币`}`}
                   data-testid={`tool-${kind}`}
-                ><Icon aria-hidden="true" /><span>{shortName}</span><small>{sourcePower ? role : `¤${DEVICE_COSTS[kind]}`}</small></button>
+                ><DevicePixelIcon kind={kind} /><span>{shortName}</span><small>{sourcePower ? role : `¤${DEVICE_COSTS[kind]}`}</small></button>
               })}
             </div></section>
           })}
@@ -733,6 +722,7 @@ export function OpticalDefenseGame() {
           aria-label="光路塔防实验台，使用方向键在安装孔之间移动，回车放置或选择设备"
           onPointerDown={() => workspaceRef.current?.focus()}
         >
+          <div className="optical-defense__field-head"><span>光路阵地</span><span className="optical-defense__spectrum-legend"><i />R<i />G<i />B<span>→</span><i />RGB</span><small>方向键 移动 · ENTER 安装 · R 旋转</small></div>
           <div className="optical-defense__canvas-shell" ref={stageRef} data-testid="optical-canvas" data-scene-ready={sceneReady} aria-busy={!sceneReady}>
             <KeyboardGrid
               holes={level.holes}
@@ -759,23 +749,22 @@ export function OpticalDefenseGame() {
             placement={selectedPlacement}
             phase={battle.phase}
             placements={battle.placements}
-            colorMode={colorMode}
             inputPower={network.deviceInputs.get(selectedPlacement.id)}
             recoveredPower={network.collectorInputs.get(selectedPlacement.id)}
             sensorTriggered={network.sensorTriggeredIds.has(selectedPlacement.id)}
             shutterOpen={network.shutterStates.get(selectedPlacement.id)}
-            onRotate={(amount) => commitBattle((current) => rotateDevice(current, selectedPlacement.id, amount))}
-            onSetRotation={(rotation) => commitBattle((current) => setDeviceRotation(current, selectedPlacement.id, rotation))}
+            onRotate={(amount) => { commitBattle((current) => rotateDevice(current, selectedPlacement.id, amount)); beep('reflect') }}
+            onSetRotation={(rotation) => { commitBattle((current) => setDeviceRotation(current, selectedPlacement.id, rotation)); beep('reflect') }}
             onUpgrade={() => {
               const result = upgradeDevice(battleRef.current, selectedPlacement.id)
               if (!result.ok) setMessage(result.reason)
               else {
                 commitBattle(result.state)
                 setMessage(`${TOOLS.find((tool) => tool.kind === selectedPlacement.kind)?.name} 已升级至 LV.${deviceLevel(selectedPlacement) + 1}。`)
-                beep(820, 0.08)
+                beep('upgrade')
               }
             }}
-            onSell={() => { commitBattle((current) => sellDevice(current, selectedPlacement.id)); setSelectedId(null); setMessage('设备已回收。') }}
+            onSell={() => { commitBattle((current) => sellDevice(current, selectedPlacement.id)); setSelectedId(null); setMessage('设备已回收。'); beep('glass') }}
             onPatch={patchSelected}
             onDetonate={detonate}
             snappingOutput={snapOutput?.placementId === selectedPlacement.id ? snapOutput.outputIndex : null}
@@ -962,7 +951,7 @@ function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }: {
 }
 
 function DeviceInspector({
-  placement, placements, phase, inputPower, recoveredPower, sensorTriggered, shutterOpen, colorMode,
+  placement, placements, phase, inputPower, recoveredPower, sensorTriggered, shutterOpen,
   onRotate, onSetRotation, onUpgrade, onSell, onPatch, onDetonate, snappingOutput, onSnap,
 }: {
   placement: DevicePlacement
@@ -972,7 +961,6 @@ function DeviceInspector({
   recoveredPower?: RgbPower
   sensorTriggered: boolean
   shutterOpen?: boolean
-  colorMode: OpticalColorMode
   onRotate: (amount: number) => void
   onSetRotation: (rotation: number) => void
   onUpgrade: () => void
@@ -983,7 +971,6 @@ function DeviceInspector({
   onSnap: (outputIndex: number) => void
 }) {
   const tool = TOOLS.find((item) => item.kind === placement.kind)!
-  const Icon = tool.icon
   const editable = isEditable(phase)
   const ratios = placement.splitRatios ?? [0.5, 0.5]
   const sourceInput = placement.kind.startsWith('source-') ? sourceRgb(placement.kind as 'source-red' | 'source-green' | 'source-blue') : undefined
@@ -1009,7 +996,7 @@ function DeviceInspector({
     onPatch({ splitRatios: sum > 1 ? next.map((ratio) => ratio / sum) : next })
   }
   return <div className="optical-defense__device" data-testid="selected-device">
-    <div className="optical-defense__device-title"><i style={{ '--tool-color': toolAccent(placement.kind, colorMode) ?? tool.color } as React.CSSProperties}><Icon /></i><span><strong>{tool.name}</strong><small>{tool.role} · {placement.holeId.toUpperCase()} · LV.{deviceLevel(placement)}</small></span></div>
+    <div className="optical-defense__device-title"><i style={{ '--tool-color': toolAccent(placement.kind) } as React.CSSProperties}><DevicePixelIcon kind={placement.kind} /></i><span><strong>{tool.name}</strong><small>{tool.role} · {placement.holeId.toUpperCase()} · LV.{deviceLevel(placement)}</small></span></div>
     <dl>
       <div><dt>实际输入</dt><dd>{Math.round(totalPower(input))}W</dd></div>
       <div><dt>光谱 RGB</dt><dd>{Math.round(input.r)} / {Math.round(input.g)} / {Math.round(input.b)}</dd></div>

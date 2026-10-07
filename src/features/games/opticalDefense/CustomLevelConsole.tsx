@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Plus, RotateCcw, Settings2, SlidersHorizontal, Trash2, X, Zap } from 'lucide-react'
+import { Plus, RotateCcw, Settings2, SlidersHorizontal, Trash2, X, Zap } from './PixelControls'
 
 import type { Tuning } from './tuning'
 import type { CustomLevelConfig, CustomWaveSpec } from './customLevel'
@@ -94,10 +94,10 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
     const width = canvas.width
     const height = canvas.height
     ctx.clearRect(0, 0, width, height)
-    const isLight = colorMode === 'light'
-    ctx.fillStyle = isLight ? '#f4f5f8' : '#0d1516'
+    ctx.imageSmoothingEnabled = false
+    ctx.fillStyle = '#101010'
     ctx.fillRect(0, 0, width, height)
-    ctx.strokeStyle = isLight ? 'rgba(23,26,34,0.14)' : 'rgba(255,255,255,0.06)'
+    ctx.strokeStyle = '#333333'
     ctx.lineWidth = 1
     for (let i = 0; i < 4; i += 1) {
       const y = height * (i + 1) / 5
@@ -108,7 +108,7 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
     }
     const xOf = (index: number) => values.length <= 1 ? width / 2 : index / (values.length - 1) * (width - 12) + 6
     const yOf = (value: number) => height - (Math.max(CURVE_MIN, Math.min(CURVE_MAX, value)) - CURVE_MIN) / (CURVE_MAX - CURVE_MIN) * (height - 16) - 8
-    ctx.strokeStyle = isLight ? '#2453c7' : '#6fe0ff'
+    ctx.strokeStyle = '#dddddd'
     ctx.lineWidth = 2
     ctx.beginPath()
     values.forEach((value, index) => {
@@ -118,17 +118,12 @@ function StrengthCurve({ values, onChange, label, colorMode }: {
       else ctx.lineTo(x, y)
     })
     ctx.stroke()
-    ctx.fillStyle = isLight ? '#2453c7' : '#6fe0ff'
+    ctx.fillStyle = '#f5f5f5'
     values.forEach((value, index) => {
-      ctx.beginPath()
-      ctx.arc(xOf(index), yOf(value), 5, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.strokeStyle = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.75)'
-      ctx.lineWidth = 1.5
-      ctx.stroke()
+      ctx.fillRect(Math.round(xOf(index)) - 3, Math.round(yOf(value)) - 3, 6, 6)
     })
-    ctx.fillStyle = isLight ? '#171a22' : 'rgba(111,224,255,0.85)'
-    ctx.font = '10px sans-serif'
+    ctx.fillStyle = '#aaaaaa'
+    ctx.font = '10px Consolas, monospace'
     ctx.textAlign = 'center'
     values.forEach((value, index) => {
       ctx.fillText(`${Math.round(value * 100)}%`, xOf(index), yOf(value) - 10)
